@@ -26,16 +26,12 @@
             <!-- Navigation Links -->
             <div class="flex items-center gap-5 text-sm font-medium text-gray-600">
                 <a href="{{ route('feed') }}"
-                   class="hover:text-blue-600 {{ request()->routeIs('feed') ? 'text-green-600' : '' }}">
+                   class="hover:text-green-600 {{ request()->routeIs('feed') ? 'text-green-600' : '' }}">
                     Feed
                 </a>
                 <a href="{{ route('chat.index') }}"
-                   class="hover:text-blue-600 {{ request()->routeIs('chat.*') ? 'text-green-600' : '' }}">
+                   class="hover:text-green-600 {{ request()->routeIs('chat.*') ? 'text-green-600' : '' }}">
                     Messages
-                </a>
-                <a href="{{ route('profile.show', auth()->user()) }}"
-                   class="hover:text-blue-600 {{ request()->routeIs('profile.show') && request()->route('user')?->id === auth()->id() ? 'text-green-600' : '' }}">
-                    Profile
                 </a>
 
                 <!-- Avatar dropdown -->
@@ -46,8 +42,16 @@
                              class="w-8 h-8 rounded-full object-cover border border-gray-300">
                         <span class="hidden sm:block">{{ auth()->user()->name }}</span>
                     </button>
-                    <div x-show="open" @click.away="open = false"
+                    <div x-show="open" 
+                         x-transition:enter="transition ease-out duration-100"
+                         x-transition:enter-start="transform opacity-0 scale-95"
+                         x-transition:enter-end="transform opacity-100 scale-100"
+                         x-transition:leave="transition ease-in duration-75"
+                         x-transition:leave-start="transform opacity-100 scale-100"
+                         x-transition:leave-end="transform opacity-0 scale-95"
+                         @click.away="open = false"
                          class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-100 py-1 text-sm">
+                        <a href="{{ route('profile.show', auth()->user()) }}" class="block px-4 py-2 hover:bg-gray-50">Profile</a>
                         <a href="{{ route('profile.edit') }}" class="block px-4 py-2 hover:bg-gray-50">Settings</a>
                         <hr class="my-1">
                         <form method="POST" action="{{ route('logout') }}">

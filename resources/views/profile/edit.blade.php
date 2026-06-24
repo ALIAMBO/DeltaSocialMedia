@@ -17,7 +17,7 @@
         <div class="relative">
             {{-- Cover strip --}}
             <div id="cover-wrapper"
-                 class="h-36 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-t-2xl overflow-hidden cursor-pointer group">
+                 class="h-36 bg-gradient-to-r from-green-400 to-green-500 rounded-t-2xl overflow-hidden cursor-pointer group">
                 <img id="cover-img"
                      src="{{ $user->profile?->cover_photo ? $user->profile->cover_url : '' }}"
                      alt="Cover"
@@ -61,7 +61,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">Display Name</label>
                     <input type="text" name="name" value="{{ old('name', $user->name) }}" required
                            class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm
-                                  focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                  focus:outline-none focus:ring-2 focus:ring-green-400">
                     @error('name') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
@@ -71,7 +71,7 @@
                     <textarea name="bio" rows="3"
                               placeholder="Tell people a little about yourself..."
                               class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm
-                                     focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none">{{ old('bio', $user->profile?->bio) }}</textarea>
+                                     focus:outline-none focus:ring-2 focus:ring-green-400 resize-none">{{ old('bio', $user->profile?->bio) }}</textarea>
                     @error('bio') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
@@ -83,7 +83,7 @@
                                value="{{ old('location', $user->profile?->location) }}"
                                placeholder="City, Country"
                                class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm
-                                      focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                      focus:outline-none focus:ring-2 focus:ring-green-400">
                         @error('location') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
                     <div>
@@ -92,7 +92,7 @@
                                value="{{ old('website', $user->profile?->website) }}"
                                placeholder="https://yoursite.com"
                                class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm
-                                      focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                      focus:outline-none focus:ring-2 focus:ring-green-400">
                         @error('website') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
                 </div>
@@ -103,7 +103,7 @@
                     <input type="date" name="birth_date"
                            value="{{ old('birth_date', $user->profile?->birth_date?->format('Y-m-d')) }}"
                            class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm
-                                  focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                  focus:outline-none focus:ring-2 focus:ring-green-400">
                     @error('birth_date') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
             </div>
@@ -111,7 +111,7 @@
             <!-- Submit -->
             <div class="flex justify-end mt-6">
                 <button type="submit"
-                        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold
+                        class="bg-green-600 hover:bg-green-700 text-white font-semibold
                                px-8 py-2.5 rounded-full transition">
                     Save Changes
                 </button>

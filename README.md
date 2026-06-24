@@ -11,8 +11,10 @@ A full-featured social media platform built with Laravel 11, Tailwind CSS, and M
 ### 👤 User Profiles
 - Custom profile pages with bio, location, website
 - Avatar and cover photo uploads
+- **Click avatar to view full-size profile picture** in scrollable modal
 - View followers & following counts
 - Follow/unfollow users
+- Profile link in avatar dropdown menu (navbar)
 
 ### 📝 Posts & Feed
 - Create posts with text and/or images
