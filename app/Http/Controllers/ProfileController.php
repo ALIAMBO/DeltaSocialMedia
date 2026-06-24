@@ -70,7 +70,7 @@ class ProfileController extends Controller
 
         $profile->save();
 
-        return back()->with('success', 'Profile updated successfully!');
+        return redirect()->route('profile.show', $authUser)->with('success', 'Profile updated successfully!');
     }
 
     /**

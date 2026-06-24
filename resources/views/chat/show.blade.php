@@ -1,6 +1,16 @@
 @extends('layouts.app')
 @section('title', 'Chat with ' . $user->name)
 
+<!-- Scroll messages to bottom on page load -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('messages-container');
+    if (container) {
+        container.scrollTop = container.scrollHeight;
+    }
+});
+</script>
+
 @section('content')
 <div class="max-w-2xl mx-auto">
     <!-- Chat Header -->
@@ -14,7 +24,7 @@
             <img src="{{ $user->profile?->avatar_url ?? asset('images/default-avatar.png') }}"
                  class="w-9 h-9 rounded-full object-cover border border-gray-200" alt="avatar">
             <div>
-                <p class="text-sm font-semibold text-gray-800 hover:text-blue-600">{{ $user->name }}</p>
+                <p class="text-sm font-semibold text-gray-800 hover:text-green-600">{{ $user->name }}</p>
             </div>
         </a>
     </div>
@@ -30,10 +40,10 @@
                     <img src="{{ $message->sender->profile?->avatar_url ?? asset('images/default-avatar.png') }}"
                          class="w-7 h-7 rounded-full object-cover border border-gray-200" alt="avatar">
                 @endif
-                <div class="{{ $isMine ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-800' }}
+                <div class="{{ $isMine ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-800' }}
                              max-w-xs px-4 py-2.5 rounded-2xl {{ $isMine ? 'rounded-br-sm' : 'rounded-bl-sm' }} text-sm">
                     {{ $message->body }}
-                    <p class="text-xs mt-1 {{ $isMine ? 'text-blue-200' : 'text-gray-400' }} text-right">
+                    <p class="text-xs mt-1 {{ $isMine ? 'text-green-200' : 'text-gray-400' }} text-right">
                         {{ $message->created_at->format('h:i A') }}
                     </p>
                 </div>
@@ -54,9 +64,9 @@
             <input type="text" name="body"
                    placeholder="Type a message..."
                    autocomplete="off"
-                   class="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300">
+                   class="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300">
             <button type="submit"
-                    class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full transition flex-shrink-0">
+                    class="bg-green-600 hover:bg-green-700 text-white p-2 rounded-full transition flex-shrink-0">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
@@ -66,11 +76,3 @@
     </div>
 </div>
 @endsection
-
-@push('scripts')
-<script>
-    // Scroll to bottom on load
-    const container = document.getElementById('messages-container');
-    container.scrollTop = container.scrollHeight;
-</script>
-@endpush

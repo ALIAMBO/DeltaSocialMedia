@@ -32,15 +32,15 @@
     <!-- Post Image -->
     @if ($post->image)
         <img src="{{ $post->image_url }}" alt="Post image" 
-             onclick="openImageModal{{ $post->id }}()" 
+             onclick="openImageModal({{ $post->id }})" 
              class="w-full object-cover max-h-96 cursor-pointer hover:opacity-90 transition-opacity">
         
         <!-- Image Modal -->
         <div id="imageModal{{ $post->id }}" class="hidden fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4"
-             onclick="closeImageModal{{ $post->id }}(event)">
+             onclick="closeImageModal({{ $post->id }}, event)">
             <div class="relative max-w-4xl max-h-[90vh] flex items-center justify-center" onclick="event.stopPropagation()">
                 <img src="{{ $post->image_url }}" alt="Full view" class="max-w-full max-h-[90vh] object-contain rounded-lg">
-                <button onclick="closeImageModal{{ $post->id }}()"
+                <button onclick="closeImageModal({{ $post->id }})"
                         class="absolute top-4 right-4 text-white bg-black bg-opacity-50 hover:bg-opacity-75 rounded-full p-2 transition">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -48,26 +48,6 @@
                 </button>
             </div>
         </div>
-        
-        <script>
-        function openImageModal{{ $post->id }}() {
-            document.getElementById('imageModal{{ $post->id }}').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
-        
-        function closeImageModal{{ $post->id }}(event) {
-            if (event && event.target.id !== 'imageModal{{ $post->id }}') return;
-            document.getElementById('imageModal{{ $post->id }}').classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        }
-        
-        // Close modal on Escape key
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                closeImageModal{{ $post->id }}();
-            }
-        });
-        </script>
     @endif
 
     <!-- Like / Comment actions -->
@@ -76,7 +56,7 @@
         <form action="{{ route('posts.like', $post) }}" method="POST">
             @csrf
             <button type="submit" class="flex items-center gap-1.5 text-sm font-medium
-                {{ $post->isLikedBy(auth()->user()) ? 'text-red-500' : 'text-gray-500 hover:text-red-400' }} transition">
+                {{ $post->isLikedBy(auth()->user()) ? 'text-green-600' : 'text-gray-500 hover:text-green-500' }} transition">
                 <svg class="w-5 h-5" fill="{{ $post->isLikedBy(auth()->user()) ? 'currentColor' : 'none' }}"
                      stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -88,7 +68,7 @@
 
         <!-- Comment toggle -->
         <button onclick="toggleComments({{ $post->id }})"
-                class="flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-blue-500 transition">
+                class="flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-green-500 transition">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
@@ -139,10 +119,3 @@
         </form>
     </div>
 </div>
-
-<script>
-function toggleComments(postId) {
-    const el = document.getElementById('comments-' + postId);
-    el.classList.toggle('hidden');
-}
-</script>

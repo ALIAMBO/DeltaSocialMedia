@@ -2,6 +2,39 @@
 @section('title', 'Feed')
 
 @section('content')
+<!-- Feed upload functions - defined inline so onchange handler can access them -->
+<script>
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE_MB = 5;
+
+function validateFileSize(file) {
+    if (file.size > MAX_FILE_SIZE) {
+        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+        alert(`⚠️ File size too large!\n\n"${file.name}" is ${fileSizeMB}MB.\n\nMaximum allowed: ${MAX_FILE_SIZE_MB}MB`);
+        return false;
+    }
+    return true;
+}
+
+function previewImage(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Validate file size before preview
+    if (!validateFileSize(file)) {
+        event.target.value = ''; // Clear the input
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        document.getElementById('preview-img').src = e.target.result;
+        document.getElementById('image-preview').classList.remove('hidden');
+    };
+    reader.readAsDataURL(file);
+}
+</script>
+
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
     <!-- Main Feed Column -->
@@ -17,14 +50,14 @@
                         @csrf
                         <textarea name="body" rows="3"
                             placeholder="What's on your mind?"
-                            class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none">{{ old('body') }}</textarea>
+                            class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 resize-none">{{ old('body') }}</textarea>
 
                         @error('body')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
 
                         <div class="flex items-center justify-between mt-2">
-                            <label class="flex items-center gap-2 cursor-pointer text-sm text-gray-500 hover:text-blue-500">
+                            <label class="flex items-center gap-2 cursor-pointer text-sm text-gray-500 hover:text-green-500">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                           d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -33,7 +66,7 @@
                                 <input type="file" name="image" accept="image/*" class="hidden" onchange="previewImage(event)">
                             </label>
                             <button type="submit"
-                                class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-5 py-2 rounded-full transition">
+                                class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-5 py-2 rounded-full transition">
                                 Post
                             </button>
                         </div>
@@ -76,7 +109,7 @@
                  class="w-12 h-12 rounded-full object-cover border border-gray-200" alt="avatar">
             <div>
                 <p class="font-semibold text-sm text-gray-800">{{ auth()->user()->name }}</p>
-                <a href="{{ route('profile.show', auth()->user()) }}" class="text-xs text-blue-500 hover:underline">View profile</a>
+                <a href="{{ route('profile.show', auth()->user()) }}" class="text-xs text-green-500 hover:underline">View profile</a>
             </div>
         </div>
 
@@ -99,11 +132,11 @@
                     <a href="{{ route('profile.show', $suggestion) }}" class="flex items-center gap-2">
                         <img src="{{ $suggestion->profile?->avatar_url ?? asset('images/default-avatar.png') }}"
                              class="w-8 h-8 rounded-full object-cover border border-gray-200" alt="avatar">
-                        <span class="text-sm font-medium text-gray-700 hover:text-blue-600">{{ $suggestion->name }}</span>
+                        <span class="text-sm font-medium text-gray-700 hover:text-green-600">{{ $suggestion->name }}</span>
                     </a>
                     <form action="{{ route('follow.toggle', $suggestion) }}" method="POST">
                         @csrf
-                        <button class="text-xs text-blue-600 hover:underline font-medium">Follow</button>
+                        <button class="text-xs text-green-600 hover:underline font-medium">Follow</button>
                     </form>
                 </div>
                 @endforeach
@@ -115,16 +148,5 @@
 @endsection
 
 @push('scripts')
-<script>
-function previewImage(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        document.getElementById('preview-img').src = e.target.result;
-        document.getElementById('image-preview').classList.remove('hidden');
-    };
-    reader.readAsDataURL(file);
-}
-</script>
+    @vite('resources/js/pages/post-card.js')
 @endpush

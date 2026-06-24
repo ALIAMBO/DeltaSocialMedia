@@ -26,16 +26,12 @@
             <!-- Navigation Links -->
             <div class="flex items-center gap-5 text-sm font-medium text-gray-600">
                 <a href="{{ route('feed') }}"
-                   class="hover:text-blue-600 {{ request()->routeIs('feed') ? 'text-green-600' : '' }}">
+                   class="hover:text-green-600 {{ request()->routeIs('feed') ? 'text-green-600' : '' }}">
                     Feed
                 </a>
                 <a href="{{ route('chat.index') }}"
-                   class="hover:text-blue-600 {{ request()->routeIs('chat.*') ? 'text-green-600' : '' }}">
+                   class="hover:text-green-600 {{ request()->routeIs('chat.*') ? 'text-green-600' : '' }}">
                     Messages
-                </a>
-                <a href="{{ route('profile.show', auth()->user()) }}"
-                   class="hover:text-blue-600 {{ request()->routeIs('profile.show') && request()->route('user')?->id === auth()->id() ? 'text-green-600' : '' }}">
-                    Profile
                 </a>
 
                 <!-- Avatar dropdown -->
@@ -46,8 +42,16 @@
                              class="w-8 h-8 rounded-full object-cover border border-gray-300">
                         <span class="hidden sm:block">{{ auth()->user()->name }}</span>
                     </button>
-                    <div x-show="open" @click.away="open = false"
+                    <div x-show="open" 
+                         x-transition:enter="transition ease-out duration-100"
+                         x-transition:enter-start="transform opacity-0 scale-95"
+                         x-transition:enter-end="transform opacity-100 scale-100"
+                         x-transition:leave="transition ease-in duration-75"
+                         x-transition:leave-start="transform opacity-100 scale-100"
+                         x-transition:leave-end="transform opacity-0 scale-95"
+                         @click.away="open = false"
                          class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-100 py-1 text-sm">
+                        <a href="{{ route('profile.show', auth()->user()) }}" class="block px-4 py-2 hover:bg-gray-50">Profile</a>
                         <a href="{{ route('profile.edit') }}" class="block px-4 py-2 hover:bg-gray-50">Settings</a>
                         <hr class="my-1">
                         <form method="POST" action="{{ route('logout') }}">
@@ -66,12 +70,12 @@
     <!-- Flash messages -->
     <div class="max-w-5xl mx-auto px-4 mt-4 space-y-2">
         @if (session('success'))
-            <div class="bg-green-50 border border-green-300 text-green-800 text-sm rounded-lg px-4 py-3">
+            <div class="bg-green-50 border border-green-300 text-green-800 text-sm rounded-lg px-4 py-3 alert-message" data-type="success">
                 {{ session('success') }}
             </div>
         @endif
         @if (session('error'))
-            <div class="bg-red-50 border border-red-300 text-red-800 text-sm rounded-lg px-4 py-3">
+            <div class="bg-red-50 border border-red-300 text-red-800 text-sm rounded-lg px-4 py-3 alert-message" data-type="error">
                 {{ session('error') }}
             </div>
         @endif
@@ -82,8 +86,23 @@
         @yield('content')
     </main>
 
-    @stack('scripts')
-    <!-- Alpine.js for dropdowns -->
+    <!-- Alpine.js for dropdowns - MUST load before scripts that use x-data directives -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Auto-close alert messages after 5 seconds -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const alerts = document.querySelectorAll('.alert-message');
+        alerts.forEach(alert => {
+            setTimeout(() => {
+                alert.style.transition = 'opacity 0.3s ease-out';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 300);
+            }, 5000);
+        });
+    });
+    </script>
+    
+    @stack('scripts')
 </body>
 </html>
