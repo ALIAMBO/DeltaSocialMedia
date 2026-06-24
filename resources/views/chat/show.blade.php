@@ -1,6 +1,16 @@
 @extends('layouts.app')
 @section('title', 'Chat with ' . $user->name)
 
+<!-- Scroll messages to bottom on page load -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('messages-container');
+    if (container) {
+        container.scrollTop = container.scrollHeight;
+    }
+});
+</script>
+
 @section('content')
 <div class="max-w-2xl mx-auto">
     <!-- Chat Header -->
@@ -66,11 +76,3 @@
     </div>
 </div>
 @endsection
-
-@push('scripts')
-<script>
-    // Scroll to bottom on load
-    const container = document.getElementById('messages-container');
-    container.scrollTop = container.scrollHeight;
-</script>
-@endpush

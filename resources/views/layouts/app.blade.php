@@ -86,22 +86,23 @@
         @yield('content')
     </main>
 
-    @stack('scripts')
-    <!-- Alpine.js for dropdowns -->
+    <!-- Alpine.js for dropdowns - MUST load before scripts that use x-data directives -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
     <!-- Auto-close alert messages after 5 seconds -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const alerts = document.querySelectorAll('.alert-message');
-            alerts.forEach(alert => {
-                setTimeout(() => {
-                    alert.style.transition = 'opacity 0.3s ease-out';
-                    alert.style.opacity = '0';
-                    setTimeout(() => alert.remove(), 300);
-                }, 5000);
-            });
+    document.addEventListener('DOMContentLoaded', function() {
+        const alerts = document.querySelectorAll('.alert-message');
+        alerts.forEach(alert => {
+            setTimeout(() => {
+                alert.style.transition = 'opacity 0.3s ease-out';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 300);
+            }, 5000);
         });
+    });
     </script>
+    
+    @stack('scripts')
 </body>
 </html>

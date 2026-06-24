@@ -2,112 +2,141 @@
 @section('title', 'Profile Settings')
 
 @section('content')
-<!-- File Validation Script - Load before Alpine initializes -->
+<!-- Define fileValidation function BEFORE Alpine tries to use it -->
 <script>
-    window.fileValidation = function() {
-        return {
-            showModal: false,
-            modalMessage: '',
+window.fileValidation = function() {
+    return {
+        showModal: false,
+        modalMessage: '',
 
-            // Configuration
-            MAX_FILE_SIZE: 5 * 1024 * 1024, // 5MB per file
-            MAX_FILE_SIZE_MB: 5,
-            MAX_COMBINED_SIZE: 7.5 * 1024 * 1024, // 7.5MB combined
-            MAX_COMBINED_SIZE_MB: 7.5,
+        // Configuration
+        MAX_FILE_SIZE: 5 * 1024 * 1024, // 5MB per file
+        MAX_FILE_SIZE_MB: 5,
+        MAX_COMBINED_SIZE: 7.5 * 1024 * 1024, // 7.5MB combined
+        MAX_COMBINED_SIZE_MB: 7.5,
 
-            // Open modal with message
-            openModal(message) {
-                this.modalMessage = message;
-                this.showModal = true;
-                document.body.style.overflow = 'hidden';
-            },
+        /**
+         * Open modal with a custom message
+         * @param {string} message - The error message to display
+         */
+        openModal(message) {
+            this.modalMessage = message;
+            this.showModal = true;
+            document.body.style.overflow = 'hidden';
+        },
 
-            // Close modal
-            closeModal() {
-                this.showModal = false;
-                document.body.style.overflow = 'auto';
-            },
+        /**
+         * Close the modal and restore page scrolling
+         */
+        closeModal() {
+            this.showModal = false;
+            document.body.style.overflow = 'auto';
+        },
 
-            // Handle form submission (no client-side validation, let backend handle it)
-            handleSubmit(e) {
-                // Just allow form submission - backend will validate and return errors
-            },
+        /**
+         * Handle form submission - allow backend to validate
+         * @param {Event} e - Form submission event
+         */
+        handleSubmit(e) {
+            // Just allow form submission - backend will validate and return errors
+        },
 
-            // Initialize event listeners (only once)
-            init() {
-                const self = this;
-                
-                // Prevent double initialization
-                if (this._initialized) return;
-                this._initialized = true;
+        /**
+         * Initialize all event listeners for file uploads
+         * Only runs once to prevent duplicate listeners
+         */
+        init() {
+            const self = this;
+            
+            // Prevent double initialization
+            if (this._initialized) return;
+            this._initialized = true;
 
-                // Avatar click
-                const avatarWrapper = document.getElementById('avatar-wrapper');
-                if (avatarWrapper) {
-                    avatarWrapper.addEventListener('click', () => {
-                        document.getElementById('avatar-input').click();
-                    });
+            // Avatar wrapper click - trigger file input
+            const avatarWrapper = document.getElementById('avatar-wrapper');
+            if (avatarWrapper) {
+                avatarWrapper.addEventListener('click', () => {
+                    document.getElementById('avatar-input').click();
+                });
+            }
+
+            // Cover wrapper click - trigger file input
+            const coverWrapper = document.getElementById('cover-wrapper');
+            if (coverWrapper) {
+                coverWrapper.addEventListener('click', () => {
+                    document.getElementById('cover-input').click();
+                });
+            }
+
+            // Avatar file input change - preview the selected image
+            const avatarInput = document.getElementById('avatar-input');
+            if (avatarInput) {
+                avatarInput.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        document.getElementById('avatar-preview').src = event.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            // Cover file input change - preview the selected image
+            const coverInput = document.getElementById('cover-input');
+            if (coverInput) {
+                coverInput.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const img = document.getElementById('cover-img');
+                        img.src = event.target.result;
+                        img.classList.remove('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            // Check for backend validation errors and display as modal
+            this.checkForValidationErrors();
+        },
+
+        /**
+         * Check for backend validation errors in hidden container
+         * Display as modal if errors exist
+         */
+        checkForValidationErrors() {
+            const container = document.getElementById('validation-errors');
+            if (!container) return;
+
+            try {
+                const errorsText = container.textContent.trim();
+                if (!errorsText) return;
+
+                const errors = JSON.parse(errorsText);
+                if (Object.keys(errors).length === 0) return;
+
+                // Format error messages
+                let errorMessage = '';
+                for (const [field, messages] of Object.entries(errors)) {
+                    errorMessage += messages.join('\n') + '\n';
                 }
 
-                // Cover click
-                const coverWrapper = document.getElementById('cover-wrapper');
-                if (coverWrapper) {
-                    coverWrapper.addEventListener('click', () => {
-                        document.getElementById('cover-input').click();
-                    });
-                }
-
-                // Avatar file change
-                const avatarInput = document.getElementById('avatar-input');
-                if (avatarInput) {
-                    avatarInput.addEventListener('change', (e) => {
-                        const file = e.target.files[0];
-                        if (!file) return;
-
-                        const reader = new FileReader();
-                        reader.onload = (event) => {
-                            document.getElementById('avatar-preview').src = event.target.result;
-                        };
-                        reader.readAsDataURL(file);
-                    });
-                }
-
-                // Cover file change
-                const coverInput = document.getElementById('cover-input');
-                if (coverInput) {
-                    coverInput.addEventListener('change', (e) => {
-                        const file = e.target.files[0];
-                        if (!file) return;
-
-                        const reader = new FileReader();
-                        reader.onload = (event) => {
-                            const img = document.getElementById('cover-img');
-                            img.src = event.target.result;
-                            img.classList.remove('hidden');
-                        };
-                        reader.readAsDataURL(file);
-                    });
-                }
-
-                // Check for validation errors on page load
-                this.checkForValidationErrors();
-            },
-
-            // Check for backend validation errors and show as modal
-            checkForValidationErrors() {
-                @if($errors->any())
-                    const errors = {!! json_encode($errors->messages()) !!};
-                    
-                    if (errors.avatar && errors.avatar[0]) {
-                        this.openModal(`⚠️ Avatar Error\n\n${errors.avatar[0]}`);
-                    } else if (errors.cover_photo && errors.cover_photo[0]) {
-                        this.openModal(`⚠️ Cover Photo Error\n\n${errors.cover_photo[0]}`);
-                    }
-                @endif
+                // Show modal with errors
+                this.openModal(errorMessage.trim());
+            } catch (e) {
+                console.error('Error parsing validation errors:', e);
             }
         }
-    }
+    };
+};
 </script>
+
+<!-- Hidden container for backend validation errors (read by profile-edit.js) -->
+<div id="validation-errors" class="hidden">{{ json_encode($errors->messages()) }}</div>
 
 <div class="max-w-2xl mx-auto" x-data="fileValidation()" x-init="init()">
     <h1 class="text-xl font-bold text-gray-800 mb-5">Profile Settings</h1>
@@ -262,7 +291,3 @@
     </form>
 </div>
 @endsection
-
-@push('scripts')
-<!-- Scripts are already loaded at the top of the page -->
-@endpush

@@ -38,3 +38,100 @@ Update these README sections as needed:
 - Include file paths as links when referencing code
 - Test that the updated README is clear and helpful
 - Maintain the current README structure and formatting
+
+---
+
+# JavaScript Organization Guidelines
+
+## Purpose
+Keep Blade templates clean and focused on HTML structure by separating JavaScript logic into dedicated files.
+
+## Where to Place JavaScript
+
+### JavaScript File Structure
+```
+resources/
+├── js/
+│   ├── pages/          ← Page-specific JavaScript
+│   │   ├── profile-edit.js
+│   │   ├── feed-index.js
+│   │   └── ...
+│   ├── components/     ← Reusable component logic
+│   └── utils/          ← Utility functions
+```
+
+### Naming Convention
+- **File naming**: `{blade-file-name}.js`
+- Example: `profile/edit.blade.php` → `resources/js/pages/profile-edit.js`
+
+## Guidelines When Creating/Modifying Blade Files
+
+1. **Keep Blade Clean** - Move all `<script>` blocks to separate `.js` files
+2. **One JS file per Blade** - Create a dedicated `.js` file for each complex Blade template
+3. **Use Vite Import** - Include JavaScript using `@vite()` in `@push('scripts')`
+4. **Blade Template Only** - HTML, forms, and conditional Blade logic only
+5. **Pass Data to JS** - Use hidden elements or data attributes to pass Blade variables to JavaScript
+
+### Example: Blade Template
+```blade
+<!-- resources/views/profile/edit.blade.php -->
+
+<!-- Pass backend errors as JSON for JS to read -->
+<div id="validation-errors" class="hidden">{{ json_encode($errors->messages()) }}</div>
+
+<!-- Clean HTML only - no inline scripts -->
+<div x-data="fileValidation()" x-init="init()">
+    <!-- Form HTML here -->
+</div>
+
+@push('scripts')
+    @vite('resources/js/pages/profile-edit.js')
+@endpush
+```
+
+### Example: JavaScript File
+```javascript
+// resources/js/pages/profile-edit.js
+
+window.fileValidation = function() {
+    return {
+        // Component logic here
+        init() {
+            // Initialize
+        },
+        // Methods...
+    }
+}
+```
+
+### Passing Data from Blade to JavaScript
+**Option 1: Hidden Element (Recommended for complex data)**
+```blade
+<div id="validation-errors" class="hidden">{{ json_encode($errors->messages()) }}</div>
+```
+
+```javascript
+checkForValidationErrors() {
+    const container = document.getElementById('validation-errors');
+    const errors = JSON.parse(container.textContent);
+    // Use errors...
+}
+```
+
+**Option 2: Data Attribute**
+```blade
+<div id="app" data-user-id="{{ auth()->id() }}" data-config="{{ json_encode($config) }}">
+```
+
+```javascript
+const userId = document.getElementById('app').dataset.userId;
+const config = JSON.parse(document.getElementById('app').dataset.config);
+```
+
+## Benefits
+- ✅ Blade files remain focused on HTML structure
+- ✅ JavaScript is testable and reusable
+- ✅ Easier to maintain and debug
+- ✅ Better code organization
+- ✅ Vite automatically minifies and optimizes JavaScript
+- ✅ Cleaner commit history (separate concerns)
