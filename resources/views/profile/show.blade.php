@@ -20,7 +20,7 @@ $coverUrlJson = json_encode($coverUrl);
             @endif
         </div>
         <div class="pt-16 px-6 pb-5 relative" style="margin-top: -50px;">
-            <img @click="openModal(avatarUrl, 'Profile Picture')" src="{{ $avatarUrl }}" class="w-24 h-24 rounded-full border-4 border-white mb-4 cursor-pointer hover:opacity-75 transition-opacity" alt="avatar">
+            <img @click="openModal(avatarUrl, 'Profile Picture')" src="{{ $avatarUrl }}" class="w-24 h-24 rounded-full border-4 border-white mb-10 cursor-pointer hover:opacity-75 transition-opacity" alt="avatar">
             <h1 class="text-2xl font-bold">{{ $user->name }}</h1>
             @if ($user->profile?->bio)
                 <p class="text-gray-600 mt-1">{{ $user->profile->bio }}</p>

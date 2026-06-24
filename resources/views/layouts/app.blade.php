@@ -70,12 +70,12 @@
     <!-- Flash messages -->
     <div class="max-w-5xl mx-auto px-4 mt-4 space-y-2">
         @if (session('success'))
-            <div class="bg-green-50 border border-green-300 text-green-800 text-sm rounded-lg px-4 py-3">
+            <div class="bg-green-50 border border-green-300 text-green-800 text-sm rounded-lg px-4 py-3 alert-message" data-type="success">
                 {{ session('success') }}
             </div>
         @endif
         @if (session('error'))
-            <div class="bg-red-50 border border-red-300 text-red-800 text-sm rounded-lg px-4 py-3">
+            <div class="bg-red-50 border border-red-300 text-red-800 text-sm rounded-lg px-4 py-3 alert-message" data-type="error">
                 {{ session('error') }}
             </div>
         @endif
@@ -89,5 +89,19 @@
     @stack('scripts')
     <!-- Alpine.js for dropdowns -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Auto-close alert messages after 5 seconds -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert-message');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.transition = 'opacity 0.3s ease-out';
+                    alert.style.opacity = '0';
+                    setTimeout(() => alert.remove(), 300);
+                }, 5000);
+            });
+        });
+    </script>
 </body>
 </html>

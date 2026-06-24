@@ -116,15 +116,41 @@
 
 @push('scripts')
 <script>
-function previewImage(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        document.getElementById('preview-img').src = e.target.result;
-        document.getElementById('image-preview').classList.remove('hidden');
-    };
-    reader.readAsDataURL(file);
-}
+    // Configuration for file size validation
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+    const MAX_FILE_SIZE_MB = 5;
+
+    // Helper function to show file size warning
+    function showFileSizeWarning(fileName, fileSize) {
+        const fileSizeMB = (fileSize / (1024 * 1024)).toFixed(2);
+        alert(`⚠️ File size too large!\n\n"${fileName}" is ${fileSizeMB}MB.\n\nMaximum allowed: ${MAX_FILE_SIZE_MB}MB`);
+    }
+
+    // Helper function to validate file size
+    function validateFileSize(file) {
+        if (file.size > MAX_FILE_SIZE) {
+            showFileSizeWarning(file.name, file.size);
+            return false;
+        }
+        return true;
+    }
+
+    function previewImage(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Validate file size before preview
+        if (!validateFileSize(file)) {
+            event.target.value = ''; // Clear the input
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('preview-img').src = e.target.result;
+            document.getElementById('image-preview').classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+    }
 </script>
 @endpush

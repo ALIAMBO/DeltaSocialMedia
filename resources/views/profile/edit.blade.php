@@ -2,11 +2,153 @@
 @section('title', 'Profile Settings')
 
 @section('content')
-<div class="max-w-2xl mx-auto">
+<!-- File Validation Script - Load before Alpine initializes -->
+<script>
+    window.fileValidation = function() {
+        return {
+            showModal: false,
+            modalMessage: '',
+
+            // Configuration
+            MAX_FILE_SIZE: 5 * 1024 * 1024, // 5MB per file
+            MAX_FILE_SIZE_MB: 5,
+            MAX_COMBINED_SIZE: 7.5 * 1024 * 1024, // 7.5MB combined
+            MAX_COMBINED_SIZE_MB: 7.5,
+
+            // Open modal with message
+            openModal(message) {
+                this.modalMessage = message;
+                this.showModal = true;
+                document.body.style.overflow = 'hidden';
+            },
+
+            // Close modal
+            closeModal() {
+                this.showModal = false;
+                document.body.style.overflow = 'auto';
+            },
+
+            // Handle form submission (no client-side validation, let backend handle it)
+            handleSubmit(e) {
+                // Just allow form submission - backend will validate and return errors
+            },
+
+            // Initialize event listeners (only once)
+            init() {
+                const self = this;
+                
+                // Prevent double initialization
+                if (this._initialized) return;
+                this._initialized = true;
+
+                // Avatar click
+                const avatarWrapper = document.getElementById('avatar-wrapper');
+                if (avatarWrapper) {
+                    avatarWrapper.addEventListener('click', () => {
+                        document.getElementById('avatar-input').click();
+                    });
+                }
+
+                // Cover click
+                const coverWrapper = document.getElementById('cover-wrapper');
+                if (coverWrapper) {
+                    coverWrapper.addEventListener('click', () => {
+                        document.getElementById('cover-input').click();
+                    });
+                }
+
+                // Avatar file change
+                const avatarInput = document.getElementById('avatar-input');
+                if (avatarInput) {
+                    avatarInput.addEventListener('change', (e) => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            document.getElementById('avatar-preview').src = event.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                }
+
+                // Cover file change
+                const coverInput = document.getElementById('cover-input');
+                if (coverInput) {
+                    coverInput.addEventListener('change', (e) => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            const img = document.getElementById('cover-img');
+                            img.src = event.target.result;
+                            img.classList.remove('hidden');
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                }
+
+                // Check for validation errors on page load
+                this.checkForValidationErrors();
+            },
+
+            // Check for backend validation errors and show as modal
+            checkForValidationErrors() {
+                @if($errors->any())
+                    const errors = {!! json_encode($errors->messages()) !!};
+                    
+                    if (errors.avatar && errors.avatar[0]) {
+                        this.openModal(`⚠️ Avatar Error\n\n${errors.avatar[0]}`);
+                    } else if (errors.cover_photo && errors.cover_photo[0]) {
+                        this.openModal(`⚠️ Cover Photo Error\n\n${errors.cover_photo[0]}`);
+                    }
+                @endif
+            }
+        }
+    }
+</script>
+
+<div class="max-w-2xl mx-auto" x-data="fileValidation()" x-init="init()">
     <h1 class="text-xl font-bold text-gray-800 mb-5">Profile Settings</h1>
 
+    <!-- File Size Warning Modal -->
+    <template x-if="showModal">
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @click.away="closeModal()">
+            <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full mx-4 overflow-hidden" @click.stop>
+                <!-- Header -->
+                <div class="bg-red-50 border-b border-red-200 px-6 py-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <h2 class="text-lg font-semibold text-red-900">File Size Too Large</h2>
+                    </div>
+                    <button @click="closeModal()" class="text-red-400 hover:text-red-600 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Content -->
+                <div class="px-6 py-4">
+                    <p class="text-sm text-gray-700" x-text="modalMessage"></p>
+                </div>
+
+                <!-- Footer -->
+                <div class="bg-gray-50 border-t border-gray-200 px-6 py-3 flex justify-end">
+                    <button @click="closeModal()"
+                            class="px-6 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition">
+                        Got It
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
+
     <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data"
-          class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden" @submit="handleSubmit">
         @csrf @method('PUT')
 
         {{-- File inputs live here, outside any clickable div --}}
@@ -110,7 +252,7 @@
 
             <!-- Submit -->
             <div class="flex justify-end mt-6">
-                <button type="submit"
+                <button type="submit" id="submit-btn"
                         class="bg-green-600 hover:bg-green-700 text-white font-semibold
                                px-8 py-2.5 rounded-full transition">
                     Save Changes
@@ -122,39 +264,5 @@
 @endsection
 
 @push('scripts')
-<script>
-    // Avatar click — trigger the hidden input that lives outside the clickable div
-    document.getElementById('avatar-wrapper').addEventListener('click', function () {
-        document.getElementById('avatar-input').click();
-    });
-
-    // Cover click
-    document.getElementById('cover-wrapper').addEventListener('click', function () {
-        document.getElementById('cover-input').click();
-    });
-
-    // Preview avatar
-    document.getElementById('avatar-input').addEventListener('change', function () {
-        const file = this.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = e => {
-            document.getElementById('avatar-preview').src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-    });
-
-    // Preview cover
-    document.getElementById('cover-input').addEventListener('change', function () {
-        const file = this.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            const img = document.getElementById('cover-img');
-            img.src = e.target.result;
-            img.classList.remove('hidden');
-        };
-        reader.readAsDataURL(file);
-    });
-</script>
+<!-- Scripts are already loaded at the top of the page -->
 @endpush
