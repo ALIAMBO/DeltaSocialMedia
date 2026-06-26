@@ -153,4 +153,9 @@ $coverUrlJson = json_encode($coverUrl);
     </template>
 </div>
 
+//this js has function to open the picture when clicking 
+@push('scripts')
+    @vite('resources/js/pages/post-card.js')
+@endpush
+
 @endsection
