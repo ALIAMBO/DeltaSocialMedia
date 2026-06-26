@@ -139,21 +139,21 @@ window.fileValidation = function() {
 <div id="validation-errors" class="hidden">{{ json_encode($errors->messages()) }}</div>
 
 <div class="max-w-2xl mx-auto" x-data="fileValidation()" x-init="init()">
-    <h1 class="text-xl font-bold text-gray-800 mb-5">Profile Settings</h1>
+    <h1 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-5">Profile Settings</h1>
 
     <!-- File Size Warning Modal -->
     <template x-if="showModal">
         <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @click.away="closeModal()">
-            <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full mx-4 overflow-hidden" @click.stop>
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-sm w-full mx-4 overflow-hidden transition-colors" @click.stop>
                 <!-- Header -->
-                <div class="bg-red-50 border-b border-red-200 px-6 py-4 flex items-center justify-between">
+                <div class="bg-red-50 dark:bg-red-900/20 border-b border-red-200 dark:border-red-800 px-6 py-4 flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
-                        <h2 class="text-lg font-semibold text-red-900">File Size Too Large</h2>
+                        <h2 class="text-lg font-semibold text-red-900 dark:text-red-200">File Size Too Large</h2>
                     </div>
-                    <button @click="closeModal()" class="text-red-400 hover:text-red-600 transition">
+                    <button @click="closeModal()" class="text-red-400 dark:text-red-300 hover:text-red-600 dark:hover:text-red-400 transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
@@ -162,13 +162,13 @@ window.fileValidation = function() {
 
                 <!-- Content -->
                 <div class="px-6 py-4">
-                    <p class="text-sm text-gray-700" x-text="modalMessage"></p>
+                    <p class="text-sm text-gray-700 dark:text-gray-300" x-text="modalMessage"></p>
                 </div>
 
                 <!-- Footer -->
-                <div class="bg-gray-50 border-t border-gray-200 px-6 py-3 flex justify-end">
+                <div class="bg-gray-50 dark:bg-gray-700/50 border-t border-gray-200 dark:border-gray-700 px-6 py-3 flex justify-end">
                     <button @click="closeModal()"
-                            class="px-6 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition">
+                            class="px-6 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 transition">
                         Got It
                     </button>
                 </div>
@@ -177,7 +177,7 @@ window.fileValidation = function() {
     </template>
 
     <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data"
-          class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden" @submit="handleSubmit">
+          class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors" @submit="handleSubmit">
         @csrf @method('PUT')
 
         {{-- File inputs live here, outside any clickable div --}}
@@ -206,7 +206,7 @@ window.fileValidation = function() {
                  class="absolute left-6 cursor-pointer group/av z-10" style="bottom: 3px;">
                 <img id="avatar-preview"
                      src="{{ $user->profile?->avatar_url ?? asset('images/default-avatar.png') }}"
-                     class="w-20 h-20 rounded-full object-cover border-4 border-white shadow"
+                     class="w-20 h-20 rounded-full object-cover border-4 border-white dark:border-gray-800 shadow"
                      alt="avatar">
                 <div class="absolute inset-0 rounded-full bg-black bg-opacity-0
                             group-hover/av:bg-opacity-40 flex items-center justify-center transition">
@@ -223,58 +223,58 @@ window.fileValidation = function() {
 
         {{-- pt-12 = half avatar (40px) + 8px gap --}}
         <div class="px-6 pb-6 pt-14">
-            <p class="text-xs text-gray-400 mb-5">Click the avatar or cover area to change photos</p>
+            <p class="text-xs text-gray-400 dark:text-gray-500 mb-5">Click the avatar or cover area to change photos</p>
 
             <!-- Form Fields -->
             <div class="space-y-4">
                 <!-- Name -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Display Name</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Display Name</label>
                     <input type="text" name="name" value="{{ old('name', $user->name) }}" required
-                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm
-                                  focus:outline-none focus:ring-2 focus:ring-green-400">
+                           class="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-xl px-4 py-2.5 text-sm
+                                  focus:outline-none focus:ring-2 focus:ring-green-400 dark:focus:ring-green-500 transition-colors">
                     @error('name') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <!-- Bio -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Bio</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Bio</label>
                     <textarea name="bio" rows="3"
                               placeholder="Tell people a little about yourself..."
-                              class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm
-                                     focus:outline-none focus:ring-2 focus:ring-green-400 resize-none">{{ old('bio', $user->profile?->bio) }}</textarea>
+                              class="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 rounded-xl px-4 py-2.5 text-sm
+                                     focus:outline-none focus:ring-2 focus:ring-green-400 dark:focus:ring-green-500 resize-none transition-colors">{{ old('bio', $user->profile?->bio) }}</textarea>
                     @error('bio') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <!-- Location & Website -->
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Location</label>
                         <input type="text" name="location"
                                value="{{ old('location', $user->profile?->location) }}"
                                placeholder="City, Country"
-                               class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm
-                                      focus:outline-none focus:ring-2 focus:ring-green-400">
+                               class="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 rounded-xl px-4 py-2.5 text-sm
+                                      focus:outline-none focus:ring-2 focus:ring-green-400 dark:focus:ring-green-500 transition-colors">
                         @error('location') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Website</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Website</label>
                         <input type="text" name="website"
                                value="{{ old('website', $user->profile?->website) }}"
                                placeholder="https://yoursite.com"
-                               class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm
-                                      focus:outline-none focus:ring-2 focus:ring-green-400">
+                               class="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 rounded-xl px-4 py-2.5 text-sm
+                                      focus:outline-none focus:ring-2 focus:ring-green-400 dark:focus:ring-green-500 transition-colors">
                         @error('website') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
                 </div>
 
                 <!-- Birth Date -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Birth Date</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Birth Date</label>
                     <input type="date" name="birth_date"
                            value="{{ old('birth_date', $user->profile?->birth_date?->format('Y-m-d')) }}"
-                           class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm
-                                  focus:outline-none focus:ring-2 focus:ring-green-400">
+                           class="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-xl px-4 py-2.5 text-sm
+                                  focus:outline-none focus:ring-2 focus:ring-green-400 dark:focus:ring-green-500 transition-colors">
                     @error('birth_date') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
             </div>
@@ -282,8 +282,8 @@ window.fileValidation = function() {
             <!-- Submit -->
             <div class="flex justify-end mt-6">
                 <button type="submit" id="submit-btn"
-                        class="bg-green-600 hover:bg-green-700 text-white font-semibold
-                               px-8 py-2.5 rounded-full transition">
+                        class="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white font-semibold
+                               px-8 py-2.5 rounded-full transition-colors">
                     Save Changes
                 </button>
             </div>

@@ -7,6 +7,7 @@ use App\Http\Controllers\FollowController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SearchController;
 use Illuminate\Support\Facades\Route;
 
 // Redirect root to feed or login
@@ -28,6 +29,9 @@ Route::middleware('auth')->group(function () {
 
     // Feed
     Route::get('/feed', [FeedController::class, 'index'])->name('feed');
+
+    // Search
+    Route::get('/search', [SearchController::class, 'index'])->name('search');
 
     // Posts
     Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
