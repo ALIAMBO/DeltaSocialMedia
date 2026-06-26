@@ -1,12 +1,12 @@
-<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
     <!-- Post Header -->
-    <div class="flex items-center justify-between p-4">
+    <div class="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700">
         <a href="{{ route('profile.show', $post->user) }}" class="flex items-center gap-3">
             <img src="{{ $post->user->profile?->avatar_url ?? asset('images/default-avatar.png') }}"
-                 class="w-10 h-10 rounded-full object-cover border border-gray-200" alt="avatar">
+                 class="w-10 h-10 rounded-full object-cover border border-gray-200 dark:border-gray-600" alt="avatar">
             <div>
-                <p class="text-sm font-semibold text-gray-800 hover:text-blue-600">{{ $post->user->name }}</p>
-                <p class="text-xs text-gray-400">{{ $post->created_at->diffForHumans() }}</p>
+                <p class="text-sm font-semibold text-gray-800 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400">{{ $post->user->name }}</p>
+                <p class="text-xs text-gray-400 dark:text-gray-500">{{ $post->created_at->diffForHumans() }}</p>
             </div>
         </a>
 
@@ -14,7 +14,7 @@
         <form action="{{ route('posts.destroy', $post) }}" method="POST"
               onsubmit="return confirm('Delete this post?')">
             @csrf @method('DELETE')
-            <button class="text-gray-400 hover:text-red-500 transition">
+            <button class="text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -26,7 +26,7 @@
 
     <!-- Post Body -->
     @if ($post->body)
-        <p class="px-4 pb-3 text-sm text-gray-700 leading-relaxed">{{ $post->body }}</p>
+        <p class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{{ $post->body }}</p>
     @endif
 
     <!-- Post Image -->
@@ -51,12 +51,12 @@
     @endif
 
     <!-- Like / Comment actions -->
-    <div class="px-4 py-3 border-t border-gray-100 flex items-center gap-4">
+    <div class="px-4 py-3 border-t border-gray-100 dark:border-gray-700 flex items-center gap-4">
         <!-- Like -->
         <form action="{{ route('posts.like', $post) }}" method="POST">
             @csrf
             <button type="submit" class="flex items-center gap-1.5 text-sm font-medium
-                {{ $post->isLikedBy(auth()->user()) ? 'text-green-600' : 'text-gray-500 hover:text-green-500' }} transition">
+                {{ $post->isLikedBy(auth()->user()) ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400' }} transition">
                 <svg class="w-5 h-5" fill="{{ $post->isLikedBy(auth()->user()) ? 'currentColor' : 'none' }}"
                      stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -68,7 +68,7 @@
 
         <!-- Comment toggle -->
         <button onclick="toggleComments({{ $post->id }})"
-                class="flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-green-500 transition">
+                class="flex items-center gap-1.5 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400 transition">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
@@ -78,22 +78,22 @@
     </div>
 
     <!-- Comments Section -->
-    <div id="comments-{{ $post->id }}" class="hidden border-t border-gray-100 px-4 py-3 space-y-3">
+    <div id="comments-{{ $post->id }}" class="hidden border-t border-gray-100 dark:border-gray-700 px-4 py-3 space-y-3">
         <!-- Existing comments -->
         @foreach ($post->comments as $comment)
         <div class="flex gap-2">
             <a href="{{ route('profile.show', $comment->user) }}">
                 <img src="{{ $comment->user->profile?->avatar_url ?? asset('images/default-avatar.png') }}"
-                     class="w-7 h-7 rounded-full object-cover border border-gray-200" alt="avatar">
+                     class="w-7 h-7 rounded-full object-cover border border-gray-200 dark:border-gray-600" alt="avatar">
             </a>
-            <div class="flex-1 bg-gray-50 rounded-xl px-3 py-2">
-                <p class="text-xs font-semibold text-gray-700">{{ $comment->user->name }}</p>
-                <p class="text-sm text-gray-600">{{ $comment->body }}</p>
+            <div class="flex-1 bg-gray-50 dark:bg-gray-700 rounded-xl px-3 py-2">
+                <p class="text-xs font-semibold text-gray-700 dark:text-gray-200">{{ $comment->user->name }}</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400">{{ $comment->body }}</p>
             </div>
             @if ($comment->user_id === auth()->id())
             <form action="{{ route('comments.destroy', $comment) }}" method="POST" class="self-center">
                 @csrf @method('DELETE')
-                <button class="text-gray-300 hover:text-red-400 transition">
+                <button class="text-gray-300 dark:text-gray-500 hover:text-red-400 dark:hover:text-red-400 transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
@@ -107,12 +107,12 @@
         <form action="{{ route('comments.store', $post) }}" method="POST" class="flex gap-2 mt-1">
             @csrf
             <img src="{{ auth()->user()->profile?->avatar_url ?? asset('images/default-avatar.png') }}"
-                 class="w-7 h-7 rounded-full object-cover border border-gray-200" alt="avatar">
+                 class="w-7 h-7 rounded-full object-cover border border-gray-200 dark:border-gray-600" alt="avatar">
             <div class="flex-1 flex gap-2">
                 <input type="text" name="body" placeholder="Write a comment..."
-                       class="flex-1 bg-gray-100 rounded-full px-4 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300">
+                       class="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-full px-4 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 placeholder-gray-500 dark:placeholder-gray-400 transition-colors">
                 <button type="submit"
-                        class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-4 py-1.5 rounded-full transition">
+                        class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white text-xs font-medium px-4 py-1.5 rounded-full transition-colors">
                     Send
                 </button>
             </div>

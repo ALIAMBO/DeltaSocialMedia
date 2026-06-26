@@ -42,8 +42,8 @@ $coverUrlJson = json_encode($coverUrl);
 @endphp
 
 @section('content')
-<div class="space-y-5" x-data="{ isOpen: false, imageSrc: '', imageTitle: '', avatarUrl: {{ $avatarUrlJson }}, coverUrl: {{ $coverUrlJson }}, profileOpen: false, openModal(src, title) { this.imageSrc = src; this.imageTitle = title; this.isOpen = true; document.body.style.overflow = 'hidden'; }, closeModal() { this.isOpen = false; document.body.style.overflow = 'auto'; } }">
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100">
+<div class="space-y-5 bg-white dark:bg-gray-900 min-h-screen transition-colors" x-data="{ isOpen: false, imageSrc: '', imageTitle: '', avatarUrl: {{ $avatarUrlJson }}, coverUrl: {{ $coverUrlJson }}, profileOpen: false, openModal(src, title) { this.imageSrc = src; this.imageTitle = title; this.isOpen = true; document.body.style.overflow = 'hidden'; }, closeModal() { this.isOpen = false; document.body.style.overflow = 'auto'; } }">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors">
         <div class="relative h-44 bg-gradient-to-r from-green-400 to-green-500 rounded-t-2xl overflow-hidden {{ $coverUrl ? 'cursor-pointer group' : '' }}" @click="coverUrl ? openModal(coverUrl, 'Cover Photo') : null">
             @if ($coverUrl)
                 <img src="{{ $coverUrl }}" alt="Cover Photo" class="w-full h-full object-cover group-hover:opacity-90 transition-opacity">
@@ -53,12 +53,12 @@ $coverUrlJson = json_encode($coverUrl);
             @endif
         </div>
         <div class="pt-16 px-6 pb-5 relative" style="margin-top: -50px;">
-            <img @click="openModal(avatarUrl, 'Profile Picture')" src="{{ $avatarUrl }}" class="w-24 h-24 rounded-full border-4 border-white mb-10 cursor-pointer hover:opacity-75 transition-opacity" alt="avatar">
-            <h1 class="text-2xl font-bold">{{ $user->name }}</h1>
+            <img @click="openModal(avatarUrl, 'Profile Picture')" src="{{ $avatarUrl }}" class="w-24 h-24 rounded-full border-4 border-white dark:border-gray-800 mb-10 cursor-pointer hover:opacity-75 transition-opacity" alt="avatar">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $user->name }}</h1>
             @if ($user->profile?->bio)
-                <p class="text-gray-600 mt-1">{{ $user->profile->bio }}</p>
+                <p class="text-gray-600 dark:text-gray-400 mt-1">{{ $user->profile->bio }}</p>
             @endif
-            <div class="flex gap-6 mt-4 text-sm">
+            <div class="flex gap-6 mt-4 text-sm text-gray-700 dark:text-gray-300">
                 <span><strong>{{ $user->posts->count() }}</strong> Posts</span>
                 <span><strong>{{ $user->followers->count() }}</strong> Followers</span>
                 <span><strong>{{ $user->following->count() }}</strong> Following</span>
@@ -67,12 +67,12 @@ $coverUrlJson = json_encode($coverUrl);
                 @if (auth()->id() !== $user->id)
                     <form action="{{ route('follow.toggle', $user) }}" method="POST" class="inline">
                         @csrf
-                        <button class="px-5 py-2 rounded-full text-sm font-semibold bg-green-600 text-white">
+                        <button class="px-5 py-2 rounded-full text-sm font-semibold bg-green-600 hover:bg-green-700 text-white dark:bg-green-700 dark:hover:bg-green-600 transition-colors">
                             {{ $isFollowing ? 'Unfollow' : 'Follow' }}
                         </button>
                     </form>
                 @else
-                    <a href="{{ route('profile.edit') }}" class="px-5 py-2 rounded-full text-sm font-semibold border">Edit Profile</a>
+                    <a href="{{ route('profile.edit') }}" class="px-5 py-2 rounded-full text-sm font-semibold border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">Edit Profile</a>
                 @endif
             </div>
         </div>
@@ -80,23 +80,23 @@ $coverUrlJson = json_encode($coverUrl);
 
     <!-- Create Post (Only on your own profile) -->
     @if (auth()->id() === $user->id)
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 transition-colors">
         <div class="flex items-start gap-3">
             <img src="{{ auth()->user()->profile?->avatar_url ?? asset('images/default-avatar.png') }}"
-                 class="w-10 h-10 rounded-full object-cover border border-gray-200" alt="avatar">
+                 class="w-10 h-10 rounded-full object-cover border border-gray-200 dark:border-gray-600">
             <div class="flex-1">
                 <form action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <textarea name="body" rows="3"
                         placeholder="What's on your mind?"
-                        class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 resize-none">{{ old('body') }}</textarea>
+                        class="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 dark:focus:ring-green-500 resize-none placeholder-gray-500 dark:placeholder-gray-400 transition-colors">{{ old('body') }}</textarea>
 
                     @error('body')
                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                     @enderror
 
                     <div class="flex items-center justify-between mt-2">
-                        <label class="flex items-center gap-2 cursor-pointer text-sm text-gray-500 hover:text-green-500">
+                        <label class="flex items-center gap-2 cursor-pointer text-sm text-gray-500 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400 transition-colors">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -105,7 +105,7 @@ $coverUrlJson = json_encode($coverUrl);
                             <input type="file" name="image" accept="image/*" class="hidden" onchange="previewImage(event)">
                         </label>
                         <button type="submit"
-                            class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-5 py-2 rounded-full transition">
+                            class="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white text-sm font-medium px-5 py-2 rounded-full transition-colors">
                             Post
                         </button>
                     </div>
@@ -126,7 +126,7 @@ $coverUrlJson = json_encode($coverUrl);
 
     <!-- User's Posts -->
     @if ($user->posts->isEmpty())
-        <div class="bg-white rounded-2xl p-8 text-center text-gray-400">No posts yet.</div>
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 text-center text-gray-400 dark:text-gray-500 transition-colors">No posts yet.</div>
     @else
         <div class="space-y-4">
             @foreach ($user->posts as $post)
