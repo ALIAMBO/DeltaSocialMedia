@@ -28,6 +28,12 @@ A full-featured social media platform built with Laravel 11, Tailwind CSS, and M
 - Message read status
 - Conversation list sorted by last message
 
+### 🔍 Search
+- Search for users by name or email
+- Search available in navbar on all pages
+- View user profiles with follow options from search results
+- Minimum 2 character search requirement
+
 ## Tech Stack
 
 - **Backend:** Laravel 11
@@ -123,7 +129,8 @@ app/
 │   ├── FollowController.php     # Follow/unfollow
 │   ├── LikeController.php       # Like posts
 │   ├── PostController.php       # Create/delete posts
-│   └── ProfileController.php    # User profiles
+│   ├── ProfileController.php    # User profiles
+│   └── SearchController.php     # User search
 ├── Models/
 │   ├── User.php
 │   ├── Profile.php
@@ -140,6 +147,7 @@ resources/views/
 ├── feed/                        # Main feed view
 ├── profile/                     # Profile pages
 ├── chat/                        # Messaging UI
+├── search/                      # Search results
 ├── components/                  # Reusable components
 └── layouts/                     # Base layout
 
@@ -167,7 +175,6 @@ Potential features to add:
 - Hashtags and mentions
 - Stories feature
 - Video uploads
-- Search functionality
 - Admin panel
 - Post privacy settings
 - Block/report users

@@ -1,0 +1,30 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class SearchController extends Controller
+{
+    public function index(Request $request)
+    {
+        $query = $request->input('q');
+        $users = collect();
+        $currentUserId = Auth::user()->id;
+
+        if ($query && strlen($query) >= 2) {
+            $users = User::where('name', 'like', "%{$query}%")
+                ->orWhere('email', 'like', "%{$query}%")
+                ->where('id', '!=', $currentUserId)
+                ->limit(20)
+                ->get();
+        }
+
+        return view('search.results', [
+            'query' => $query,
+            'users' => $users,
+        ]);
+    }
+}

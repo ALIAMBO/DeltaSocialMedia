@@ -34,6 +34,20 @@
                     Messages
                 </a>
 
+                <!-- Search -->
+                <form action="{{ route('search') }}" method="GET" class="hidden sm:block">
+                    <input type="text" name="q" placeholder="Search users..."
+                           class="border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 rounded-lg px-3 py-1.5 text-xs
+                                  focus:outline-none focus:ring-2 focus:ring-green-400 dark:focus:ring-green-500 transition-colors">
+                </form>
+
+                <!-- Search mobile link -->
+                <a href="{{ route('search') }}" class="sm:hidden hover:text-green-600 dark:hover:text-green-400 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </a>
+
                 <!-- Dark Mode Toggle -->
                 <button id="theme-toggle" class="p-1.5 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-yellow-400 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors" title="Toggle dark mode">
                     <svg id="sun-icon" class="w-4 h-4 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
