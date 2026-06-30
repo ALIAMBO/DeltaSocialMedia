@@ -17,6 +17,9 @@ class LikeController extends Controller
             $like->delete();
         } else {
             $post->likes()->create(['user_id' => $user->id]);
+            if ($post->user_id !== $user->id) {
+                $post->user->notify(new \App\Notifications\NewLikeNotification($user, $post));
+            }
         }
 
         return back();

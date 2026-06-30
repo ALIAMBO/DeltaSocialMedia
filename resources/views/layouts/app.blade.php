@@ -42,6 +42,15 @@
                    class="hover:text-green-600 dark:hover:text-green-400 {{ request()->routeIs('chat.*') ? 'text-green-600 dark:text-green-400' : '' }} transition-colors">
                     Messages
                 </a>
+                <a href="{{ route('notifications.index') }}"
+                   class="hover:text-green-600 dark:hover:text-green-400 {{ request()->routeIs('notifications.index') ? 'text-green-600 dark:text-green-400' : '' }} transition-colors flex items-center gap-1.5">
+                    <span>Notifications</span>
+                    @if (auth()->user()->unreadNotifications->count() > 0)
+                        <span class="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                            {{ auth()->user()->unreadNotifications->count() }}
+                        </span>
+                    @endif
+                </a>
 
                 <!-- Search -->
                 <form action="{{ route('search') }}" method="GET" class="hidden sm:block">

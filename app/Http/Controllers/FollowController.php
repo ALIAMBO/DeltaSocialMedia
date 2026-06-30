@@ -23,6 +23,7 @@ class FollowController extends Controller
             $message = 'Unfollowed ' . $user->name;
         } else {
             $authUser->following()->create(['following_id' => $user->id]);
+            $user->notify(new \App\Notifications\NewFollowNotification($authUser));
             $message = 'Now following ' . $user->name;
         }
 
