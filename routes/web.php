@@ -63,6 +63,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/chat/{user}', [ChatController::class, 'show'])->name('chat.show');
     Route::post('/chat/{user}', [ChatController::class, 'send'])->name('chat.send');
 
+    // Chat APIs for Floating Chat widget
+    Route::get('/api/chat/conversations', [ChatController::class, 'apiGetConversations']);
+    Route::get('/api/chat/contacts', [ChatController::class, 'apiGetContacts']);
+    Route::get('/api/chat/messages/{user}', [ChatController::class, 'apiGetMessages']);
+    Route::post('/api/chat/messages/{user}', [ChatController::class, 'apiSendMessage']);
+
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.readAll');

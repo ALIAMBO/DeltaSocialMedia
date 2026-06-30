@@ -55,6 +55,10 @@ All web routes are defined in [routes/web.php](file:///c:/projects/socialmedia/r
   * `/users/{user}/follow` (toggling follows)
   * `/chat` & `/chat/{user}` (conversations)
   * `/notifications` & `/notifications/{id}/read` (notifications)
+  * `/api/chat/conversations` (fetch active chats)
+  * `/api/chat/contacts` (fetch followed users)
+  * `/api/chat/messages/{user}` (fetch chat thread / read status)
+  * `/api/chat/messages/{user}` (POST: submit chat message)
 
 ---
 

@@ -52,6 +52,14 @@ A full-featured social media platform built with Laravel 11, Tailwind CSS, and M
 - Horizontal scrollable Stories bar at the top of the feed page
 - Full-screen interactive slideshow viewer with autoplay progress bars, skip navigation, and owner delete actions
 
+### 💬 Floating Chat Widget
+- Circular floating chat trigger button on all pages with dynamic unread count badge
+- Slide-up panel with Inbox and Contacts tabs
+- Inbox: Displays active chat partners with avatar, name, last message preview, and time
+- Contacts: Lists followed users to easily start new chat threads
+- Active Chat: Scrollable per-user chat feed with styled bubbles (left/received, right/sent) and instant send form
+- Background Auto-polling: Background sync fetches new messages every 5 seconds to provide simulated real-time chat updates
+
 ## Tech Stack
 
 - **Backend:** Laravel 11

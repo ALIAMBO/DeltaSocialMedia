@@ -35,6 +35,12 @@ This document records the current status of the project (completed and future/pe
 * Modified `FeedController` to retrieve active (last 24 hours) stories.
 * Built horizontal scrollable stories bar, upload modal, and Alpine.js slideshow stories viewer (with progress bars, auto-advance, and navigation control).
 
+### 💬 Floating Chat Widget (Recently Added)
+* Added asynchronous JSON API endpoints in `ChatController.php` for fetching conversations, contacts, messages, and sending messages.
+* Registered AJAX endpoints in `routes/web.php`.
+* Implemented the HTML markup and Alpine.js widget engine directly in `layouts/app.blade.php`.
+* Built background auto-polling sync (every 5 seconds) to pull new messages and update unread counters dynamically.
+
 ---
 
 ## 2. Pending Tasks & Future Enhancements

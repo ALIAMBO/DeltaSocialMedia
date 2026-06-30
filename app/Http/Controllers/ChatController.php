@@ -81,4 +81,112 @@ class ChatController extends Controller
 
         return back();
     }
+
+    /**
+     * API: Get inbox conversations list.
+     */
+    public function apiGetConversations()
+    {
+        $authId = Auth::id();
+        $conversations = User::whereIn('id', function ($query) use ($authId) {
+            $query->select(DB::raw("CASE WHEN sender_id = {$authId} THEN receiver_id ELSE sender_id END"))
+                ->from('messages')
+                ->where('sender_id', $authId)
+                ->orWhere('receiver_id', $authId);
+        })
+        ->with('profile')
+        ->get()
+        ->map(function ($user) use ($authId) {
+            $user->last_message = Message::where(function ($q) use ($authId, $user) {
+                $q->where('sender_id', $authId)->where('receiver_id', $user->id);
+            })->orWhere(function ($q) use ($authId, $user) {
+                $q->where('sender_id', $user->id)->where('receiver_id', $authId);
+            })->latest()->first();
+            
+            $user->unread_count = Message::where('sender_id', $user->id)
+                ->where('receiver_id', $authId)
+                ->where('is_read', false)
+                ->count();
+                
+            $user->avatar = $user->profile?->avatar_url ?? asset('images/default-avatar.png');
+            return $user;
+        })
+        ->sortByDesc(fn($u) => optional($u->last_message)->created_at)
+        ->values();
+
+        return response()->json($conversations);
+    }
+
+    /**
+     * API: Get followed users as contact list.
+     */
+    public function apiGetContacts()
+    {
+        $user = Auth::user();
+        $contacts = User::whereIn('id', $user->following()->pluck('following_id'))
+            ->with('profile')
+            ->get()
+            ->map(function ($u) {
+                $u->avatar = $u->profile?->avatar_url ?? asset('images/default-avatar.png');
+                return $u;
+            });
+
+        return response()->json($contacts);
+    }
+
+    /**
+     * API: Get messages history with a user, marking them as read.
+     */
+    public function apiGetMessages(User $user)
+    {
+        $authId = Auth::id();
+        
+        Message::where('sender_id', $user->id)
+            ->where('receiver_id', $authId)
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
+            
+        $messages = Message::where(function ($q) use ($authId, $user) {
+            $q->where('sender_id', $authId)->where('receiver_id', $user->id);
+        })->orWhere(function ($q) use ($authId, $user) {
+            $q->where('sender_id', $user->id)->where('receiver_id', $authId);
+        })
+        ->oldest()
+        ->get()
+        ->map(function ($msg) use ($authId) {
+            $msg->is_sent_by_me = $msg->sender_id === $authId;
+            $msg->time = $msg->created_at->diffForHumans();
+            return $msg;
+        });
+
+        return response()->json([
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'avatar' => $user->profile?->avatar_url ?? asset('images/default-avatar.png'),
+            ],
+            'messages' => $messages
+        ]);
+    }
+
+    /**
+     * API: Send a message to a user.
+     */
+    public function apiSendMessage(Request $request, User $user)
+    {
+        $request->validate([
+            'body' => 'required|string|max:1000',
+        ]);
+
+        $msg = Message::create([
+            'sender_id'   => Auth::id(),
+            'receiver_id' => $user->id,
+            'body'        => $request->body,
+        ]);
+
+        $msg->is_sent_by_me = true;
+        $msg->time = $msg->created_at->diffForHumans();
+
+        return response()->json($msg);
+    }
 }
