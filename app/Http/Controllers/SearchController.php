@@ -15,8 +15,10 @@ class SearchController extends Controller
         $currentUserId = Auth::user()->id;
 
         if ($query && strlen($query) >= 2) {
-            $users = User::where('name', 'like', "%{$query}%")
-                ->orWhere('email', 'like', "%{$query}%")
+            $users = User::where(function ($q) use ($query) {
+                    $q->where('name', 'like', "%{$query}%")
+                      ->orWhere('email', 'like', "%{$query}%");
+                })
                 ->where('id', '!=', $currentUserId)
                 ->limit(20)
                 ->get();

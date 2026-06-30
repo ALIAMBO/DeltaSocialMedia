@@ -59,7 +59,7 @@
                                 </div>
                                 <div class="flex-shrink-0 ml-2">
                                     @php
-                                        $isFollowing = auth()->user()->following->contains($user->id);
+                                        $isFollowing = auth()->user()->isFollowing($user);
                                     @endphp
                                     <form action="{{ route('follow.toggle', $user) }}" method="POST" class="inline">
                                         @csrf

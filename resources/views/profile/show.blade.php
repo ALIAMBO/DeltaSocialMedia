@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('title', $user->name . " Profile")
 
+@section('content')
 <!-- Profile upload functions - defined inline so onchange handler can access them -->
 <script>
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -41,7 +42,7 @@ $avatarUrlJson = json_encode($avatarUrl);
 $coverUrlJson = json_encode($coverUrl);
 @endphp
 
-@section('content')
+
 <div class="space-y-5 bg-white dark:bg-gray-900 min-h-screen transition-colors" x-data="{ isOpen: false, imageSrc: '', imageTitle: '', avatarUrl: {{ $avatarUrlJson }}, coverUrl: {{ $coverUrlJson }}, profileOpen: false, openModal(src, title) { this.imageSrc = src; this.imageTitle = title; this.isOpen = true; document.body.style.overflow = 'hidden'; }, closeModal() { this.isOpen = false; document.body.style.overflow = 'auto'; } }">
     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors">
         <div class="relative h-44 bg-gradient-to-r from-green-400 to-green-500 rounded-t-2xl overflow-hidden {{ $coverUrl ? 'cursor-pointer group' : '' }}" @click="coverUrl ? openModal(coverUrl, 'Cover Photo') : null">
