@@ -7,6 +7,7 @@ export default defineConfig({
             input: [
                 'resources/css/app.css',
                 'resources/js/app.js',
+                'resources/js/dark-mode.js',
                 'resources/js/pages/profile-edit.js',
                 'resources/js/pages/feed-index.js',
                 'resources/js/pages/post-card.js',

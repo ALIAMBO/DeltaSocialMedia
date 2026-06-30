@@ -8,6 +8,15 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
+    <!-- Prevent flash of light mode in dark mode -->
+    <script>
+        if (localStorage.getItem('darkMode') === 'true' ||
+            (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
     <!-- Vite assets -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
@@ -32,6 +41,15 @@
                 <a href="{{ route('chat.index') }}"
                    class="hover:text-green-600 dark:hover:text-green-400 {{ request()->routeIs('chat.*') ? 'text-green-600 dark:text-green-400' : '' }} transition-colors">
                     Messages
+                </a>
+                <a href="{{ route('notifications.index') }}"
+                   class="hover:text-green-600 dark:hover:text-green-400 {{ request()->routeIs('notifications.index') ? 'text-green-600 dark:text-green-400' : '' }} transition-colors flex items-center gap-1.5">
+                    <span>Notifications</span>
+                    @if (auth()->user()->unreadNotifications->count() > 0)
+                        <span class="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                            {{ auth()->user()->unreadNotifications->count() }}
+                        </span>
+                    @endif
                 </a>
 
                 <!-- Search -->

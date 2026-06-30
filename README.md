@@ -34,6 +34,18 @@ A full-featured social media platform built with Laravel 11, Tailwind CSS, and M
 - View user profiles with follow options from search results
 - Minimum 2 character search requirement
 
+### 🔔 Notifications
+- Database-driven notification system
+- Automatic notifications triggered for new follows, post likes, and comments
+- Dynamic unread notification count badge in navbar
+- Dedicated dashboard to view notifications and mark them as read
+
+### 🌓 Dark Mode
+- Full support for dark theme across all pages
+- Toggle button in the navbar for seamless theme switching
+- System preference auto-detection (prefers-color-scheme)
+- Persistent preference saved in localStorage (with zero-flash page reloads)
+
 ## Tech Stack
 
 - **Backend:** Laravel 11
@@ -169,7 +181,6 @@ routes/
 ## Future Enhancements
 
 Potential features to add:
-- Notifications system
 - Real-time updates with Pusher/WebSockets
 - Post sharing/reposting
 - Hashtags and mentions

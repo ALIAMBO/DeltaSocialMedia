@@ -15,10 +15,14 @@ class CommentController extends Controller
             'body' => 'required|string|max:500',
         ]);
 
-        $post->comments()->create([
+        $comment = $post->comments()->create([
             'user_id' => Auth::id(),
             'body'    => $request->body,
         ]);
+
+        if ($post->user_id !== Auth::id()) {
+            $post->user->notify(new \App\Notifications\NewCommentNotification(Auth::user(), $post, $comment));
+        }
 
         return back();
     }
