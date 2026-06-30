@@ -1,50 +1,57 @@
-# Status Projek SocialMedia
+# SocialMedia Project Status
 
-Dokumen ini merekodkan status semasa projek (tugasan selesai dan tugasan masa hadapan/belum selesai) untuk membantu mana-mana AI memahami keadaan sistem.
+This document records the current status of the project (completed and future/pending tasks) to help any AI assistant quickly understand the system state.
 
-## 1. Tugasan Yang Telah Selesai (Completed Tasks)
+## 1. Completed Tasks
 
-### 🚀 Ciri Utama Sistem (Core Features)
-* **Autentikasi Pengguna**: Sistem daftar masuk (Login) & pendaftaran (Register) menggunakan Laravel Breeze.
-* **Profil Pengguna**: Bio, lokasi, laman web, avatar, dan foto muka depan.
-* **Paparan Feed Utama**: Paparan feed pos daripada pengguna yang diikuti.
-* **Fungsi Pos**: Pengguna boleh menulis teks dan memuat naik gambar.
-* **Suka & Komen (Likes & Comments)**: Kebolehan menyukai dan memberi komen pada post orang lain serta memadam post/komen sendiri.
-* **Mesej Langsung (Direct Messages)**: Chat masa nyata antara pengguna dengan status mesej dibaca/belum dibaca.
-* **Carian**: Bar carian pengguna berdasarkan nama atau e-mel di bar navigasi.
+### 🚀 Core System Features
+* **User Authentication**: Login & Registration flow implemented using Laravel Breeze.
+* **User Profiles**: Custom profiles containing bio, location, website, avatar, and cover photo uploads.
+* **Main Feed Column**: Feed displaying posts from followed users.
+* **Post Creation**: Users can create posts with text and/or images.
+* **Likes & Comments**: Ability to like and comment on posts, delete own posts/comments.
+* **Direct Messaging**: Direct chat between users with read/unread status.
+* **Search**: Search for users by name or email via the navbar.
+* **Dark Mode**: Toggle button in navbar, localStorage preference persistence, and prefers-color-scheme detection.
 
-### 🛠️ Pembetulan Bug Penting (Bug Fixes)
-* **Vite Manifest Bug**: Memperbaiki ralat `ViteException` dengan mendaftarkan `resources/js/dark-mode.js` dalam `vite.config.js`.
-* **Carian Diri Sendiri**: Membetulkan operator precedence SQL dalam `SearchController.php` untuk memastikan pengguna semasa (logged-in user) tidak muncul dalam hasil carian mereka sendiri.
-* **Butang Follow Carian**: Menggantikan pepijat `auth()->user()->following->contains($user->id)` kepada `auth()->user()->isFollowing($user)` di `search/results.blade.php` bagi memaparkan status butang "Follow" atau "Following" dengan tepat.
-* **Kelipan Putih Tema Gelap**: Menyelesaikan FOUC (Flash of Unstyled Content) apabila refresh halaman dalam mod gelap dengan meletakkan skrip inline penyelarasan tema secara terus di dalam `<head>`.
+### 🛠️ Important Bug Fixes
+* **Vite Manifest Bug**: Resolved `ViteException` by registering `resources/js/dark-mode.js` in `vite.config.js`.
+* **Self-Search Result Bug**: Fixed SQL operator precedence in `SearchController.php` so the logged-in user cannot search for and find themselves.
+* **Follow Button State Bug**: Changed check from `auth()->user()->following->contains($user->id)` to `auth()->user()->isFollowing($user)` in `search/results.blade.php` to display correct follow button text.
+* **Dark Mode Refresh Flash**: Solved FOUC (Flash of Unstyled Content) by moving the theme initialization inline script to `<head>`.
+* **Profile Dropdown Flash**: Fixed Alpine.js menu flashing during page reloads by adding `x-cloak` and a global CSS hiding rule.
 
-### 🔔 Sistem Pemberitahuan (Database Notifications) - *NEW*
-* Menambah migrasi jadual `notifications`.
-* Mencipta kelas notifikasi: `NewFollowNotification`, `NewLikeNotification`, dan `NewCommentNotification`.
-* Melaksanakan fungsi pemberitahuan automatik dalam `FollowController`, `LikeController`, dan `CommentController`.
-* Menyediakan bar navigasi dengan lencana (badge) bilangan pemberitahuan merah yang dikemas kini secara dinamik.
-* Membina halaman utama `/notifications` responsif untuk melihat dan menanda notifikasi sebagai telah dibaca.
+### 🔔 Database Notifications (Recently Added)
+* Created `notifications` table migration.
+* Created notification classes: `NewFollowNotification`, `NewLikeNotification`, and `NewCommentNotification`.
+* Integrated automatic dispatch triggers in `FollowController`, `LikeController`, and `CommentController`.
+* Added navigation bar menu link with dynamic red badge indicating the number of unread notifications.
+* Created `/notifications` dashboard page to view notifications and mark them as read.
+
+### 📖 Stories (Recently Added)
+* Created `stories` table migration.
+* Implemented `Story` model and defined relationships in `User` model.
+* Created `StoryController` to handle story uploads and deletion.
+* Modified `FeedController` to retrieve active (last 24 hours) stories.
+* Built horizontal scrollable stories bar, upload modal, and Alpine.js slideshow stories viewer (with progress bars, auto-advance, and navigation control).
 
 ---
 
-## 2. Tugasan Belum Selesai & Cadangan Penambahbaikan (Pending Tasks)
+## 2. Pending Tasks & Future Enhancements
 
-Berikut adalah senarai baki tugasan atau ciri masa depan mengikut susunan keutamaan:
+Listed in order of priority:
 
-1. **Sistem Block / Sekat Pengguna**
-   * *Huraian*: Membenarkan pengguna menyekat pengguna lain daripada menghantar mesej, melihat profil, atau melihat post mereka di feed.
-2. **Tetapan Privasi Post (Post Privacy)**
-   * *Huraian*: Pilihan untuk menetapkan post sebagai "Awam (Public)" atau "Pengikut Sahaja (Followers Only)".
-3. **Kongsian Semula Post (Post Reposting)**
-   * *Huraian*: Kebolehan berkongsi semula (repost/share) hantaran pengguna lain ke halaman profil sendiri.
-4. **Tanda Pagar & Sebutan (Hashtags & Mentions)**
-   * *Huraian*: Menyokong sebutan `@username` dan `#hashtag` di dalam post yang secara automatik dipautkan.
-5. **Kemas Kini Mesej Secara Masa Nyata (WebSockets)**
-   * *Huraian*: Menggunakan Pusher/WebSockets untuk membolehkan mesej chat dan notifikasi muncul serta-merta tanpa perlu refresh halaman.
-6. **Sistem Stories**
-   * *Huraian*: Fungsi perkongsian gambar atau teks yang akan dipadam secara automatik selepas 24 jam.
-7. **Muat Naik Video**
-   * *Huraian*: Menyokong perkongsian klip video pendek dalam post.
-8. **Panel Pentadbir (Admin Panel)**
-   * *Huraian*: Dashboard untuk pentadbir menguruskan pengguna, memantau kandungan yang dilaporkan, dan melihat statistik sistem.
+1. **Block / Report Users**
+   * *Description*: Allow users to block others from sending messages or viewing their profile/posts.
+2. **Post Privacy Settings**
+   * *Description*: Enable users to set posts as "Public" or "Followers Only".
+3. **Post Sharing / Reposting**
+   * *Description*: Allow users to repost another user's post to their own profile timeline.
+4. **Hashtags & Mentions**
+   * *Description*: Support `@username` and `#hashtag` parsing in post bodies with links.
+5. **Real-time Chat Updates (WebSockets)**
+   * *Description*: Implement WebSockets/Pusher for instant chat and notification deliveries.
+6. **Video Uploads**
+   * *Description*: Support video clip uploads inside posts.
+7. **Admin Panel**
+   * *Description*: Backoffice dashboard for managing users and contents.

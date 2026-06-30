@@ -1,13 +1,13 @@
 @extends('layouts.app')
-@section('title', 'Pemberitahuan')
+@section('title', 'Notifications')
 
 @section('content')
 <div class="max-w-3xl mx-auto space-y-6">
     <!-- Header -->
     <div class="flex items-center justify-between">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white transition-colors">Pemberitahuan</h1>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Urus dan lihat semua pemberitahuan aktiviti anda.</p>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white transition-colors">Notifications</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage and view all your activity notifications.</p>
         </div>
         
         @if (auth()->user()->unreadNotifications->count() > 0)
@@ -15,7 +15,7 @@
                 @csrf
                 <button type="submit" 
                         class="text-xs font-semibold text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/10 px-3 py-1.5 rounded-full hover:bg-green-100 dark:hover:bg-green-900/20 transition-all shadow-sm">
-                    Tanda semua sebagai dibaca
+                    Mark all as read
                 </button>
             </form>
         @endif
@@ -28,8 +28,8 @@
                 <svg class="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
                 </svg>
-                <p class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-1">Tiada pemberitahuan lagi</p>
-                <p class="text-sm">Apabila orang lain menyukai, mengulas atau mengikuti anda, pemberitahuan akan dipaparkan di sini.</p>
+                <p class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-1">No notifications yet</p>
+                <p class="text-sm">When others like, comment, or follow you, your notifications will appear here.</p>
             </div>
         @else
             <div class="divide-y divide-gray-100 dark:divide-gray-700">
@@ -57,7 +57,6 @@
                             $iconBg = 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400';
                             $iconHtml = '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/></svg>';
                             if (isset($data['post_id'])) {
-                                // Direct link to user profile (feed scrolls to their posts, or direct profile page)
                                 $post = \App\Models\Post::find($data['post_id']);
                                 if ($post) {
                                     $link = route('profile.show', $post->user_id) . '#post-' . $post->id;
@@ -86,7 +85,7 @@
                                 </a>
                             @else
                                 <img src="{{ asset('images/default-avatar.png') }}"
-                                     alt="Pengguna"
+                                     alt="User"
                                      class="w-11 h-11 rounded-full object-cover border border-gray-100 dark:border-gray-600">
                             @endif
                         </div>
@@ -99,7 +98,7 @@
                                         {{ $performer->name }}
                                     </a>
                                 @else
-                                    <span class="font-bold text-gray-500">Seseorang</span>
+                                    <span class="font-bold text-gray-500">Someone</span>
                                 @endif
                                 
                                 <span class="text-gray-600 dark:text-gray-400">{{ $data['message'] ?? '' }}</span>
@@ -119,7 +118,7 @@
                                 @if ($link !== '#')
                                     <span class="text-gray-300 dark:text-gray-600 text-xs">•</span>
                                     <a href="{{ $link }}" class="text-xs font-semibold text-green-600 dark:text-green-400 hover:underline">
-                                        Lihat Post/Profil
+                                        View Post/Profile
                                     </a>
                                 @endif
                             </div>
@@ -138,7 +137,7 @@
                                     @csrf
                                     <button type="submit" 
                                             class="text-gray-400 hover:text-green-600 dark:hover:text-green-400 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
-                                            title="Tanda sebagai dibaca">
+                                            title="Mark as read">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                         </svg>

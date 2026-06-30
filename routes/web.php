@@ -9,6 +9,7 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\StoryController;
 use Illuminate\Support\Facades\Route;
 
 // Redirect root to feed or login
@@ -52,6 +53,10 @@ Route::middleware('auth')->group(function () {
 
     // Follow / Unfollow
     Route::post('/users/{user}/follow', [FollowController::class, 'toggle'])->name('follow.toggle');
+
+    // Stories
+    Route::post('/stories', [StoryController::class, 'store'])->name('stories.store');
+    Route::delete('/stories/{story}', [StoryController::class, 'destroy'])->name('stories.destroy');
 
     // Chat
     Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');

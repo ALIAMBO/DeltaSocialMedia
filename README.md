@@ -46,6 +46,12 @@ A full-featured social media platform built with Laravel 11, Tailwind CSS, and M
 - System preference auto-detection (prefers-color-scheme)
 - Persistent preference saved in localStorage (with zero-flash page reloads)
 
+### 📖 Stories
+- Publish stories (images with optional short captions) visible to followed users
+- Active for 24 hours before automatic expiration
+- Horizontal scrollable Stories bar at the top of the feed page
+- Full-screen interactive slideshow viewer with autoplay progress bars, skip navigation, and owner delete actions
+
 ## Tech Stack
 
 - **Backend:** Laravel 11
@@ -177,6 +183,7 @@ routes/
 - `likes` - Post likes
 - `follows` - User follow relationships
 - `messages` - Direct messages between users
+- `stories` - User 24-hour stories
 
 ## Future Enhancements
 
@@ -184,7 +191,6 @@ Potential features to add:
 - Real-time updates with Pusher/WebSockets
 - Post sharing/reposting
 - Hashtags and mentions
-- Stories feature
 - Video uploads
 - Admin panel
 - Post privacy settings

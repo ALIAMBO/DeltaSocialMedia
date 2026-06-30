@@ -18,13 +18,13 @@ class NotificationController extends Controller
         $notification = auth()->user()->unreadNotifications()->findOrFail($id);
         $notification->markAsRead();
 
-        return back()->with('success', 'Pemberitahuan telah ditanda sebagai dibaca.');
+        return back()->with('success', 'Notification marked as read.');
     }
 
     public function markAllAsRead()
     {
         auth()->user()->unreadNotifications->markAsRead();
 
-        return back()->with('success', 'Semua pemberitahuan telah ditanda sebagai dibaca.');
+        return back()->with('success', 'All notifications marked as read.');
     }
 }
