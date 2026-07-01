@@ -43,10 +43,13 @@
                     Messages
                 </a>
                 <a href="{{ route('notifications.index') }}"
-                   class="hover:text-green-600 dark:hover:text-green-400 {{ request()->routeIs('notifications.index') ? 'text-green-600 dark:text-green-400' : '' }} transition-colors flex items-center gap-1.5">
-                    <span>Notifications</span>
+                   class="relative p-1 hover:text-green-600 dark:hover:text-green-400 {{ request()->routeIs('notifications.index') ? 'text-green-600 dark:text-green-400' : '' }} transition-colors flex items-center"
+                   title="Notifications">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                    </svg>
                     @if (auth()->user()->unreadNotifications->count() > 0)
-                        <span class="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full min-w-[16px] h-4 flex items-center justify-center border border-white dark:border-gray-800 shadow-sm leading-none">
                             {{ auth()->user()->unreadNotifications->count() }}
                         </span>
                     @endif
@@ -147,7 +150,286 @@
         });
     });
     </script>
-    
+
+    @auth
+    <!-- Floating Chat Widget -->
+    <div x-data="{
+        isOpen: false,
+        activeView: 'inbox',
+        conversations: [],
+        contacts: [],
+        messages: [],
+        chatUser: null,
+        newMessageText: '',
+        unreadTotal: 0,
+        pollingTimer: null,
+
+        init() {
+            this.fetchConversations();
+            this.pollingTimer = setInterval(() => {
+                this.pollUpdates();
+            }, 5000);
+        },
+
+        fetchConversations() {
+            fetch('/api/chat/conversations')
+                .then(res => res.json())
+                .then(data => {
+                    this.conversations = data;
+                    this.calculateUnread();
+                });
+        },
+
+        fetchContacts() {
+            fetch('/api/chat/contacts')
+                .then(res => res.json())
+                .then(data => {
+                    this.contacts = data;
+                });
+        },
+
+        openChat(user) {
+            this.chatUser = user;
+            this.activeView = 'chat';
+            this.fetchMessages();
+        },
+
+        fetchMessages() {
+            if (!this.chatUser) return;
+            fetch('/api/chat/messages/' + this.chatUser.id)
+                .then(res => res.json())
+                .then(data => {
+                    this.messages = data.messages;
+                    this.chatUser = data.user;
+                    this.scrollToBottom();
+                    this.fetchConversations();
+                });
+        },
+
+        sendMessage() {
+            if (!this.newMessageText.trim() || !this.chatUser) return;
+            let bodyText = this.newMessageText;
+            this.newMessageText = '';
+
+            fetch('/api/chat/messages/' + this.chatUser.id, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name=&quot;csrf-token&quot;]').getAttribute('content')
+                },
+                body: JSON.stringify({ body: bodyText })
+            })
+            .then(res => res.json())
+            .then(msg => {
+                this.messages.push(msg);
+                this.scrollToBottom();
+                this.fetchConversations();
+            });
+        },
+
+        pollUpdates() {
+            this.fetchConversations();
+            if (this.isOpen && this.activeView === 'chat') {
+                this.fetchMessages();
+            }
+        },
+
+        calculateUnread() {
+            this.unreadTotal = this.conversations.reduce((sum, c) => sum + (c.unread_count || 0), 0);
+        },
+
+        scrollToBottom() {
+            this.$nextTick(() => {
+                const container = this.$refs.messageContainer;
+                if (container) {
+                    container.scrollTop = container.scrollHeight;
+                }
+            });
+        },
+
+        closeWidget() {
+            this.isOpen = false;
+        },
+
+        toggleWidget() {
+            this.isOpen = !this.isOpen;
+            if (this.isOpen) {
+                this.fetchConversations();
+                if (this.activeView === 'chat') {
+                    this.fetchMessages();
+                }
+            }
+        },
+
+        showInbox() {
+            this.activeView = 'inbox';
+            this.chatUser = null;
+            this.fetchConversations();
+        },
+
+        showContacts() {
+            this.activeView = 'contacts';
+            this.chatUser = null;
+            this.fetchContacts();
+        }
+    }" class="fixed bottom-6 right-6 z-50 font-sans" x-cloak>
+        
+        <!-- 1. Floating Trigger Button -->
+        <button @click="toggleWidget()" 
+                class="w-14 h-14 rounded-full bg-gradient-to-tr from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white flex items-center justify-center shadow-2xl transition-all duration-300 transform hover:scale-105 focus:outline-none relative">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+            </svg>
+            <!-- Unread count badge -->
+            <span x-show="unreadTotal > 0" 
+                  x-text="unreadTotal" 
+                  class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center border-2 border-white dark:border-gray-800 shadow-sm transition-all">
+            </span>
+        </button>
+
+        <!-- 2. Chat Popover Panel -->
+        <div x-show="isOpen" 
+             x-transition:enter="transition ease-out duration-200" 
+             x-transition:enter-start="opacity-0 translate-y-4 scale-95" 
+             x-transition:enter-end="opacity-100 translate-y-0 scale-100" 
+             x-transition:leave="transition ease-in duration-150" 
+             x-transition:leave-start="opacity-100 translate-y-0 scale-100" 
+             x-transition:leave-end="opacity-0 translate-y-4 scale-95"
+             class="absolute bottom-16 right-0 w-[360px] h-[480px] bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-2xl flex flex-col overflow-hidden transition-colors">
+            
+            <!-- Panel Header -->
+            <div class="p-4 bg-gray-50 dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700/60 flex items-center justify-between transition-colors">
+                
+                <!-- Header: Inbox / Contacts view -->
+                <div x-show="activeView !== 'chat'" class="flex gap-4">
+                    <button @click="showInbox()" 
+                            class="text-sm font-bold pb-1 transition-colors border-b-2" 
+                            :class="activeView === 'inbox' ? 'text-green-600 dark:text-green-400 border-green-500' : 'text-gray-400 border-transparent hover:text-gray-600 dark:hover:text-gray-300'">
+                        Inbox
+                    </button>
+                    <button @click="showContacts()" 
+                            class="text-sm font-bold pb-1 transition-colors border-b-2" 
+                            :class="activeView === 'contacts' ? 'text-green-600 dark:text-green-400 border-green-500' : 'text-gray-400 border-transparent hover:text-gray-600 dark:hover:text-gray-300'">
+                        Contacts
+                    </button>
+                </div>
+
+                <!-- Header: Active Chat view -->
+                <div x-show="activeView === 'chat'" class="flex items-center gap-2 flex-1 min-w-0">
+                    <button @click="showInbox()" class="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full text-gray-500 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                    </button>
+                    <img :src="chatUser?.avatar" class="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-gray-600">
+                    <div class="min-w-0 flex-1">
+                        <p class="text-xs font-bold text-gray-800 dark:text-gray-100 truncate" x-text="chatUser?.name"></p>
+                        <p class="text-[9px] text-green-500 font-semibold leading-none mt-0.5">Online</p>
+                    </div>
+                </div>
+
+                <!-- Close button -->
+                <button @click="closeWidget()" class="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Panel Body -->
+            <div class="flex-1 flex flex-col min-h-0 bg-white dark:bg-gray-800 transition-colors">
+                
+                <!-- 1. Inbox View -->
+                <div x-show="activeView === 'inbox'" class="flex-1 overflow-y-auto divide-y divide-gray-50 dark:divide-gray-700/40">
+                    <template x-if="conversations.length === 0">
+                        <div class="p-8 text-center text-gray-400 dark:text-gray-500">
+                            <p class="text-sm">No active chats.</p>
+                            <p class="text-xs mt-1">Start a conversation from your Contacts!</p>
+                        </div>
+                    </template>
+                    <template x-for="c in conversations" :key="c.id">
+                        <div @click="openChat(c)" class="p-3.5 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-700/30 cursor-pointer transition-colors">
+                            <div class="relative flex-shrink-0">
+                                <img :src="c.avatar" class="w-10 h-10 rounded-full object-cover border border-gray-100 dark:border-gray-600">
+                                <span x-show="c.unread_count > 0" class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold px-1 py-0.5 rounded-full min-w-[16px] text-center border border-white dark:border-gray-850">
+                                    <span x-text="c.unread_count"></span>
+                                </span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold text-gray-800 dark:text-gray-200 truncate" x-text="c.name"></span>
+                                    <span class="text-[9px] text-gray-400 dark:text-gray-500" x-text="c.last_message ? c.last_message.time : ''"></span>
+                                </div>
+                                <p class="text-[11px] text-gray-500 dark:text-gray-400 truncate mt-0.5" x-text="c.last_message ? c.last_message.body : ''"></p>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- 2. Contacts View -->
+                <div x-show="activeView === 'contacts'" class="flex-1 overflow-y-auto p-2 space-y-1">
+                    <template x-if="contacts.length === 0">
+                        <div class="p-8 text-center text-gray-400 dark:text-gray-500">
+                            <p class="text-sm">No contacts found.</p>
+                            <p class="text-xs mt-1">Follow users in Search to start chatting!</p>
+                        </div>
+                    </template>
+                    <template x-for="contact in contacts" :key="contact.id">
+                        <div @click="openChat(contact)" class="p-2.5 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-700/30 rounded-xl cursor-pointer transition-all duration-200">
+                            <img :src="contact.avatar" class="w-9 h-9 rounded-full object-cover border border-gray-100 dark:border-gray-600">
+                            <span class="text-xs font-semibold text-gray-800 dark:text-gray-200" x-text="contact.name"></span>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- 3. Active Chat View -->
+                <div x-show="activeView === 'chat'" class="flex-1 flex flex-col min-h-0 bg-gray-50 dark:bg-gray-900/10">
+                    <!-- Message Feed -->
+                    <div x-ref="messageContainer" class="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin">
+                        <template x-for="msg in messages" :key="msg.id">
+                            <div class="flex items-start gap-2" :class="msg.is_sent_by_me ? 'justify-end' : 'justify-start'">
+                                <!-- Sender Avatar -->
+                                <template x-if="!msg.is_sent_by_me">
+                                    <img :src="chatUser?.avatar" class="w-6 h-6 rounded-full object-cover mt-1 border border-gray-100 dark:border-gray-700">
+                                </template>
+                                
+                                <!-- Bubble content -->
+                                <div class="flex flex-col max-w-[75%]" :class="msg.is_sent_by_me ? 'items-end' : 'items-start'">
+                                    <div class="px-3.5 py-2 text-xs shadow-sm"
+                                         :class="msg.is_sent_by_me 
+                                             ? 'bg-green-600 text-white rounded-2xl rounded-tr-none' 
+                                             : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-100 dark:border-gray-700/60 rounded-2xl rounded-tl-none'">
+                                        <p class="leading-relaxed whitespace-pre-wrap break-words" x-text="msg.body"></p>
+                                    </div>
+                                    <span class="text-[8px] text-gray-400 dark:text-gray-500 mt-1" x-text="msg.time"></span>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- Message Form -->
+                    <div class="p-3 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 flex gap-2 transition-colors">
+                        <input type="text" 
+                               x-model="newMessageText" 
+                               @keyup.enter="sendMessage()"
+                               placeholder="Write a message..."
+                               class="flex-1 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-full px-4 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-green-400 dark:focus:ring-green-500 transition-colors">
+                        <button @click="sendMessage()" 
+                                class="p-2 rounded-full bg-green-600 hover:bg-green-700 text-white transition-colors flex-shrink-0 flex items-center justify-center w-8 h-8 shadow-md">
+                            <svg class="w-3.5 h-3.5 transform rotate-45 -translate-x-[1px]" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+    @endauth
+
     @stack('scripts')
 </body>
 </html>

@@ -1,17 +1,17 @@
-# Panduan Agen AI (AI Assistant Guidelines)
+# AI Assistant Guidelines
 
-Selamat datang! Sila ikuti panduan berikut apabila membantu tugasan pembangunan dalam projek ini:
+Welcome! Please follow these guidelines when assisting with development tasks in this project:
 
-## 1. Memahami Keadaan Projek
-Sebelum memulakan sebarang tugasan pengekodan, kajian, atau perbincangan, anda **WAJIB** membaca dokumen berikut untuk mengetahui status sistem semasa:
-* **Status Semasa Tugasan**: Rujuk [project_status.md](file:///c:/projects/socialmedia/.agents/project_status.md) untuk melihat tugasan yang telah selesai dan tugasan yang belum selesai.
-* **Seni Bina Kod**: Rujuk [system_architecture.md](file:///c:/projects/socialmedia/.agents/system_architecture.md) untuk memahami reka bentuk pangkalan data, model, controller, routing, dan integrasi aset CSS/JS.
+## 1. Understand Project State
+Before starting any coding, research, or discussion task, you **MUST** read the following documents to understand the current system status:
+* **Current Task Status**: Refer to [project_status.md](file:///c:/projects/socialmedia/.agents/project_status.md) to see completed and pending tasks.
+* **Code Architecture**: Refer to [system_architecture.md](file:///c:/projects/socialmedia/.agents/system_architecture.md) to understand the database design, models, controllers, routing, and CSS/JS asset integration.
 
-## 2. Bahasa Komunikasi
-* Gunakan **Bahasa Melayu Malaysia** yang profesional dan mesra untuk berinteraksi dengan pengguna, kecuali jika diminta sebaliknya.
+## 2. Communication Language
+* Use **English** or **Malaysian Malay** (professional and friendly) to interact with the user, depending on the user's preference (default to the user's input language).
 
-## 3. Garis Panduan Pengekodan (Coding Rules)
-* **Kompilasi Aset (Vite)**: Sekiranya anda menambah atau mengubah fail CSS/JS luaran, pastikan fail tersebut berdaftar di `vite.config.js` dan jalankan `npm run build` selepas pengubahsuaian selesai.
-* **Inisialisasi Tema Gelap (Dark Mode)**: Untuk mengelakkan kelipan unread (FOUC), pastikan semua halaman menggunakan skrip inisialisasi inline di bahagian `<head>` susun atur utama (layouts).
-* **Integriti Komen**: Kekalkan semua komen sedia ada yang tidak berkaitan dengan perubahan anda bagi mengelakkan kemerosotan dokumentasi kod.
-* **Kemas Kini Dokumentasi (README.md)**: Apabila sesuatu ciri (feature) telah dikemas kini atau ditambah baik, pastikan anda turut mengemas kini fail [README.md](file:///c:/projects/socialmedia/README.md) projek bagi mencerminkan perubahan tersebut.
+## 3. Coding Rules
+* **Asset Compilation (Vite)**: If you add or modify external CSS/JS files, ensure they are registered in `vite.config.js` and run `npm run build` after changes are complete.
+* **Dark Mode Initialization**: To avoid unread flashing (FOUC), ensure all pages use an inline initialization script in the `<head>` of the main layouts.
+* **Comment Integrity**: Preserve all existing comments that are unrelated to your changes to prevent documentation regression.
+* **Documentation Update (README.md)**: When a feature has been updated or improved, ensure you also update the project's [README.md](file:///c:/projects/socialmedia/README.md) file to reflect the changes.

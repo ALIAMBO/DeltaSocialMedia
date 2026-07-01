@@ -37,7 +37,7 @@ A full-featured social media platform built with Laravel 11, Tailwind CSS, and M
 ### 🔔 Notifications
 - Database-driven notification system
 - Automatic notifications triggered for new follows, post likes, and comments
-- Dynamic unread notification count badge in navbar
+- Bell icon with a dynamic red dot notification count badge in the navbar
 - Dedicated dashboard to view notifications and mark them as read
 
 ### 🌓 Dark Mode
@@ -45,6 +45,20 @@ A full-featured social media platform built with Laravel 11, Tailwind CSS, and M
 - Toggle button in the navbar for seamless theme switching
 - System preference auto-detection (prefers-color-scheme)
 - Persistent preference saved in localStorage (with zero-flash page reloads)
+
+### 📖 Stories
+- Publish stories (images with optional short captions) visible to followed users
+- Active for 24 hours before automatic expiration
+- Horizontal scrollable Stories bar at the top of the feed page
+- Full-screen interactive slideshow viewer with autoplay progress bars, skip navigation, and owner delete actions
+
+### 💬 Floating Chat Widget
+- Circular floating chat trigger button on all pages with dynamic unread count badge
+- Slide-up panel with Inbox and Contacts tabs
+- Inbox: Displays active chat partners with avatar, name, last message preview, and time
+- Contacts: Lists followed users to easily start new chat threads
+- Active Chat: Scrollable per-user chat feed with styled bubbles (left/received, right/sent) and instant send form
+- Background Auto-polling: Background sync fetches new messages every 5 seconds to provide simulated real-time chat updates
 
 ## Tech Stack
 
@@ -177,6 +191,7 @@ routes/
 - `likes` - Post likes
 - `follows` - User follow relationships
 - `messages` - Direct messages between users
+- `stories` - User 24-hour stories
 
 ## Future Enhancements
 
@@ -184,7 +199,6 @@ Potential features to add:
 - Real-time updates with Pusher/WebSockets
 - Post sharing/reposting
 - Hashtags and mentions
-- Stories feature
 - Video uploads
 - Admin panel
 - Post privacy settings

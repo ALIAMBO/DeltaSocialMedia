@@ -36,7 +36,7 @@ class NewCommentNotification extends Notification
             'post_id' => $this->post->id,
             'comment_id' => $this->comment->id,
             'comment_body' => $this->comment->body,
-            'message' => 'mengulas pada post anda',
+            'message' => 'commented on your post',
         ];
     }
 }

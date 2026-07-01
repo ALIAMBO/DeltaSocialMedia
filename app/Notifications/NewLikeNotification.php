@@ -31,7 +31,7 @@ class NewLikeNotification extends Notification
             'liker_id' => $this->liker->id,
             'liker_name' => $this->liker->name,
             'post_id' => $this->post->id,
-            'message' => 'menyukai post anda',
+            'message' => 'liked your post',
         ];
     }
 }

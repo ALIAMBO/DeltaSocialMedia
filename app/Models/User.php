@@ -39,6 +39,16 @@ class User extends Authenticatable
         return $this->hasMany(Post::class)->latest();
     }
 
+    public function stories()
+    {
+        return $this->hasMany(Story::class);
+    }
+
+    public function activeStories()
+    {
+        return $this->hasMany(Story::class)->active()->latest();
+    }
+
     public function followers()
     {
         return $this->hasMany(Follow::class, 'following_id');

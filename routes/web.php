@@ -9,6 +9,7 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\StoryController;
 use Illuminate\Support\Facades\Route;
 
 // Redirect root to feed or login
@@ -53,10 +54,20 @@ Route::middleware('auth')->group(function () {
     // Follow / Unfollow
     Route::post('/users/{user}/follow', [FollowController::class, 'toggle'])->name('follow.toggle');
 
+    // Stories
+    Route::post('/stories', [StoryController::class, 'store'])->name('stories.store');
+    Route::delete('/stories/{story}', [StoryController::class, 'destroy'])->name('stories.destroy');
+
     // Chat
     Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
     Route::get('/chat/{user}', [ChatController::class, 'show'])->name('chat.show');
     Route::post('/chat/{user}', [ChatController::class, 'send'])->name('chat.send');
+
+    // Chat APIs for Floating Chat widget
+    Route::get('/api/chat/conversations', [ChatController::class, 'apiGetConversations']);
+    Route::get('/api/chat/contacts', [ChatController::class, 'apiGetContacts']);
+    Route::get('/api/chat/messages/{user}', [ChatController::class, 'apiGetMessages']);
+    Route::post('/api/chat/messages/{user}', [ChatController::class, 'apiSendMessage']);
 
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
