@@ -30,11 +30,11 @@ class FeedController extends Controller
                 $query->where('created_at', '>=', now()->subHours(24));
             })
             ->with(['stories' => function ($query) {
-                $query->where('created_at', '>=', now()->subHours(24))->latest();
+                $query->where('created_at', '>=', now()->subHours(24))->oldest();
             }, 'profile'])
             ->get()
             ->sortByDesc(function ($u) {
-                return $u->stories->first()?->created_at;
+                return $u->stories->last()?->created_at;
             })
             ->values();
 

@@ -23,8 +23,8 @@ Route::get('/', function () {
 require __DIR__ . '/auth.php';
 
 // Public image-serving routes (no auth needed — browser img tags can't send session cookies)
-Route::get('/users/{user}/avatar', [ProfileController::class, 'avatar'])->name('profile.avatar');
-Route::get('/users/{user}/cover', [ProfileController::class, 'cover'])->name('profile.cover');
+Route::get('/@{user}/avatar', [ProfileController::class, 'avatar'])->name('profile.avatar');
+Route::get('/@{user}/cover', [ProfileController::class, 'cover'])->name('profile.cover');
 
 // Authenticated routes
 Route::middleware('auth')->group(function () {
@@ -49,10 +49,10 @@ Route::middleware('auth')->group(function () {
     // Profiles
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::get('/users/{user}', [ProfileController::class, 'show'])->name('profile.show');
+    Route::get('/@{user}', [ProfileController::class, 'show'])->name('profile.show');
 
     // Follow / Unfollow
-    Route::post('/users/{user}/follow', [FollowController::class, 'toggle'])->name('follow.toggle');
+    Route::post('/@{user}/follow', [FollowController::class, 'toggle'])->name('follow.toggle');
 
     // Stories
     Route::post('/stories', [StoryController::class, 'store'])->name('stories.store');
@@ -73,6 +73,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.readAll');
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::get('/api/notifications/unread', [NotificationController::class, 'apiGetUnread']);
 
     // Dashboard redirect → feed
     Route::get('/dashboard', fn() => redirect()->route('feed'))->name('dashboard');
