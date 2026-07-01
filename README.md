@@ -37,7 +37,7 @@ A full-featured social media platform built with Laravel 11, Tailwind CSS, and M
 ### 🔔 Notifications
 - Database-driven notification system
 - Automatic notifications triggered for new follows, post likes, and comments
-- Dynamic unread notification count badge in navbar
+- Bell icon with a dynamic red dot notification count badge in the navbar
 - Dedicated dashboard to view notifications and mark them as read
 
 ### 🌓 Dark Mode

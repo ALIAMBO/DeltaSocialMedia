@@ -163,16 +163,30 @@
 
                     <!-- Active Stories list -->
                     @foreach ($usersWithStories as $idx => $u)
-                        <div class="flex flex-col items-center flex-shrink-0 cursor-pointer" @click="selectUser({{ $idx }})">
-                            <div class="p-[2.5px] bg-gradient-to-tr from-green-500 to-emerald-600 rounded-full shadow-sm">
-                                <div class="p-[1.5px] bg-white dark:bg-gray-800 rounded-full transition-colors">
-                                    <img src="{{ $u->profile?->avatar_url ?? asset('images/default-avatar.png') }}"
-                                         class="w-12 h-12 rounded-full object-cover border border-transparent">
+                        <div class="flex flex-col items-center flex-shrink-0 relative group">
+                            <!-- Clickable Circle trigger -->
+                            <div class="cursor-pointer flex flex-col items-center" @click="selectUser({{ $idx }})">
+                                <div class="p-[2.5px] bg-gradient-to-tr from-green-500 to-emerald-600 rounded-full shadow-sm hover:scale-105 transition-transform duration-200">
+                                    <div class="p-[1.5px] bg-white dark:bg-gray-800 rounded-full transition-colors">
+                                        <img src="{{ $u->profile?->avatar_url ?? asset('images/default-avatar.png') }}"
+                                             class="w-12 h-12 rounded-full object-cover border border-transparent">
+                                    </div>
                                 </div>
+                                <span class="text-[10px] font-semibold text-gray-600 dark:text-gray-400 mt-1.5 truncate w-14 text-center">
+                                    {{ $u->id === auth()->id() ? 'Your Story' : $u->name }}
+                                </span>
                             </div>
-                            <span class="text-[10px] font-semibold text-gray-600 dark:text-gray-400 mt-1.5 truncate w-14 text-center">
-                                {{ $u->id === auth()->id() ? 'Your Story' : $u->name }}
-                            </span>
+
+                            <!-- Floating delete button for own active story -->
+                            @if ($u->id === auth()->id())
+                                <button onclick="event.stopPropagation(); if (confirm('Are you sure you want to delete your latest story?')) { document.getElementById('delete-story-form').action = '/stories/{{ $u->stories->first()->id }}'; document.getElementById('delete-story-form').submit(); }"
+                                        class="absolute top-0 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 border border-white dark:border-gray-800 shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20"
+                                        title="Delete latest story">
+                                    <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </button>
+                            @endif
                         </div>
                     @endforeach
                 </div>

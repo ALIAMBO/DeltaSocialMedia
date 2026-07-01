@@ -32,7 +32,11 @@ class FeedController extends Controller
             ->with(['stories' => function ($query) {
                 $query->where('created_at', '>=', now()->subHours(24))->latest();
             }, 'profile'])
-            ->get();
+            ->get()
+            ->sortByDesc(function ($u) {
+                return $u->stories->first()?->created_at;
+            })
+            ->values();
 
         return view('feed.index', compact('posts', 'usersWithStories'));
     }
