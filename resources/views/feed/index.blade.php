@@ -31,6 +31,20 @@
     timer: null,
     users: {{ $storiesJson }},
     readStories: JSON.parse(localStorage.getItem('readStories') || '[]'),
+    storyHasImg: false,
+    storyPreviewSrc: '',
+    
+    init() {
+        this.$watch('uploadOpen', value => {
+            if (!value) {
+                this.storyHasImg = false;
+                this.storyPreviewSrc = '';
+                resetCropper();
+                const input = document.getElementById('story-image-input');
+                if (input) input.value = '';
+            }
+        });
+    },
     
     isUserStoriesUnread(userId) {
         let u = this.users.find(user => user.id === userId);
@@ -331,10 +345,12 @@
             <form action="{{ route('stories.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="space-y-4">
-                    <!-- Image Selection -->
-                    <div class="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-4 text-center cursor-pointer hover:border-green-500 dark:hover:border-green-500 transition-colors relative"
-                         x-data="{ hasImg: false, previewSrc: '' }">
-                        <input type="file" name="image" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer"
+                    <!-- Image Selection & Cropping -->
+                    <div class="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-4 text-center hover:border-green-500 dark:hover:border-green-500 transition-colors relative"
+                         id="story-upload-container">
+                        <input type="file" id="story-image-input" name="image" accept="image/*" 
+                               class="absolute inset-0 opacity-0 cursor-pointer"
+                               :class="storyHasImg ? 'hidden' : ''"
                                required
                                @change="
                                    const file = $event.target.files[0];
@@ -342,26 +358,43 @@
                                        if (file.size > 5 * 1024 * 1024) {
                                            alert('Image must be less than 5MB.');
                                            $event.target.value = '';
-                                           hasImg = false;
+                                           storyHasImg = false;
                                            return;
                                        }
                                        const reader = new FileReader();
                                        reader.onload = (e) => {
-                                           previewSrc = e.target.result;
-                                           hasImg = true;
+                                           storyPreviewSrc = e.target.result;
+                                           storyHasImg = true;
+                                           $nextTick(() => {
+                                               initCropper();
+                                           });
                                        };
                                        reader.readAsDataURL(file);
                                    }
                                ">
-                        <div x-show="!hasImg" class="py-6">
+                        <div x-show="!storyHasImg" class="py-6 pointer-events-none">
                             <svg class="w-10 h-10 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                             </svg>
                             <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Choose your story image</p>
                             <p class="text-xs text-gray-400 mt-1">Size limit: 5MB</p>
                         </div>
-                        <div x-show="hasImg" class="relative rounded-lg overflow-hidden max-h-60">
-                            <img :src="previewSrc" class="w-full h-full object-cover">
+                        <div x-show="storyHasImg" class="relative rounded-lg overflow-hidden max-h-[350px] bg-zinc-950 flex flex-col items-center">
+                            <div class="max-h-[300px] w-full overflow-hidden flex items-center justify-center">
+                                <img id="cropper-image" :src="storyPreviewSrc" class="max-w-full max-h-[300px]">
+                            </div>
+                            <div class="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full z-10">
+                                <button type="button" 
+                                        @click="
+                                            resetCropper();
+                                            storyHasImg = false;
+                                            storyPreviewSrc = '';
+                                            document.getElementById('story-image-input').value = '';
+                                        "
+                                        class="text-xs text-red-400 hover:text-red-300 font-semibold px-2 py-1 transition-colors">
+                                    Remove Image
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -404,9 +437,9 @@
             </div>
 
             <!-- Top bar container: progress bar, user metadata, close button -->
-            <div class="absolute top-0 inset-x-0 p-4 z-20 bg-gradient-to-b from-black/90 to-transparent">
+            <div class="absolute top-0 inset-x-0 p-4 z-20 bg-gradient-to-b from-black/90 to-transparent pointer-events-none">
                 <!-- Progress Indicators -->
-                <div class="flex gap-1.5 w-full mb-3">
+                <div class="flex gap-1.5 w-full mb-3 pointer-events-auto">
                     <template x-for="(story, idx) in (users[activeUserIndex] ? users[activeUserIndex].stories : [])" :key="story.id">
                         <div class="h-1 bg-white/20 rounded-full flex-1 overflow-hidden">
                             <div class="h-full bg-green-500 transition-all duration-[50ms] ease-linear"
@@ -418,7 +451,7 @@
 
                 <!-- User info & Actions -->
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 pointer-events-auto">
                         <img :src="users[activeUserIndex]?.avatar" class="w-8 h-8 rounded-full object-cover border border-white/20">
                         <div class="flex flex-col">
                             <span class="text-white text-xs font-bold" x-text="users[activeUserIndex]?.name"></span>
@@ -426,15 +459,16 @@
                         </div>
                     </div>
 
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-3 pointer-events-auto">
                         <!-- Delete option for own stories -->
-                        <template x-if="users[activeUserIndex]?.stories[activeStoryIndex]?.is_owner">
-                            <button @click.stop="deleteActiveStory()" class="text-red-400 hover:text-red-500 p-1.5 bg-white/10 hover:bg-white/20 rounded-full transition-all relative z-30" title="Delete this story">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                </svg>
-                            </button>
-                        </template>
+                        <button x-show="users[activeUserIndex]?.stories[activeStoryIndex]?.is_owner"
+                                @click.stop="deleteActiveStory()"
+                                class="text-red-400 hover:text-red-500 p-1.5 bg-white/10 hover:bg-white/20 rounded-full transition-all relative z-30" 
+                                title="Delete this story">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                        </button>
 
                         <!-- Close Button -->
                         <button @click.stop="closeStories()" class="text-white/80 hover:text-white p-1 bg-white/10 hover:bg-white/20 rounded-full transition-all relative z-30">
@@ -473,6 +507,95 @@
 </div>
 @endsection
 
+@push('styles')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+<style>
+.cropper-bg {
+    background-image: none !important;
+    background-color: #09090b !important;
+}
+.cropper-view-box {
+    outline: 2px solid #16a34a !important;
+    outline-color: #16a34a !important;
+}
+.cropper-line, .cropper-point {
+    background-color: #16a34a !important;
+}
+</style>
+@endpush
+
 @push('scripts')
     @vite('resources/js/pages/post-card.js')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+    <script>
+    let cropperInstance = null;
+
+    function initCropper() {
+        const image = document.getElementById('cropper-image');
+        if (!image) return;
+
+        if (cropperInstance) {
+            cropperInstance.destroy();
+        }
+
+        cropperInstance = new Cropper(image, {
+            aspectRatio: 9 / 16,
+            viewMode: 1,
+            dragMode: 'move',
+            autoCropArea: 0.9,
+            restore: false,
+            guides: true,
+            center: true,
+            highlight: false,
+            cropBoxMovable: true,
+            cropBoxResizable: true,
+            toggleDragModeOnDblclick: false
+        });
+    }
+
+    function resetCropper() {
+        if (cropperInstance) {
+            cropperInstance.destroy();
+            cropperInstance = null;
+        }
+    }
+
+    // Intercept form submission to apply cropped image file
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form[action*="/stories"]');
+        if (!form) return;
+
+        form.addEventListener('submit', function(e) {
+            if (cropperInstance) {
+                e.preventDefault();
+                
+                // Get cropped canvas
+                const canvas = cropperInstance.getCroppedCanvas({
+                    width: 1080,
+                    height: 1920
+                });
+                
+                if (canvas) {
+                    canvas.toBlob(function(blob) {
+                        const fileInput = document.getElementById('story-image-input');
+                        const file = new File([blob], 'story.jpg', { type: 'image/jpeg' });
+                        
+                        // Replace input files using DataTransfer
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(file);
+                        fileInput.files = dataTransfer.files;
+                        
+                        // Reset cropper instance so next submit doesn't trigger loop
+                        resetCropper();
+                        
+                        // Submit form
+                        form.submit();
+                    }, 'image/jpeg', 0.9);
+                } else {
+                    form.submit();
+                }
+            }
+        });
+    });
+    </script>
 @endpush
