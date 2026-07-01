@@ -34,7 +34,7 @@ class Profile extends Model
      */
     public function getAvatarUrlAttribute(): string
     {
-        return route('profile.avatar', $this->user_id)
+        return route('profile.avatar', $this->user)
              . '?v=' . ($this->updated_at?->timestamp ?? 0);
     }
 
@@ -43,7 +43,7 @@ class Profile extends Model
      */
     public function getCoverUrlAttribute(): string
     {
-        return route('profile.cover', $this->user_id)
+        return route('profile.cover', $this->user)
              . '?v=' . ($this->updated_at?->timestamp ?? 0);
     }
 }

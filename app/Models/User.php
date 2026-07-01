@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -85,12 +86,37 @@ class User extends Authenticatable
     }
 
     /**
+     * Use the slugified name as the URL key (e.g. "Ali Binambo" → "ali-binambo").
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'name';
+    }
+
+    /**
+     * Return the slug value when generating route URLs.
+     */
+    public function getRouteKey(): mixed
+    {
+        return Str::slug($this->name);
+    }
+
+    /**
+     * Resolve the model from the slug in the URL.
+     * Loads all users and matches against their slug to avoid a LIKE query.
+     */
+    public function resolveRouteBinding($value, $field = null): ?self
+    {
+        return self::all()->first(fn ($u) => Str::slug($u->name) === $value);
+    }
+
+    /**
      * Get the avatar URL — served through the controller from private storage.
      * Cache-busted by the profile's updated_at timestamp.
      */
     public function getAvatarUrlAttribute(): string
     {
         $v = $this->profile?->updated_at?->timestamp ?? 0;
-        return route('profile.avatar', $this->id) . '?v=' . $v;
+        return route('profile.avatar', $this) . '?v=' . $v;
     }
 }
