@@ -25,7 +25,7 @@
 
     <!-- Navbar -->
     <nav class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-sm transition-colors">
-        <div class="max-w-5xl mx-auto px-4 flex items-center justify-between h-14">
+        <div class="max-w-6xl mx-auto px-4 flex items-center justify-between h-14">
             <!-- Logo -->
             <a href="{{ route('feed') }}" class="text-green-600 dark:text-green-400 font-bold text-xl tracking-tight">
                 {{ config('app.name') }}
@@ -113,7 +113,7 @@
     </nav>
 
     <!-- Flash messages -->
-    <div class="max-w-5xl mx-auto px-4 mt-4 space-y-2">
+    <div class="max-w-6xl mx-auto px-4 mt-4 space-y-2">
         @if (session('success'))
             <div class="bg-green-50 dark:bg-green-900/20 border border-green-300 dark:border-green-700 text-green-800 dark:text-green-200 text-sm rounded-lg px-4 py-3 alert-message transition-colors" data-type="success">
                 {{ session('success') }}
@@ -127,8 +127,80 @@
     </div>
 
     <!-- Page Content -->
-    <main class="max-w-5xl mx-auto px-4 py-6">
-        @yield('content')
+    <main class="max-w-6xl mx-auto px-4 py-6">
+        @auth
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
+                <!-- Left Sidebar (Desktop only) -->
+                <aside class="hidden md:block md:col-span-1 space-y-4">
+                    <!-- User Mini Profile -->
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 transition-colors">
+                        <div class="flex items-center gap-3">
+                            <img src="{{ auth()->user()->profile?->avatar_url ?? asset('images/default-avatar.png') }}"
+                                 alt="Avatar"
+                                 class="w-10 h-10 rounded-full object-cover border border-gray-200 dark:border-gray-700">
+                            <div class="min-w-0 flex-1">
+                                <a href="{{ route('profile.show', auth()->user()) }}" class="font-bold text-sm text-gray-900 dark:text-white hover:underline truncate block">
+                                    {{ auth()->user()->name }}
+                                </a>
+                                <span class="text-xs text-gray-500 dark:text-gray-400 truncate block">
+                                    {{ auth()->user()->email }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar Navigation Links -->
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-3 shadow-sm border border-gray-100 dark:border-gray-700 transition-colors">
+                        <nav class="space-y-1">
+                            <a href="{{ route('feed') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-semibold rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors {{ request()->routeIs('feed') ? 'bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-400' : '' }}">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                                </svg>
+                                <span>Feed</span>
+                            </a>
+                            <a href="{{ route('chat.index') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-semibold rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors {{ request()->routeIs('chat.*') ? 'bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-400' : '' }}">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                </svg>
+                                <span>Messages</span>
+                            </a>
+                            <a href="{{ route('notifications.index') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-semibold rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors {{ request()->routeIs('notifications.*') ? 'bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-400' : '' }}">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                                </svg>
+                                <span>Notifications</span>
+                            </a>
+                            <a href="{{ route('profile.show', auth()->user()) }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-semibold rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors {{ request()->routeIs('profile.show') && request()->route('user') && request()->route('user')->id === auth()->id() ? 'bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-400' : '' }}">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                </svg>
+                                <span>My Profile</span>
+                            </a>
+                            <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-semibold rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors {{ request()->routeIs('profile.edit') ? 'bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-400' : '' }}">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                                <span>Settings</span>
+                            </a>
+                        </nav>
+                    </div>
+
+                    <!-- Placeholder for Future Features -->
+                    <div class="bg-gray-50 dark:bg-gray-800/40 border border-dashed border-gray-200 dark:border-gray-700 rounded-2xl p-4 text-center text-xs text-gray-400 dark:text-gray-500 transition-colors">
+                        <p class="font-semibold text-gray-500 dark:text-gray-400">Future Features</p>
+                        <p class="mt-1">Additional features, widgets, and links will appear here.</p>
+                    </div>
+                </aside>
+
+                <!-- Page Content Area -->
+                <div class="col-span-1 md:col-span-4">
+                    @yield('content')
+                </div>
+            </div>
+        @else
+            @yield('content')
+        @endauth
     </main>
 
     <!-- Alpine.js for dropdowns - MUST load before scripts that use x-data directives -->
@@ -428,6 +500,90 @@
         </div>
 
     </div>
+    @endauth
+
+    @auth
+    <!-- Toast Container for Real-time Notifications -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-3 pointer-events-none"></div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let knownNotificationIds = null;
+
+        function checkNotifications() {
+            fetch('/api/notifications/unread')
+                .then(res => res.json())
+                .then(notifications => {
+                    // On first load, just remember the existing unread notifications without toasting them
+                    if (knownNotificationIds === null) {
+                        knownNotificationIds = new Set(notifications.map(n => n.id));
+                        return;
+                    }
+
+                    // Toast any new notifications
+                    notifications.forEach(notification => {
+                        if (!knownNotificationIds.has(notification.id)) {
+                            knownNotificationIds.add(notification.id);
+                            showNotificationToast(notification);
+                            
+                            // Also dynamically update the navbar badge if it exists
+                            const badge = document.querySelector('a[href*="/notifications"] span.absolute');
+                            if (badge) {
+                                // Extract current count or show badge
+                                let currentCount = parseInt(badge.textContent.trim()) || 0;
+                                badge.textContent = currentCount + 1;
+                                badge.classList.remove('hidden');
+                            } else {
+                                // If badge didn't exist, we can reload or add a red dot
+                                const navLink = document.querySelector('a[href*="/notifications"]');
+                                if (navLink) {
+                                    const dot = document.createElement('span');
+                                    dot.className = "absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full min-w-[16px] h-4 flex items-center justify-center border border-white dark:border-gray-800 shadow-sm leading-none";
+                                    dot.textContent = "1";
+                                    navLink.appendChild(dot);
+                                }
+                            }
+                        }
+                    });
+                })
+                .catch(err => console.error("Error checking notifications:", err));
+        }
+
+        function showNotificationToast(notification) {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = "flex items-center gap-3 p-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 pointer-events-auto transform translate-y-10 opacity-0 transition-all duration-500 max-w-sm w-80";
+            
+            toast.innerHTML = `
+                <img src="${notification.performer_avatar}" class="w-10 h-10 rounded-full object-cover border border-gray-200 dark:border-gray-600">
+                <div class="flex-1 min-w-0">
+                    <p class="text-xs font-semibold text-green-600 dark:text-green-400">New Notification</p>
+                    <p class="text-[13px] font-bold truncate">${notification.performer_name}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">${notification.message}</p>
+                </div>
+            `;
+
+            container.appendChild(toast);
+
+            // Animate-in
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-10', 'opacity-0');
+            });
+
+            // Animate-out and remove after 5 seconds
+            setTimeout(() => {
+                toast.classList.add('translate-y-[-10px]', 'opacity-0');
+                setTimeout(() => toast.remove(), 500);
+            }, 5000);
+        }
+
+        // Start polling every 5 seconds
+        checkNotifications();
+        setInterval(checkNotifications, 5000);
+    });
+    </script>
     @endauth
 
     @stack('scripts')

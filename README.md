@@ -46,6 +46,13 @@ A full-featured social media platform built with Laravel 11, Tailwind CSS, and M
 - System preference auto-detection (prefers-color-scheme)
 - Persistent preference saved in localStorage (with zero-flash page reloads)
 
+### 🗂️ Left Sidebar Layout
+- Structured left sidebar for desktop and tablet screens
+- Displays authenticated user information (avatar, name, email)
+- Quick links for Feed, Messages, Notifications, Profile, and Settings
+- Expandable placeholder block for future widgets and feature additions
+- Responsive design: automatically hidden on mobile views to maximize space
+
 ### 📖 Stories
 - Publish stories (images with optional short captions) visible to followed users
 - Active for 24 hours before automatic expiration

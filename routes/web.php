@@ -73,6 +73,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.readAll');
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::get('/api/notifications/unread', [NotificationController::class, 'apiGetUnread']);
 
     // Dashboard redirect → feed
     Route::get('/dashboard', fn() => redirect()->route('feed'))->name('dashboard');
