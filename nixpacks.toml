@@ -6,7 +6,8 @@ nixPkgs = ["...", "php82", "nodejs"] # Ensures PHP and Node are installed
 cmds = [
     "composer install --no-dev --optimize-autoloader",
     "npm install",
-    "npm run build"
+    "npm run build",
+    "rm -f public/hot"
 ]
 
 [start]

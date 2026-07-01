@@ -1,0 +1,18 @@
+# .railwayignore
+.env
+.env.backup
+.env.production
+/public/hot
+/public/storage
+/node_modules
+/vendor
+*.log
+.git
+.github
+.idea
+.vscode
+.zed
+.agents
+project_status.md
+system_architecture.md
+walkthrough.md
