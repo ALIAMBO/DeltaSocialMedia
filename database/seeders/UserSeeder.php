@@ -16,7 +16,7 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        // ── 1. Create 5 users ──────────────────────────────────────────────
+        // ── 1. Create 21 users ─────────────────────────────────────────────
         $users = [
             [
                 'name'  => 'Alice Rivera',
@@ -53,6 +53,118 @@ class UserSeeder extends Seeder
                 'location' => 'Ho Chi Minh City, Vietnam',
                 'website'  => 'https://elladesigns.io',
             ],
+            [
+                'name'  => 'Fiona Gallagher',
+                'email' => 'fiona@example.com',
+                'bio'   => 'Managing a chaotic life and loving every second of it. 🏠✨',
+                'location' => 'Chicago, USA',
+                'website'  => null,
+            ],
+            [
+                'name'  => 'George Vance',
+                'email' => 'george@example.com',
+                'bio'   => 'History professor & book collector. 📚🏛️',
+                'location' => 'London, UK',
+                'website'  => 'https://georgevance.edu',
+            ],
+            [
+                'name'  => 'Hannah Abbott',
+                'email' => 'hannah@example.com',
+                'bio'   => 'Botanist & gardener. Bringing green to the concrete jungle. 🌿🌸',
+                'location' => 'Seattle, USA',
+                'website'  => 'https://hannahgardens.com',
+            ],
+            [
+                'name'  => 'Ian Malcolm',
+                'email' => 'ian@example.com',
+                'bio'   => 'Chaos theorist. Life finds a way. 🦖',
+                'location' => 'Austin, USA',
+                'website'  => null,
+            ],
+            [
+                'name'  => 'Julia Roberts',
+                'email' => 'julia@example.com',
+                'bio'   => 'Actress, dreamer, and explorer.',
+                'location' => 'Los Angeles, USA',
+                'website'  => null,
+            ],
+            [
+                'name'  => 'Kevin Bacon',
+                'email' => 'kevin@example.com',
+                'bio'   => 'Six degrees of connection. Let\'s link up!',
+                'location' => 'Philadelphia, USA',
+                'website'  => null,
+            ],
+            [
+                'name'  => 'Laura Croft',
+                'email' => 'laura@example.com',
+                'bio'   => 'Archaeologist. Exploring the ancient worlds.',
+                'location' => 'Wimbledon, UK',
+                'website'  => 'https://tombraider.org',
+            ],
+            [
+                'name'  => 'Marcus Aurelius',
+                'email' => 'marcus@example.com',
+                'bio'   => 'Stoic philosopher. Just thinking about life. 🧘‍♂️',
+                'location' => 'Rome, Italy',
+                'website'  => null,
+            ],
+            [
+                'name'  => 'Nora Jones',
+                'email' => 'nora@example.com',
+                'bio'   => 'Jazz musician and songwriter. 🎹🎤',
+                'location' => 'New Orleans, USA',
+                'website'  => 'https://norajones.music',
+            ],
+            [
+                'name'  => 'Oliver Twist',
+                'email' => 'oliver@example.com',
+                'bio'   => 'Please sir, I want some more... updates! 🥣',
+                'location' => 'London, UK',
+                'website'  => null,
+            ],
+            [
+                'name'  => 'Penelope Cruz',
+                'email' => 'penelope@example.com',
+                'bio'   => 'Cinema & art lover.',
+                'location' => 'Madrid, Spain',
+                'website'  => null,
+            ],
+            [
+                'name'  => 'Quentin Tarantino',
+                'email' => 'quentin@example.com',
+                'bio'   => 'Filmmaker. Big fan of foot shots and dialogue.',
+                'location' => 'Los Angeles, USA',
+                'website'  => null,
+            ],
+            [
+                'name'  => 'Rachel Green',
+                'email' => 'rachel@example.com',
+                'bio'   => 'Fashion enthusiast & Central Perk regular. ☕👗',
+                'location' => 'New York, USA',
+                'website'  => null,
+            ],
+            [
+                'name'  => 'Steve Rogers',
+                'email' => 'steve@example.com',
+                'bio'   => 'I can do this all day. 🛡️',
+                'location' => 'Brooklyn, USA',
+                'website'  => null,
+            ],
+            [
+                'name'  => 'Tina Fey',
+                'email' => 'tina@example.com',
+                'bio'   => 'Writer, comedian, and plastic cup collector.',
+                'location' => 'Philadelphia, USA',
+                'website'  => null,
+            ],
+            [
+                'name'  => 'ali',
+                'email' => 'alibinambo26@gmail.com',
+                'bio'   => 'Founder & developer. Coding the future. 🚀💻',
+                'location' => 'Kuala Lumpur, Malaysia',
+                'website'  => 'https://github.com/alibinambo26',
+            ],
         ];
 
         $created = collect($users)->map(function ($data) {
@@ -73,6 +185,7 @@ class UserSeeder extends Seeder
         });
 
         [$alice, $bob, $clara, $diego, $ella] = $created;
+        $ali = $created->firstWhere('email', 'alibinambo26@gmail.com');
 
         // ── 2. Follow relationships ────────────────────────────────────────
         $follows = [
@@ -88,6 +201,10 @@ class UserSeeder extends Seeder
             [$diego, $ella],
             [$ella,  $bob],
             [$ella,  $clara],
+            [$ali,   $alice],
+            [$ali,   $bob],
+            [$alice, $ali],
+            [$bob,   $ali],
         ];
 
         foreach ($follows as [$follower, $following]) {
@@ -118,6 +235,9 @@ class UserSeeder extends Seeder
             // Ella
             Post::create(['user_id' => $ella->id, 'body' => "Just wrapped up a full redesign for a client's dashboard. Dark mode, clean typography, lots of whitespace. 🎨"]),
             Post::create(['user_id' => $ella->id, 'body' => "Hot take: consistency in spacing matters more than color choices. Fight me. 😄"]),
+
+            // Ali
+            Post::create(['user_id' => $ali->id, 'body' => 'Excited to be on this new platform! Building amazing things with Laravel, Alpine.js, and Tailwind CSS. 🚀💻']),
         ];
 
         // ── 4. Likes ──────────────────────────────────────────────────────
@@ -181,7 +301,7 @@ class UserSeeder extends Seeder
                 "Hey Bob! Loved your post about Laravel 11.",
                 "Thanks Alice! Are you using it for any projects?",
                 "Yes! Just started a new social media app actually 😄",
-                "That's awesome, let me know if you need any help!",
+                "That's awesome, let know if you need any help!",
             ]],
             [$ella, $bob, [
                 "Hey, quick question — do you prefer Tailwind or plain CSS?",
@@ -194,6 +314,17 @@ class UserSeeder extends Seeder
                 "Thank you so much Clara, that means a lot!",
                 "Would love to collab on a travel + photography piece sometime!",
                 "Oh wow, yes! I'd love that, let's plan something!",
+            ]],
+            [$ali, $alice, [
+                "Hey Alice! Your photography posts look awesome.",
+                "Thank you Ali! Welcome to DeltaSocialMedia!",
+                "Thanks! The new notification bell design is super slick.",
+                "Yes! We just upgraded it recently to have a red dot with numbers.",
+            ]],
+            [$ali, $bob, [
+                "Hey Bob! Are you working on any new Laravel packages?",
+                "Hey Ali! Yes, working on a new API wrapper. I will share it here soon.",
+                "Can't wait to check it out!",
             ]],
         ];
 
@@ -212,7 +343,7 @@ class UserSeeder extends Seeder
             }
         }
 
-        $this->command->info('✅  5 users seeded with profiles, posts, likes, comments & messages.');
+        $this->command->info('✅  21 users seeded with profiles, posts, likes, comments & messages.');
         $this->command->info('    Login with any user — password: password');
         $this->command->table(
             ['Name', 'Email', 'Password'],

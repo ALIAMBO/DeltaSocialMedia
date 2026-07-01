@@ -72,6 +72,9 @@ $coverUrlJson = json_encode($coverUrl);
                             {{ $isFollowing ? 'Unfollow' : 'Follow' }}
                         </button>
                     </form>
+                    <a href="{{ route('chat.show', $user) }}" class="px-5 py-2 rounded-full text-sm font-semibold border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                        Message
+                    </a>
                 @else
                     <a href="{{ route('profile.edit') }}" class="px-5 py-2 rounded-full text-sm font-semibold border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">Edit Profile</a>
                 @endif
