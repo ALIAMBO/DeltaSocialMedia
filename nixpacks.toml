@@ -1,6 +1,6 @@
 # nixpacks.toml
 [phases.setup]
-nixPkgs = ["...", "nodejs"] # Ensures PHP and Node are installed
+nixPkgs = ["...", "nodejs_22"] # Ensures PHP and Node are installed
 
 [phases.build]
 cmds = [
