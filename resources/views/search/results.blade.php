@@ -52,8 +52,8 @@
                                             </p>
                                         @endif
                                         <div class="flex gap-4 text-xs text-gray-600 dark:text-gray-400 mt-2">
-                                            <span>{{ $user->posts->count() }} Posts</span>
-                                            <span>{{ $user->followers->count() }} Followers</span>
+                                            <span>{{ $user->posts_count }} Posts</span>
+                                            <span>{{ $user->followers_count }} Followers</span>
                                         </div>
                                     </div>
                                 </div>

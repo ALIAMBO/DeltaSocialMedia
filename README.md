@@ -75,6 +75,12 @@ A full-featured social media platform built with Laravel 11, Tailwind CSS, and M
 - Searchable Post Moderation dashboard allowing admins to view, audit, and permanently delete any post.
 - Grid-based Story Moderation dashboard to audit active/expired stories and delete inappropriate ones.
 
+### ⚡ Performance Optimization
+- **Eager Loading & N+1 Prevention**: Systematically implemented Eloquent eager loading for post creators, likes, comment authors, and follow relationships to prevent database N+1 query loops.
+- **Grouped lookups**: Batched chat latest messages, unread counts, and notifications performer details in single grouped queries, reducing database load to a minimum regardless of list size.
+- **Pre-counted Attributes**: Replaced resource-intensive counts by leveraging `withCount` and `loadCount` database-level aggregates for followers, following, and posts counts.
+- **Route Model Binding Optimization**: Restructured user route resolving to execute database-level searches using indexed lookups, preventing memory-exhausting `User::all()` sweeps.
+
 ## Tech Stack
 
 - **Backend:** Laravel 11

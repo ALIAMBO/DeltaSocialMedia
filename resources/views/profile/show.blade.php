@@ -61,8 +61,8 @@ $coverUrlJson = json_encode($coverUrl);
             @endif
             <div class="flex gap-6 mt-4 text-sm text-gray-700 dark:text-gray-300">
                 <span><strong>{{ $user->posts->count() }}</strong> Posts</span>
-                <span><strong>{{ $user->followers->count() }}</strong> Followers</span>
-                <span><strong>{{ $user->following->count() }}</strong> Following</span>
+                <span><strong>{{ $user->followers_count }}</strong> Followers</span>
+                <span><strong>{{ $user->following_count }}</strong> Following</span>
             </div>
             <div class="flex gap-2 mt-4">
                 @if (auth()->id() !== $user->id)

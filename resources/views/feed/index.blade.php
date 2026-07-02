@@ -295,15 +295,6 @@
             </div>
 
             <!-- Who to follow -->
-            @php
-                $suggestions = \App\Models\User::where('id', '!=', auth()->id())
-                    ->whereNotIn('id', auth()->user()->following()->pluck('following_id'))
-                    ->with('profile')
-                    ->inRandomOrder()
-                    ->limit(5)
-                    ->get();
-            @endphp
-
             @if ($suggestions->isNotEmpty())
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 transition-colors">
                 <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Suggested Users</h3>

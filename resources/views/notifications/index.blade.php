@@ -40,7 +40,7 @@
                         
                         // Get performer details
                         $performerId = $data['follower_id'] ?? $data['liker_id'] ?? $data['commenter_id'] ?? null;
-                        $performer = $performerId ? \App\Models\User::find($performerId) : null;
+                        $performer = ($performerId && isset($performers[$performerId])) ? $performers[$performerId] : null;
                         
                         // Define notification type attributes
                         $iconBg = 'bg-gray-100 text-gray-600';
@@ -57,7 +57,7 @@
                             $iconBg = 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400';
                             $iconHtml = '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/></svg>';
                             if (isset($data['post_id'])) {
-                                $post = \App\Models\Post::find($data['post_id']);
+                                $post = isset($posts[$data['post_id']]) ? $posts[$data['post_id']] : null;
                                 if ($post) {
                                     $link = route('profile.show', $post->user_id) . '#post-' . $post->id;
                                 }
@@ -66,7 +66,7 @@
                             $iconBg = 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400';
                             $iconHtml = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>';
                             if (isset($data['post_id'])) {
-                                $post = \App\Models\Post::find($data['post_id']);
+                                $post = isset($posts[$data['post_id']]) ? $posts[$data['post_id']] : null;
                                 if ($post) {
                                     $link = route('profile.show', $post->user_id) . '#post-' . $post->id;
                                 }

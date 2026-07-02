@@ -11,7 +11,13 @@ class ProfileController extends Controller
 {
     public function show(User $user)
     {
-        $user->load(['profile', 'posts.likes', 'posts.comments.user', 'followers', 'following']);
+        $user->load(['profile', 'posts.user.profile', 'posts.likes', 'posts.comments.user.profile']);
+        $user->loadCount(['followers', 'following']);
+
+        if (Auth::check()) {
+            Auth::user()->load('following');
+        }
+
         $isFollowing = Auth::check() && Auth::user()->isFollowing($user);
         return view('profile.show', compact('user', 'isFollowing'));
     }
