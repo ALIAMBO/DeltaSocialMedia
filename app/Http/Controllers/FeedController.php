@@ -19,10 +19,13 @@ class FeedController extends Controller
         $followingIds = $user->following()->pluck('following_id');
         $feedIds = $followingIds->push($user->id);
 
-        $posts = Post::with(['user.profile', 'likes', 'comments.user'])
+        $posts = Post::with(['user.profile', 'likes', 'comments.user.profile'])
             ->whereIn('user_id', $feedIds)
             ->latest()
             ->paginate(15);
+
+        // Eager load following on authenticated user to avoid N+1 query in templates/widgets
+        $user->load('following');
 
         // Fetch users (self + followed users) with active stories (last 24 hours)
         $usersWithStories = \App\Models\User::whereIn('id', $feedIds)
@@ -38,6 +41,14 @@ class FeedController extends Controller
             })
             ->values();
 
-        return view('feed.index', compact('posts', 'usersWithStories'));
+        // Fetch suggested users (who to follow)
+        $suggestions = \App\Models\User::where('id', '!=', $user->id)
+            ->whereNotIn('id', $followingIds)
+            ->with('profile')
+            ->inRandomOrder()
+            ->limit(5)
+            ->get();
+
+        return view('feed.index', compact('posts', 'usersWithStories', 'suggestions'));
     }
 }

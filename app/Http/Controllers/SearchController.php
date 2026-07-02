@@ -12,14 +12,19 @@ class SearchController extends Controller
     {
         $query = $request->input('q');
         $users = collect();
-        $currentUserId = Auth::user()->id;
+        $currentUser = Auth::user();
+
+        // Eager load following on the authenticated user to avoid N+1 queries in loop
+        $currentUser->load('following');
 
         if ($query && strlen($query) >= 2) {
             $users = User::where(function ($q) use ($query) {
                     $q->where('name', 'like', "%{$query}%")
                       ->orWhere('email', 'like', "%{$query}%");
                 })
-                ->where('id', '!=', $currentUserId)
+                ->where('id', '!=', $currentUser->id)
+                ->with('profile')
+                ->withCount(['posts', 'followers'])
                 ->limit(20)
                 ->get();
         }

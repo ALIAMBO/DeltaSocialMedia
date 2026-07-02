@@ -64,6 +64,9 @@ class User extends Authenticatable
 
     public function isFollowing(User $user): bool
     {
+        if ($this->relationLoaded('following')) {
+            return $this->following->contains('following_id', $user->id);
+        }
         return $this->following()->where('following_id', $user->id)->exists();
     }
 
@@ -114,7 +117,13 @@ class User extends Authenticatable
      */
     public function resolveRouteBinding($value, $field = null): ?self
     {
-        return self::all()->first(fn ($u) => Str::slug($u->name) === $value);
+        $user = self::whereRaw("LOWER(REPLACE(name, ' ', '-')) = ?", [$value])->first();
+        if ($user) {
+            return $user;
+        }
+
+        $matchingUser = self::select('id', 'name')->get()->first(fn ($u) => Str::slug($u->name) === $value);
+        return $matchingUser ? self::find($matchingUser->id) : null;
     }
 
     /**
