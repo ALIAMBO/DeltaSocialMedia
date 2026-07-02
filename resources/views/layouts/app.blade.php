@@ -200,7 +200,7 @@
                         <p class="mt-1">Additional features, widgets, and links will appear here.</p>
                         <div class="mt-3 flex items-center justify-center gap-1.5 py-1 px-3 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 font-medium rounded-full w-max mx-auto text-[10px] border border-emerald-200/50 dark:border-emerald-800/30">
                             <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
-                            Database Status: Connected
+                            Database Status: Persistent & Connected
                         </div>
                     </div>
                 </aside>
