@@ -78,3 +78,26 @@ Route::middleware('auth')->group(function () {
     // Dashboard redirect → feed
     Route::get('/dashboard', fn() => redirect()->route('feed'))->name('dashboard');
 });
+
+// Admin Panel Routes (auth + admin middleware)
+use App\Http\Controllers\Admin\AdminController;
+
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/',               [AdminController::class, 'dashboard'])->name('dashboard');
+
+    // Users
+    Route::get('/users',          [AdminController::class, 'users'])->name('users');
+    Route::post('/users/{user}/ban',     [AdminController::class, 'banUser'])->name('users.ban');
+    Route::post('/users/{id}/unban',     [AdminController::class, 'unbanUser'])->name('users.unban');
+    Route::post('/users/{user}/promote', [AdminController::class, 'promoteUser'])->name('users.promote');
+    Route::post('/users/{user}/demote',  [AdminController::class, 'demoteUser'])->name('users.demote');
+    Route::delete('/users/{id}/delete',  [AdminController::class, 'deleteUser'])->name('users.delete');
+
+    // Posts
+    Route::get('/posts',          [AdminController::class, 'posts'])->name('posts');
+    Route::delete('/posts/{post}', [AdminController::class, 'deletePost'])->name('posts.delete');
+
+    // Stories
+    Route::get('/stories',        [AdminController::class, 'stories'])->name('stories');
+    Route::delete('/stories/{story}', [AdminController::class, 'deleteStory'])->name('stories.delete');
+});

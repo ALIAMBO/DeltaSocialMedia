@@ -164,6 +164,7 @@ class UserSeeder extends Seeder
                 'bio'   => 'Founder & developer. Coding the future. 🚀💻',
                 'location' => 'Kuala Lumpur, Malaysia',
                 'website'  => 'https://github.com/alibinambo26',
+                'is_admin' => true,
             ],
         ];
 
@@ -172,6 +173,7 @@ class UserSeeder extends Seeder
                 'name'     => $data['name'],
                 'email'    => $data['email'],
                 'password' => Hash::make('password'),
+                'is_admin' => $data['is_admin'] ?? false,
             ]);
 
             // Profile is auto-created by UserObserver, but we update it with richer data
