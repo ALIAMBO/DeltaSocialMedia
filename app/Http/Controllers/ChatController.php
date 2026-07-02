@@ -81,11 +81,13 @@ class ChatController extends Controller
             'body' => 'required|string|max:1000',
         ]);
 
-        Message::create([
+        $msg = Message::create([
             'sender_id'   => Auth::id(),
             'receiver_id' => $user->id,
             'body'        => $request->body,
         ]);
+
+        event(new \App\Events\MessageSent($msg));
 
         return back();
     }
@@ -210,13 +212,11 @@ class ChatController extends Controller
             'body'        => $request->body,
         ]);
 
-        return response()->json([
-            'id' => $msg->id,
-            'sender_id' => $msg->sender_id,
-            'receiver_id' => $msg->receiver_id,
-            'body' => $msg->body,
-            'is_sent_by_me' => true,
-            'time' => $msg->created_at->diffForHumans(),
-        ]);
+        event(new \App\Events\MessageSent($msg));
+
+        $msg->is_sent_by_me = true;
+        $msg->time = $msg->created_at->diffForHumans();
+
+        return response()->json($msg);
     }
 }

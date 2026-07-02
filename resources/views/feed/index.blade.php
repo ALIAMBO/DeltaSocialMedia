@@ -306,9 +306,9 @@
                                  class="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-gray-600" alt="avatar">
                             <span class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition">{{ $suggestion->name }}</span>
                         </a>
-                        <form action="{{ route('follow.toggle', $suggestion) }}" method="POST">
+                        <form action="{{ route('follow.toggle', $suggestion) }}" method="POST" class="follow-form" data-user-id="{{ $suggestion->id }}">
                             @csrf
-                            <button class="text-xs text-green-600 dark:text-green-400 hover:underline font-medium">Follow</button>
+                            <button class="text-xs text-green-600 dark:text-green-400 hover:underline font-medium follow-btn">Follow</button>
                         </form>
                     </div>
                     @endforeach

@@ -53,16 +53,16 @@
     <!-- Like / Comment actions -->
     <div class="px-4 py-3 border-t border-gray-100 dark:border-gray-700 flex items-center gap-4">
         <!-- Like -->
-        <form action="{{ route('posts.like', $post) }}" method="POST">
+        <form action="{{ route('posts.like', $post) }}" method="POST" class="like-form" data-post-id="{{ $post->id }}">
             @csrf
             <button type="submit" class="flex items-center gap-1.5 text-sm font-medium
                 {{ $post->isLikedBy(auth()->user()) ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400' }} transition">
-                <svg class="w-5 h-5" fill="{{ $post->isLikedBy(auth()->user()) ? 'currentColor' : 'none' }}"
+                <svg class="w-5 h-5 transition-transform duration-200" fill="{{ $post->isLikedBy(auth()->user()) ? 'currentColor' : 'none' }}"
                      stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
                 </svg>
-                <span>{{ $post->likes->count() }} {{ Str::plural('Like', $post->likes->count()) }}</span>
+                <span class="like-count">{{ $post->likes->count() }} {{ Str::plural('Like', $post->likes->count()) }}</span>
             </button>
         </form>
 
@@ -73,43 +73,48 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
             </svg>
-            <span>{{ $post->comments->count() }} {{ Str::plural('Comment', $post->comments->count()) }}</span>
+            <span class="comment-count-label" data-post-id="{{ $post->id }}">{{ $post->comments->count() }} {{ Str::plural('Comment', $post->comments->count()) }}</span>
         </button>
     </div>
 
     <!-- Comments Section -->
     <div id="comments-{{ $post->id }}" class="hidden border-t border-gray-100 dark:border-gray-700 px-4 py-3 space-y-3">
-        <!-- Existing comments -->
-        @foreach ($post->comments as $comment)
-        <div class="flex gap-2">
-            <a href="{{ route('profile.show', $comment->user) }}">
-                <img src="{{ $comment->user->profile?->avatar_url ?? asset('images/default-avatar.png') }}"
-                     class="w-7 h-7 rounded-full object-cover border border-gray-200 dark:border-gray-600" alt="avatar">
-            </a>
-            <div class="flex-1 bg-gray-50 dark:bg-gray-700 rounded-xl px-3 py-2">
-                <p class="text-xs font-semibold text-gray-700 dark:text-gray-200">{{ $comment->user->name }}</p>
-                <p class="text-sm text-gray-600 dark:text-gray-400">{{ $comment->body }}</p>
+        <!-- Comments list container -->
+        <div class="comment-list space-y-3">
+            @foreach ($post->comments as $comment)
+            <div class="flex gap-2 comment-item" id="comment-{{ $comment->id }}">
+                <a href="{{ route('profile.show', $comment->user) }}">
+                    <img src="{{ $comment->user->profile?->avatar_url ?? asset('images/default-avatar.png') }}"
+                         class="w-7 h-7 rounded-full object-cover border border-gray-200 dark:border-gray-600" alt="avatar">
+                </a>
+                <div class="flex-1 bg-gray-50 dark:bg-gray-700 rounded-xl px-3 py-2">
+                    <div class="flex items-center justify-between">
+                        <p class="text-xs font-semibold text-gray-700 dark:text-gray-200">{{ $comment->user->name }}</p>
+                        <span class="text-[10px] text-gray-400 dark:text-gray-500">{{ $comment->created_at->diffForHumans() }}</span>
+                    </div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">{{ $comment->body }}</p>
+                </div>
+                @if ($comment->user_id === auth()->id())
+                <form action="{{ route('comments.destroy', $comment) }}" method="POST" class="self-center comment-delete-form" data-comment-id="{{ $comment->id }}" data-post-id="{{ $post->id }}">
+                    @csrf @method('DELETE')
+                    <button class="text-gray-300 dark:text-gray-500 hover:text-red-400 dark:hover:text-red-400 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </form>
+                @endif
             </div>
-            @if ($comment->user_id === auth()->id())
-            <form action="{{ route('comments.destroy', $comment) }}" method="POST" class="self-center">
-                @csrf @method('DELETE')
-                <button class="text-gray-300 dark:text-gray-500 hover:text-red-400 dark:hover:text-red-400 transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
-            </form>
-            @endif
+            @endforeach
         </div>
-        @endforeach
 
         <!-- Add comment -->
-        <form action="{{ route('comments.store', $post) }}" method="POST" class="flex gap-2 mt-1">
+        <form action="{{ route('comments.store', $post) }}" method="POST" class="flex gap-2 mt-1 comment-store-form" data-post-id="{{ $post->id }}">
             @csrf
             <img src="{{ auth()->user()->profile?->avatar_url ?? asset('images/default-avatar.png') }}"
                  class="w-7 h-7 rounded-full object-cover border border-gray-200 dark:border-gray-600" alt="avatar">
             <div class="flex-1 flex gap-2">
-                <input type="text" name="body" placeholder="Write a comment..."
+                <input type="text" name="body" placeholder="Write a comment..." required
                        class="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-full px-4 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 placeholder-gray-500 dark:placeholder-gray-400 transition-colors">
                 <button type="submit"
                         class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white text-xs font-medium px-4 py-1.5 rounded-full transition-colors">

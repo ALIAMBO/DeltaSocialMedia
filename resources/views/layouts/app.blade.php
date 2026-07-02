@@ -243,12 +243,59 @@
         newMessageText: '',
         unreadTotal: 0,
         pollingTimer: null,
+        authId: {{ auth()->id() }},
 
         init() {
             this.fetchConversations();
             this.pollingTimer = setInterval(() => {
                 this.pollUpdates();
             }, 5000);
+
+            // Subscribe to private channels for real-time WebSocket updates
+            if (window.Echo) {
+                // Real-time messages listener
+                window.Echo.private('chat.' + this.authId)
+                    .listen('MessageSent', (event) => {
+                        if (this.chatUser && this.chatUser.id === event.sender_id) {
+                            this.messages.push({
+                                id: event.id,
+                                sender_id: event.sender_id,
+                                receiver_id: event.receiver_id,
+                                body: event.body,
+                                is_sent_by_me: false,
+                                time: event.time
+                            });
+                            this.scrollToBottom();
+                            // Trigger unread mark as read on backend
+                            fetch('/api/chat/messages/' + this.chatUser.id);
+                        } else {
+                            this.fetchConversations();
+                        }
+                    });
+
+                // Real-time notifications listener
+                window.Echo.private('notifications.' + this.authId)
+                    .listen('NotificationSent', (event) => {
+                        if (typeof window.showNotificationToast === 'function') {
+                            window.showNotificationToast(event);
+                        }
+                        
+                        // Update dynamic badge count in navbar
+                        const badge = document.querySelector('a[href*=&quot;/notifications&quot;] span.absolute, a[href*=&quot;/notifications&quot;] span');
+                        if (badge) {
+                            badge.textContent = event.unread_count;
+                            badge.classList.remove('hidden');
+                        } else {
+                            const navLink = document.querySelector('a[href*=&quot;/notifications&quot;]');
+                            if (navLink) {
+                                const dot = document.createElement('span');
+                                dot.className = 'absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full min-w-[16px] h-4 flex items-center justify-center border border-white dark:border-gray-800 shadow-sm leading-none';
+                                dot.textContent = event.unread_count;
+                                navLink.appendChild(dot);
+                            }
+                        }
+                    });
+            }
         },
 
         fetchConversations() {
@@ -557,7 +604,7 @@
                 .catch(err => console.error("Error checking notifications:", err));
         }
 
-        function showNotificationToast(notification) {
+        window.showNotificationToast = function(notification) {
             const container = document.getElementById('toast-container');
             if (!container) return;
 

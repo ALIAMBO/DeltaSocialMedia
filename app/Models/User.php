@@ -117,11 +117,8 @@ class User extends Authenticatable
      */
     public function resolveRouteBinding($value, $field = null): ?self
     {
-        if (is_numeric($value)) {
-            $user = self::find($value);
-            if ($user) {
-                return $user;
-            }
+        if ($field === 'id' || is_numeric($value)) {
+            return self::find($value);
         }
 
         $user = self::whereRaw("LOWER(REPLACE(name, ' ', '-')) = ?", [$value])->first();

@@ -51,9 +51,9 @@
                                                 {{ $user->profile->bio }}
                                             </p>
                                         @endif
-                                        <div class="flex gap-4 text-xs text-gray-600 dark:text-gray-400 mt-2">
+                                        <div class="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400 mt-1">
                                             <span>{{ $user->posts_count }} Posts</span>
-                                            <span>{{ $user->followers_count }} Followers</span>
+                                            <span data-followers-count-for="{{ $user->id }}">{{ $user->followers_count }} Followers</span>
                                         </div>
                                     </div>
                                 </div>
@@ -61,9 +61,9 @@
                                     @php
                                         $isFollowing = auth()->user()->isFollowing($user);
                                     @endphp
-                                    <form action="{{ route('follow.toggle', $user) }}" method="POST" class="inline">
+                                    <form action="{{ route('follow.toggle', $user) }}" method="POST" class="inline follow-form" data-user-id="{{ $user->id }}">
                                         @csrf
-                                        <button class="px-3 py-1.5 rounded-full text-xs font-semibold
+                                        <button class="px-3 py-1.5 rounded-full text-xs font-semibold follow-btn
                                                      {{ $isFollowing ? 'border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700' : 'bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white' }}
                                                      transition-colors whitespace-nowrap">
                                             {{ $isFollowing ? 'Following' : 'Follow' }}

@@ -25,6 +25,20 @@ class FollowController extends Controller
             $authUser->following()->create(['following_id' => $user->id]);
             $user->notify(new \App\Notifications\NewFollowNotification($authUser));
             $message = 'Now following ' . $user->name;
+            event(new \App\Events\NotificationSent($user, [
+                'message' => 'started following you',
+                'performer_name' => $authUser->name,
+                'performer_avatar' => $authUser->profile?->avatar_url ?? asset('images/default-avatar.png'),
+            ]));
+        }
+
+        if (request()->wantsJson()) {
+            return response()->json([
+                'following' => !$follow,
+                'followers_count' => $user->followers()->count(),
+                'following_count' => $user->following()->count(),
+                'message' => $message,
+            ]);
         }
 
         return back()->with('success', $message);

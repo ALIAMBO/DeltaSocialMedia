@@ -19,7 +19,19 @@ class LikeController extends Controller
             $post->likes()->create(['user_id' => $user->id]);
             if ($post->user_id !== $user->id) {
                 $post->user->notify(new \App\Notifications\NewLikeNotification($user, $post));
+                event(new \App\Events\NotificationSent($post->user, [
+                    'message' => 'liked your post: "' . \Illuminate\Support\Str::limit($post->body, 30) . '"',
+                    'performer_name' => $user->name,
+                    'performer_avatar' => $user->profile?->avatar_url ?? asset('images/default-avatar.png'),
+                ]));
             }
+        }
+
+        if (request()->wantsJson()) {
+            return response()->json([
+                'liked' => !$like,
+                'likes_count' => $post->likes()->count(),
+            ]);
         }
 
         return back();
