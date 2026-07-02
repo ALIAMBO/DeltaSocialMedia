@@ -67,6 +67,14 @@ A full-featured social media platform built with Laravel 11, Tailwind CSS, and M
 - Active Chat: Scrollable per-user chat feed with styled bubbles (left/received, right/sent) and instant send form
 - Background Auto-polling: Background sync fetches new messages every 5 seconds to provide simulated real-time chat updates
 
+### 🛡️ Admin Panel
+- Restrictive route middleware (`admin`) ensuring only users with `is_admin = true` can access administration pages.
+- Sidebar link to "Admin Panel" visible in the main app navigation layout for admins only.
+- Comprehensive Dashboard with platform-wide aggregations (total users, posts, stories, admins, banned users, new sign-ups this week) and tables displaying the latest 5 registered users and 5 recent posts.
+- Searchable User Management table allowing admins to ban/unban (soft delete/restore) users, promote/demote administrators, and permanently delete accounts.
+- Searchable Post Moderation dashboard allowing admins to view, audit, and permanently delete any post.
+- Grid-based Story Moderation dashboard to audit active/expired stories and delete inappropriate ones.
+
 ## Tech Stack
 
 - **Backend:** Laravel 11
