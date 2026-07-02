@@ -129,7 +129,7 @@ class ChatController extends Controller
         $conversations = $conversations->map(function ($user) use ($latestMessages, $unreadCounts) {
             $user->last_message = $latestMessages->get($user->id);
             $user->unread_count = $unreadCounts->get($user->id, 0);
-            $user->avatar = $user->profile?->avatar_url ?? asset('images/default-avatar.png');
+            $user->avatar = $user->avatar_url;
             return $user;
         })
         ->sortByDesc(fn($u) => optional($u->last_message)->created_at)
@@ -148,7 +148,7 @@ class ChatController extends Controller
             ->with('profile')
             ->get()
             ->map(function ($u) {
-                $u->avatar = $u->profile?->avatar_url ?? asset('images/default-avatar.png');
+                $u->avatar = $u->avatar_url;
                 return $u;
             });
 
@@ -175,16 +175,21 @@ class ChatController extends Controller
         ->oldest()
         ->get()
         ->map(function ($msg) use ($authId) {
-            $msg->is_sent_by_me = $msg->sender_id === $authId;
-            $msg->time = $msg->created_at->diffForHumans();
-            return $msg;
+            return [
+                'id' => $msg->id,
+                'sender_id' => $msg->sender_id,
+                'receiver_id' => $msg->receiver_id,
+                'body' => $msg->body,
+                'is_sent_by_me' => $msg->sender_id === $authId,
+                'time' => $msg->created_at->diffForHumans(),
+            ];
         });
 
         return response()->json([
             'user' => [
                 'id' => $user->id,
                 'name' => $user->name,
-                'avatar' => $user->profile?->avatar_url ?? asset('images/default-avatar.png'),
+                'avatar' => $user->avatar_url,
             ],
             'messages' => $messages
         ]);
@@ -205,9 +210,13 @@ class ChatController extends Controller
             'body'        => $request->body,
         ]);
 
-        $msg->is_sent_by_me = true;
-        $msg->time = $msg->created_at->diffForHumans();
-
-        return response()->json($msg);
+        return response()->json([
+            'id' => $msg->id,
+            'sender_id' => $msg->sender_id,
+            'receiver_id' => $msg->receiver_id,
+            'body' => $msg->body,
+            'is_sent_by_me' => true,
+            'time' => $msg->created_at->diffForHumans(),
+        ]);
     }
 }
