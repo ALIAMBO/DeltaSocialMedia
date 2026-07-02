@@ -1,5 +1,8 @@
 # nixpacks.toml
 
+[phases.setup]
+aptPkgs = ["...", "ca-certificates", "git", "unzip", "zip"]
+
 [phases.build]
 cmds = [
     "composer install --no-dev --optimize-autoloader",
