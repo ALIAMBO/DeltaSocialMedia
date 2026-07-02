@@ -61,14 +61,14 @@ $coverUrlJson = json_encode($coverUrl);
             @endif
             <div class="flex gap-6 mt-4 text-sm text-gray-700 dark:text-gray-300">
                 <span><strong>{{ $user->posts->count() }}</strong> Posts</span>
-                <span><strong>{{ $user->followers_count }}</strong> Followers</span>
+                <span><strong data-followers-count-for="{{ $user->id }}">{{ $user->followers_count }}</strong> Followers</span>
                 <span><strong>{{ $user->following_count }}</strong> Following</span>
             </div>
             <div class="flex gap-2 mt-4">
                 @if (auth()->id() !== $user->id)
-                    <form action="{{ route('follow.toggle', $user) }}" method="POST" class="inline">
+                    <form action="{{ route('follow.toggle', $user) }}" method="POST" class="inline follow-form" data-user-id="{{ $user->id }}">
                         @csrf
-                        <button class="px-5 py-2 rounded-full text-sm font-semibold bg-green-600 hover:bg-green-700 text-white dark:bg-green-700 dark:hover:bg-green-600 transition-colors">
+                        <button class="px-5 py-2 rounded-full text-sm font-semibold follow-btn bg-green-600 hover:bg-green-700 text-white dark:bg-green-700 dark:hover:bg-green-600 transition-colors">
                             {{ $isFollowing ? 'Unfollow' : 'Follow' }}
                         </button>
                     </form>

@@ -12,21 +12,21 @@ A full-featured social media platform built with Laravel 11, Tailwind CSS, and M
 - Custom profile pages with bio, location, website
 - Avatar and cover photo uploads
 - **Click avatar to view full-size profile picture** in scrollable modal
-- View followers & following counts
-- Follow/unfollow users
+- View followers & following counts (updated dynamically)
+- Follow/unfollow users dynamically via AJAX with instant button and count updates
 - Profile link in avatar dropdown menu (navbar)
 
 ### 📝 Posts & Feed
 - Create posts with text and/or images
 - View feed from followed users
-- Like and comment on posts
-- Delete own posts and comments
+- **AJAX-driven Likes & Comments**: Like/unlike posts and submit comments dynamically with zero page refresh and smooth micro-animations
+- Delete own posts, and delete comments instantly via background AJAX requests
 
-### 💬 Real-time Messaging
-- Chat with other users
-- View all conversations
-- Message read status
-- Conversation list sorted by last message
+### 💬 Real-time Messaging & WebSockets
+- **WebSocket-powered Chat**: Direct chat messages update instantly in the floating chat widget in real-time using Laravel Reverb
+- View all conversations, with messages sorted by most recent
+- Message read status synced in real-time
+- **Real-time Notification Toasts**: Like, comment, and follow notifications are toasted on the screen and update the count badge instantly without delay
 
 ### 🔍 Search
 - Search for users by name or email
@@ -147,10 +147,19 @@ A full-featured social media platform built with Laravel 11, Tailwind CSS, and M
    npm run dev
    ```
 
-8. **Start the development server**
-   ```bash
-   php artisan serve
-   ```
+8. **Start the services (in separate terminal windows)**
+   * **Development Web Server**:
+     ```bash
+     php artisan serve
+     ```
+   * **WebSocket Server (Reverb)**:
+     ```bash
+     php artisan reverb:start
+     ```
+   * **Queue Listener** (processes broadcasts asynchronously):
+     ```bash
+     php artisan queue:listen
+     ```
 
 9. **Visit the app**
    Open [http://localhost:8000](http://localhost:8000) in your browser.

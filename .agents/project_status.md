@@ -9,8 +9,9 @@ This document records the current status of the project (completed and future/pe
 * **User Profiles**: Custom profiles containing bio, location, website, avatar, and cover photo uploads.
 * **Main Feed Column**: Feed displaying posts from followed users.
 * **Post Creation**: Users can create posts with text and/or images.
-* **Likes & Comments**: Ability to like and comment on posts, delete own posts/comments.
-* **Direct Messaging**: Direct chat between users with read/unread status.
+* **Likes & Comments**: Ability to like and comment on posts, delete own posts/comments (fully dynamic via AJAX).
+* **Dynamic AJAX Actions**: Non-refresh, dynamic follows, likes, and comment submissions (creation & deletion) with micro-animations across feed, profiles, and search results.
+* **Real-time Updates (WebSockets & Reverb)**: Instant message updates in the floating chat widget and instant notifications toasting without polling delays.
 * **Search**: Search for users by name or email via the navbar.
 * **Dark Mode**: Toggle button in navbar, localStorage preference persistence, and prefers-color-scheme detection.
 
@@ -55,11 +56,9 @@ Listed in order of priority:
    * *Description*: Allow users to repost another user's post to their own profile timeline.
 4. **Hashtags & Mentions**
    * *Description*: Support `@username` and `#hashtag` parsing in post bodies with links.
-5. **Real-time Chat Updates (WebSockets)**
-   * *Description*: Implement WebSockets/Pusher for instant chat and notification deliveries.
-6. **Video Uploads**
+5. **Video Uploads**
    * *Description*: Support video clip uploads inside posts.
-7. **Admin Panel**
+6. **Admin Panel**
    * *Description*: Backoffice dashboard for managing users and contents.
-8. **Phone View Formatting**
+7. **Phone View Formatting**
    * *Description*: Implement phone view formatting and mobile responsive layout optimizations across all application views.
