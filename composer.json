@@ -2,7 +2,7 @@
     "$schema": "https://getcomposer.org/schema.json",
     "name": "laravel/laravel",
     "type": "project",
-    "description": "DeltaSocialMedia - Social media platform built with Laravel.",
+    "description": "DeltaSocialMedia - Social media platform built with Laravel (with Redis support).",
     "keywords": ["laravel", "framework"],
     "license": "MIT",
     "require": {
@@ -11,7 +11,7 @@
         "laravel/breeze": "^2.4",
         "laravel/framework": "^13.8",
         "laravel/tinker": "^3.0",
-        
+        "predis/predis": "^2.2",
         "pusher/pusher-php-server": "^7.2"
     },
     "require-dev": {
