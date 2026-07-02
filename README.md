@@ -224,6 +224,7 @@ Potential features to add:
 - Admin panel
 - Post privacy settings
 - Block/report users
+- Phone view formatting and mobile responsive design optimization
 
 ## License
 

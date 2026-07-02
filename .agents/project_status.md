@@ -61,3 +61,5 @@ Listed in order of priority:
    * *Description*: Support video clip uploads inside posts.
 7. **Admin Panel**
    * *Description*: Backoffice dashboard for managing users and contents.
+8. **Phone View Formatting**
+   * *Description*: Implement phone view formatting and mobile responsive layout optimizations across all application views.
