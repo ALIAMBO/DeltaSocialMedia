@@ -3,9 +3,15 @@
 [phases.setup]
 aptPkgs = ["...", "ca-certificates", "git", "unzip", "zip"]
 
-[phases.build]
+[phases.install]
 cmds = [
     "composer install --no-dev --optimize-autoloader",
+    "npm ci --prefer-offline --no-audit"
+]
+
+[phases.build]
+cmds = [
+    "npm run build",
     "rm -f public/hot"
 ]
 
