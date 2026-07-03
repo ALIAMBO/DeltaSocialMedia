@@ -3,6 +3,7 @@ import './ajax-actions';
 import Cropper from 'cropperjs/dist/cropper.esm.js';
 import 'cropperjs/dist/cropper.min.css';
 
+// Set globals immediately — must happen before Echo (which may throw on bad config)
 window.Alpine = Alpine;
 window.Cropper = Cropper;
 
@@ -12,7 +13,11 @@ window.Cropper = Cropper;
  * allow your team to quickly build robust real-time web applications.
  */
 
-import './echo';
+try {
+    await import('./echo');
+} catch (e) {
+    console.warn('Echo/WebSocket initialization failed (non-fatal):', e?.message ?? e);
+}
 
 // Mentions suggestions autocomplete engine
 document.addEventListener('DOMContentLoaded', () => {
