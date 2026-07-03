@@ -1,6 +1,6 @@
 {
   "resources/css/app.css": {
-    "file": "assets/app-Cwj_gtTz.css",
+    "file": "assets/app-BNZq5Lhq.css",
     "name": "app",
     "names": [
       "app.css"
@@ -9,15 +9,12 @@
     "isEntry": true
   },
   "resources/js/app.js": {
-    "file": "assets/app-DQ5R16wR.js",
+    "file": "assets/app-DvGxMtcP.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
     "dynamicImports": [
       "resources/js/echo.js"
-    ],
-    "css": [
-      "assets/app-DCh4zhz3.css"
     ]
   },
   "resources/js/dark-mode.js": {

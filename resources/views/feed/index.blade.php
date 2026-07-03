@@ -142,31 +142,92 @@
     }
 }" @keydown.escape.window="closeStories()" class="w-full">
 
-    <!-- Feed upload functions - defined inline so onchange handler can access them -->
+    <!-- Post image upload & crop — uses CDN Cropper, same as story -->
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('post-create-form');
-        if (!form) return;
-        
-        const inputEl = form.querySelector('input[name="image"]');
-        const previewImgEl = document.getElementById('preview-img');
-        
-        PhotoManager.register({
-            id: 'post-feed',
-            inputEl: inputEl,
-            previewImgEl: previewImgEl,
-            formEl: form,
-            aspectRatio: 1
-        });
-        
-        window.previewImage = function(event) {
-            // Handled automatically by change listener
-        };
-        
+    (function() {
+        var postCropper = null;
+
+        function initPostCropper() {
+            var img = document.getElementById('preview-img');
+            if (!img) return;
+            if (postCropper) { postCropper.destroy(); postCropper = null; }
+            postCropper = new Cropper(img, {
+                aspectRatio: 1,
+                viewMode: 1,
+                dragMode: 'move',
+                autoCropArea: 0.9,
+                restore: false,
+                guides: true,
+                center: true,
+                highlight: false,
+                cropBoxMovable: true,
+                cropBoxResizable: true,
+                toggleDragModeOnDblclick: false
+            });
+        }
+
+        function resetPostCropper() {
+            if (postCropper) { postCropper.destroy(); postCropper = null; }
+        }
+
         window.cancelPostImage = function() {
-            PhotoManager.cancelCrop('post-feed');
+            resetPostCropper();
+            var input = document.querySelector('#post-create-form input[name="image"]');
+            if (input) input.value = '';
+            var preview = document.getElementById('image-preview');
+            if (preview) preview.classList.add('hidden');
+            var img = document.getElementById('preview-img');
+            if (img) img.removeAttribute('src');
         };
-    });
+
+        window.previewImage = function() {}; // no-op, handled by change listener below
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var input = document.querySelector('#post-create-form input[name="image"]');
+            if (!input) return;
+
+            input.addEventListener('change', function(e) {
+                var file = e.target.files[0];
+                if (!file) return;
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Image must be less than 5MB.');
+                    e.target.value = '';
+                    return;
+                }
+                var reader = new FileReader();
+                reader.onload = function(ev) {
+                    var preview = document.getElementById('image-preview');
+                    var img = document.getElementById('preview-img');
+                    img.src = ev.target.result;
+                    preview.classList.remove('hidden');
+                    resetPostCropper();
+                    // Wait for img to be visible before init
+                    setTimeout(initPostCropper, 50);
+                };
+                reader.readAsDataURL(file);
+            });
+
+            var form = document.getElementById('post-create-form');
+            form.addEventListener('submit', function(e) {
+                if (!postCropper) return;
+                e.preventDefault();
+                var canvas = postCropper.getCroppedCanvas({ width: 1080, height: 1080 });
+                if (canvas) {
+                    canvas.toBlob(function(blob) {
+                        var file = new File([blob], 'post.jpg', { type: 'image/jpeg' });
+                        var dt = new DataTransfer();
+                        dt.items.add(file);
+                        input.files = dt.files;
+                        resetPostCropper();
+                        form.submit();
+                    }, 'image/jpeg', 0.9);
+                } else {
+                    resetPostCropper();
+                    form.submit();
+                }
+            });
+        });
+    })();
     </script>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -259,9 +320,9 @@
                             </div>
 
                             <!-- Image preview -->
-                            <div id="image-preview" class="mt-3 hidden relative rounded-xl overflow-hidden bg-zinc-950 flex flex-col items-center">
-                                <div class="max-h-[300px] w-full overflow-hidden flex items-center justify-center">
-                                    <img id="preview-img" src="" class="max-w-full max-h-[300px]">
+                            <div id="image-preview" class="mt-3 hidden relative rounded-xl bg-zinc-950">
+                                <div style="width:100%;height:300px;position:relative;">
+                                    <img id="preview-img" src="" style="display:block;max-width:100%;max-height:100%;">
                                 </div>
                                 <button type="button" onclick="cancelPostImage()" class="absolute top-2 right-2 z-10 bg-black/60 hover:bg-black/80 text-white rounded-full p-1.5 transition shadow-md" title="Cancel image">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -383,9 +444,9 @@
                             <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Choose your story image</p>
                             <p class="text-xs text-gray-400 mt-1">Size limit: 5MB</p>
                         </div>
-                        <div x-show="storyHasImg" class="relative rounded-lg overflow-hidden max-h-[350px] bg-zinc-950 flex flex-col items-center">
-                            <div class="max-h-[300px] w-full overflow-hidden flex items-center justify-center">
-                                <img id="cropper-image" :src="storyPreviewSrc" class="max-w-full max-h-[300px]">
+                        <div x-show="storyHasImg" class="relative bg-zinc-950 rounded-lg">
+                            <div style="width:100%;height:320px;position:relative;">
+                                <img id="cropper-image" :src="storyPreviewSrc" style="display:block;max-width:100%;max-height:100%;">
                             </div>
                             <div class="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full z-10">
                                 <button type="button" 
@@ -531,16 +592,13 @@
 @push('scripts')
     @vite('resources/js/pages/post-card.js')
     <script>
-    let cropperInstance = null;
+    // Story cropper — 9:16 aspect, CDN Cropper
+    var cropperInstance = null;
 
     function initCropper() {
-        const image = document.getElementById('cropper-image');
+        var image = document.getElementById('cropper-image');
         if (!image) return;
-
-        if (cropperInstance) {
-            cropperInstance.destroy();
-        }
-
+        if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
         cropperInstance = new Cropper(image, {
             aspectRatio: 9 / 16,
             viewMode: 1,
@@ -557,46 +615,28 @@
     }
 
     function resetCropper() {
-        if (cropperInstance) {
-            cropperInstance.destroy();
-            cropperInstance = null;
-        }
+        if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
     }
 
-    // Intercept form submission to apply cropped image file
     document.addEventListener('DOMContentLoaded', function() {
-        const form = document.querySelector('form[action*="/stories"]');
+        var form = document.querySelector('form[action*="/stories"]');
         if (!form) return;
-
         form.addEventListener('submit', function(e) {
-            if (cropperInstance) {
-                e.preventDefault();
-                
-                // Get cropped canvas
-                const canvas = cropperInstance.getCroppedCanvas({
-                    width: 1080,
-                    height: 1920
-                });
-                
-                if (canvas) {
-                    canvas.toBlob(function(blob) {
-                        const fileInput = document.getElementById('story-image-input');
-                        const file = new File([blob], 'story.jpg', { type: 'image/jpeg' });
-                        
-                        // Replace input files using DataTransfer
-                        const dataTransfer = new DataTransfer();
-                        dataTransfer.items.add(file);
-                        fileInput.files = dataTransfer.files;
-                        
-                        // Reset cropper instance so next submit doesn't trigger loop
-                        resetCropper();
-                        
-                        // Submit form
-                        form.submit();
-                    }, 'image/jpeg', 0.9);
-                } else {
+            if (!cropperInstance) return;
+            e.preventDefault();
+            var canvas = cropperInstance.getCroppedCanvas({ width: 1080, height: 1920 });
+            if (canvas) {
+                canvas.toBlob(function(blob) {
+                    var fileInput = document.getElementById('story-image-input');
+                    var file = new File([blob], 'story.jpg', { type: 'image/jpeg' });
+                    var dt = new DataTransfer();
+                    dt.items.add(file);
+                    fileInput.files = dt.files;
+                    resetCropper();
                     form.submit();
-                }
+                }, 'image/jpeg', 0.9);
+            } else {
+                form.submit();
             }
         });
     });

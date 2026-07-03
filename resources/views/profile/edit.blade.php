@@ -9,140 +9,166 @@ window.fileValidation = function() {
         showModal: false,
         modalMessage: '',
 
-        // Configuration
-        MAX_FILE_SIZE: 5 * 1024 * 1024, // 5MB per file
-        MAX_FILE_SIZE_MB: 5,
-        MAX_COMBINED_SIZE: 7.5 * 1024 * 1024, // 7.5MB combined
-        MAX_COMBINED_SIZE_MB: 7.5,
-
-        /**
-         * Open modal with a custom message
-         * @param {string} message - The error message to display
-         */
         openModal(message) {
             this.modalMessage = message;
             this.showModal = true;
             document.body.style.overflow = 'hidden';
         },
-
-        /**
-         * Close the modal and restore page scrolling
-         */
         closeModal() {
             this.showModal = false;
             document.body.style.overflow = 'auto';
         },
+        handleSubmit(e) {},
 
-        /**
-         * Handle form submission - allow backend to validate
-         * @param {Event} e - Form submission event
-         */
-        handleSubmit(e) {
-            // Just allow form submission - backend will validate and return errors
-        },
-
-        /**
-         * Initialize all event listeners for file uploads
-         * Only runs once to prevent duplicate listeners
-         */
         init() {
-            const self = this;
-            
-            // Prevent double initialization
             if (this._initialized) return;
             this._initialized = true;
 
-            // Avatar wrapper click - trigger file input
-            const avatarWrapper = document.getElementById('avatar-wrapper');
+            // Avatar wrapper click
+            var avatarWrapper = document.getElementById('avatar-wrapper');
             if (avatarWrapper) {
-                avatarWrapper.addEventListener('click', () => {
+                avatarWrapper.addEventListener('click', function() {
                     document.getElementById('avatar-input').click();
                 });
             }
 
-            // Cover wrapper click - trigger file input
-            const coverWrapper = document.getElementById('cover-wrapper');
+            // Cover wrapper click
+            var coverWrapper = document.getElementById('cover-wrapper');
             if (coverWrapper) {
-                coverWrapper.addEventListener('click', () => {
+                coverWrapper.addEventListener('click', function() {
                     document.getElementById('cover-input').click();
                 });
             }
 
-            // Register Avatar Cropper using PhotoManager
-            PhotoManager.register({
-                id: 'avatar',
-                inputEl: document.getElementById('avatar-input'),
-                previewImgEl: document.getElementById('avatar-preview'),
-                formEl: document.querySelector('form[action*="profile"]'),
-                aspectRatio: 1,
-                modalEl: document.getElementById('cropper-modal'),
-                modalImgEl: document.getElementById('cropper-img'),
-                modalTitleEl: document.getElementById('cropper-title'),
-                modalTitle: 'Crop Profile Picture'
-            });
+            // Avatar file change → open crop modal
+            var avatarInput = document.getElementById('avatar-input');
+            if (avatarInput) {
+                avatarInput.addEventListener('change', function(e) {
+                    var file = e.target.files[0];
+                    if (!file) return;
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert('Image must be less than 5MB.');
+                        e.target.value = '';
+                        return;
+                    }
+                    var reader = new FileReader();
+                    reader.onload = function(ev) {
+                        openCropModal('avatar', ev.target.result, 1, 'Crop Profile Picture');
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
 
-            // Register Cover Cropper using PhotoManager
-            PhotoManager.register({
-                id: 'cover',
-                inputEl: document.getElementById('cover-input'),
-                previewImgEl: document.getElementById('cover-img'),
-                formEl: document.querySelector('form[action*="profile"]'),
-                aspectRatio: 3,
-                modalEl: document.getElementById('cropper-modal'),
-                modalImgEl: document.getElementById('cropper-img'),
-                modalTitleEl: document.getElementById('cropper-title'),
-                modalTitle: 'Crop Cover Photo'
-            });
+            // Cover file change → open crop modal
+            var coverInput = document.getElementById('cover-input');
+            if (coverInput) {
+                coverInput.addEventListener('change', function(e) {
+                    var file = e.target.files[0];
+                    if (!file) return;
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert('Image must be less than 5MB.');
+                        e.target.value = '';
+                        return;
+                    }
+                    var reader = new FileReader();
+                    reader.onload = function(ev) {
+                        openCropModal('cover', ev.target.result, 3, 'Crop Cover Photo');
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
 
-            window.cancelCrop = function() {
-                if (PhotoManager.instances['avatar'].cropper) {
-                    PhotoManager.cancelCrop('avatar');
-                } else if (PhotoManager.instances['cover'].cropper) {
-                    PhotoManager.cancelCrop('cover');
-                }
-            };
-
-            window.applyCrop = function() {
-                if (PhotoManager.instances['avatar'].cropper) {
-                    PhotoManager.applyModalCrop('avatar');
-                } else if (PhotoManager.instances['cover'].cropper) {
-                    PhotoManager.applyModalCrop('cover');
-                }
-            };
-
-            // Check for backend validation errors and display as modal
             this.checkForValidationErrors();
         },
 
-        /**
-         * Check for backend validation errors in hidden container
-         * Display as modal if errors exist
-         */
         checkForValidationErrors() {
-            const container = document.getElementById('validation-errors');
+            var container = document.getElementById('validation-errors');
             if (!container) return;
-
             try {
-                const errorsText = container.textContent.trim();
+                var errorsText = container.textContent.trim();
                 if (!errorsText) return;
-
-                const errors = JSON.parse(errorsText);
+                var errors = JSON.parse(errorsText);
                 if (Object.keys(errors).length === 0) return;
-
-                // Format error messages
-                let errorMessage = '';
-                for (const [field, messages] of Object.entries(errors)) {
-                    errorMessage += messages.join('\n') + '\n';
+                var errorMessage = '';
+                for (var field in errors) {
+                    errorMessage += errors[field].join('\n') + '\n';
                 }
-
-                // Show modal with errors
                 this.openModal(errorMessage.trim());
-            } catch (e) {
-                console.error('Error parsing validation errors:', e);
-            }
+            } catch (e) {}
         }
     };
 };
+
+// Shared crop modal state
+var _cropTarget = null; // 'avatar' or 'cover'
+var _cropInstance = null;
+
+function openCropModal(target, src, aspectRatio, title) {
+    _cropTarget = target;
+    var modal = document.getElementById('cropper-modal');
+    var img = document.getElementById('cropper-img');
+    var titleEl = document.getElementById('cropper-title');
+    if (titleEl) titleEl.textContent = title;
+    img.src = src;
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    if (_cropInstance) { _cropInstance.destroy(); _cropInstance = null; }
+    setTimeout(function() {
+        _cropInstance = new Cropper(img, {
+            aspectRatio: aspectRatio,
+            viewMode: 1,
+            dragMode: 'move',
+            autoCropArea: 0.9,
+            restore: false,
+            guides: true,
+            center: true,
+            highlight: false,
+            cropBoxMovable: true,
+            cropBoxResizable: true,
+            toggleDragModeOnDblclick: false
+        });
+    }, 50);
+}
+
+function cancelCrop() {
+    if (_cropInstance) { _cropInstance.destroy(); _cropInstance = null; }
+    // Reset the file input for whichever target was being cropped
+    if (_cropTarget === 'avatar') {
+        document.getElementById('avatar-input').value = '';
+    } else if (_cropTarget === 'cover') {
+        document.getElementById('cover-input').value = '';
+    }
+    _cropTarget = null;
+    document.getElementById('cropper-modal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+function applyCrop() {
+    if (!_cropInstance || !_cropTarget) return;
+    var canvas = _cropInstance.getCroppedCanvas({ width: _cropTarget === 'cover' ? 1500 : 500, height: _cropTarget === 'cover' ? 500 : 500 });
+    if (!canvas) return;
+    canvas.toBlob(function(blob) {
+        var filename = _cropTarget === 'cover' ? 'cover.jpg' : 'avatar.jpg';
+        var file = new File([blob], filename, { type: 'image/jpeg' });
+        var dt = new DataTransfer();
+        dt.items.add(file);
+
+        if (_cropTarget === 'avatar') {
+            document.getElementById('avatar-input').files = dt.files;
+            document.getElementById('avatar-preview').src = canvas.toDataURL('image/jpeg', 0.9);
+        } else {
+            document.getElementById('cover-input').files = dt.files;
+            var coverImg = document.getElementById('cover-img');
+            coverImg.src = canvas.toDataURL('image/jpeg', 0.9);
+            coverImg.classList.remove('hidden');
+        }
+
+        if (_cropInstance) { _cropInstance.destroy(); _cropInstance = null; }
+        _cropTarget = null;
+        document.getElementById('cropper-modal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }, 'image/jpeg', 0.9);
+}
 </script>
 
 <!-- Hidden container for backend validation errors (read by profile-edit.js) -->
@@ -302,7 +328,7 @@ window.fileValidation = function() {
 
     <!-- Cropper Modal -->
     <div id="cropper-modal" class="fixed inset-0 bg-black bg-opacity-75 flex flex-col items-center justify-center z-50 hidden p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-lg w-full overflow-hidden transition-colors flex flex-col max-h-[90vh]">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-lg w-full transition-colors flex flex-col max-h-[90vh]">
             <!-- Header -->
             <div class="border-b border-gray-100 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
                 <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100" id="cropper-title">Crop Image</h3>
@@ -314,9 +340,9 @@ window.fileValidation = function() {
             </div>
             
             <!-- Crop Container -->
-            <div class="p-6 flex-1 overflow-hidden flex items-center justify-center bg-gray-50 dark:bg-gray-900/50">
-                <div class="max-h-[50vh] w-full flex items-center justify-center overflow-hidden">
-                    <img id="cropper-img" src="" class="max-w-full max-h-[50vh]">
+            <div class="p-4 flex-1 bg-gray-50 dark:bg-gray-900/50" style="min-height:0;">
+                <div id="cropper-img-wrap" style="width:100%;height:400px;max-height:50vh;position:relative;">
+                    <img id="cropper-img" src="" style="display:block;max-width:100%;max-height:100%;">
                 </div>
             </div>
             
@@ -333,5 +359,14 @@ window.fileValidation = function() {
     </div>
 </div>
 
+
+@push('styles')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+<style>
+.cropper-bg { background-image: none !important; background-color: #09090b !important; }
+.cropper-view-box { outline: 2px solid #16a34a !important; outline-color: #16a34a !important; }
+.cropper-line, .cropper-point { background-color: #16a34a !important; }
+</style>
+@endpush
 
 @endsection

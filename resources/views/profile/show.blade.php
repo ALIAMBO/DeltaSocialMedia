@@ -194,9 +194,9 @@ $coverUrlJson = json_encode($coverUrl);
                     </div>
 
                     <!-- Image preview -->
-                    <div id="image-preview" class="mt-3 hidden relative rounded-xl overflow-hidden bg-zinc-950 flex flex-col items-center">
-                        <div class="max-h-[300px] w-full overflow-hidden flex items-center justify-center">
-                            <img id="preview-img" src="" class="max-w-full max-h-[300px]">
+                    <div id="image-preview" class="mt-3 hidden relative rounded-xl bg-zinc-950">
+                        <div style="width:100%;height:300px;position:relative;">
+                            <img id="preview-img" src="" style="display:block;max-width:100%;max-height:100%;">
                         </div>
                         <button type="button" onclick="cancelPostImage()" class="absolute top-2 right-2 z-10 bg-black/60 hover:bg-black/80 text-white rounded-full p-1.5 transition shadow-md" title="Cancel image">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -299,31 +299,101 @@ $coverUrlJson = json_encode($coverUrl);
 </div>
 
 
+@push('styles')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+<style>
+.cropper-bg { background-image: none !important; background-color: #09090b !important; }
+.cropper-view-box { outline: 2px solid #16a34a !important; outline-color: #16a34a !important; }
+.cropper-line, .cropper-point { background-color: #16a34a !important; }
+</style>
+@endpush
+
 @push('scripts')
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('post-create-form');
-        if (!form) return;
-        
-        const inputEl = form.querySelector('input[name="image"]');
-        const previewImgEl = document.getElementById('preview-img');
-        
-        PhotoManager.register({
-            id: 'post-profile',
-            inputEl: inputEl,
-            previewImgEl: previewImgEl,
-            formEl: form,
-            aspectRatio: 1
-        });
-        
-        window.previewImage = function(event) {
-            // Handled automatically by change listener
-        };
-        
+    (function() {
+        var postCropper = null;
+
+        function initPostCropper() {
+            var img = document.getElementById('preview-img');
+            if (!img) return;
+            if (postCropper) { postCropper.destroy(); postCropper = null; }
+            postCropper = new Cropper(img, {
+                aspectRatio: 1,
+                viewMode: 1,
+                dragMode: 'move',
+                autoCropArea: 0.9,
+                restore: false,
+                guides: true,
+                center: true,
+                highlight: false,
+                cropBoxMovable: true,
+                cropBoxResizable: true,
+                toggleDragModeOnDblclick: false
+            });
+        }
+
+        function resetPostCropper() {
+            if (postCropper) { postCropper.destroy(); postCropper = null; }
+        }
+
         window.cancelPostImage = function() {
-            PhotoManager.cancelCrop('post-profile');
+            resetPostCropper();
+            var input = document.querySelector('#post-create-form input[name="image"]');
+            if (input) input.value = '';
+            var preview = document.getElementById('image-preview');
+            if (preview) preview.classList.add('hidden');
+            var img = document.getElementById('preview-img');
+            if (img) img.removeAttribute('src');
         };
-    });
+
+        window.previewImage = function() {};
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var input = document.querySelector('#post-create-form input[name="image"]');
+            if (!input) return;
+
+            input.addEventListener('change', function(e) {
+                var file = e.target.files[0];
+                if (!file) return;
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Image must be less than 5MB.');
+                    e.target.value = '';
+                    return;
+                }
+                var reader = new FileReader();
+                reader.onload = function(ev) {
+                    var preview = document.getElementById('image-preview');
+                    var img = document.getElementById('preview-img');
+                    img.src = ev.target.result;
+                    preview.classList.remove('hidden');
+                    resetPostCropper();
+                    setTimeout(initPostCropper, 50);
+                };
+                reader.readAsDataURL(file);
+            });
+
+            var form = document.getElementById('post-create-form');
+            if (!form) return;
+            form.addEventListener('submit', function(e) {
+                if (!postCropper) return;
+                e.preventDefault();
+                var canvas = postCropper.getCroppedCanvas({ width: 1080, height: 1080 });
+                if (canvas) {
+                    canvas.toBlob(function(blob) {
+                        var file = new File([blob], 'post.jpg', { type: 'image/jpeg' });
+                        var dt = new DataTransfer();
+                        dt.items.add(file);
+                        input.files = dt.files;
+                        resetPostCropper();
+                        form.submit();
+                    }, 'image/jpeg', 0.9);
+                } else {
+                    resetPostCropper();
+                    form.submit();
+                }
+            });
+        });
+    })();
     </script>
     @vite('resources/js/pages/post-card.js')
 @endpush
