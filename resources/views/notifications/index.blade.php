@@ -126,7 +126,7 @@
                                 </span>
                                 @if ($link !== '#')
                                     <span class="text-gray-300 dark:text-gray-600 text-xs">•</span>
-                                    <a href="{{ $link }}" class="text-xs font-semibold text-green-600 dark:text-green-400 hover:underline">
+                                    <a href="{{ route('notifications.go', $notification->id) }}" class="text-xs font-semibold text-green-600 dark:text-green-400 hover:underline">
                                         View Post/Profile
                                     </a>
                                 @endif
@@ -136,9 +136,19 @@
                         <!-- Type Icon & Mark Read Action -->
                         <div class="flex items-center gap-3">
                             <!-- Type Icon badge -->
-                            <div class="p-2 rounded-full {{ $iconBg }} shadow-sm flex-shrink-0">
-                                {!! $iconHtml !!}
-                            </div>
+                            @if ($notification->type === 'App\Notifications\NewFollowNotification' && $performer && !auth()->user()->isFollowing($performer))
+                                <form action="{{ route('follow.toggle', $performer) }}" method="POST" class="flex-shrink-0">
+                                    @csrf
+                                    <input type="hidden" name="read_notification_id" value="{{ $notification->id }}">
+                                    <button type="submit" class="p-2 rounded-full {{ $iconBg }} shadow-sm hover:opacity-85 hover:scale-105 transition-all flex items-center justify-center" title="Follow back and mark as read">
+                                        {!! $iconHtml !!}
+                                    </button>
+                                </form>
+                            @else
+                                <a href="{{ route('notifications.go', $notification->id) }}" class="p-2 rounded-full {{ $iconBg }} shadow-sm flex-shrink-0 hover:opacity-85 transition-opacity flex items-center justify-center" title="View post/profile and mark as read">
+                                    {!! $iconHtml !!}
+                                </a>
+                            @endif
                             
                             <!-- Mark as read button -->
                             @if ($isUnread)

@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 
 class FollowController extends Controller
 {
-    public function toggle(User $user)
+    public function toggle(Request $request, User $user)
     {
         $authUser = Auth::user();
 
@@ -32,7 +32,14 @@ class FollowController extends Controller
             ]));
         }
 
-        if (request()->wantsJson()) {
+        if ($request->has('read_notification_id')) {
+            $notification = $authUser->unreadNotifications()->find($request->input('read_notification_id'));
+            if ($notification) {
+                $notification->markAsRead();
+            }
+        }
+
+        if ($request->wantsJson()) {
             return response()->json([
                 'following' => !$follow,
                 'followers_count' => $user->followers()->count(),

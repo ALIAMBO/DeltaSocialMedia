@@ -162,3 +162,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+// Auto-open comments and scroll to post when hash is present in URL
+document.addEventListener('DOMContentLoaded', () => {
+    const hash = window.location.hash;
+    if (hash && hash.startsWith('#post-')) {
+        const postId = hash.split('-')[1];
+        const commentsDiv = document.getElementById(`comments-${postId}`);
+        if (commentsDiv) {
+            commentsDiv.classList.remove('hidden');
+        }
+        
+        // Wait a tiny bit for rendering, then scroll to it
+        setTimeout(() => {
+            const postElement = document.getElementById(`post-${postId}`);
+            if (postElement) {
+                postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }, 150);
+    }
+});
