@@ -333,11 +333,5 @@ window.fileValidation = function() {
     </div>
 </div>
 
-@push('styles')
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
-@endpush
 
-@push('scripts')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
-@endpush
 @endsection
