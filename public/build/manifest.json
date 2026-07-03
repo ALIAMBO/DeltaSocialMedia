@@ -9,10 +9,13 @@
     "isEntry": true
   },
   "resources/js/app.js": {
-    "file": "assets/app-R_AgkiXQ.js",
+    "file": "assets/app-DQ5R16wR.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
+    "dynamicImports": [
+      "resources/js/echo.js"
+    ],
     "css": [
       "assets/app-DCh4zhz3.css"
     ]
@@ -22,6 +25,12 @@
     "name": "dark-mode",
     "src": "resources/js/dark-mode.js",
     "isEntry": true
+  },
+  "resources/js/echo.js": {
+    "file": "assets/echo-CepNG5YB.js",
+    "name": "echo",
+    "src": "resources/js/echo.js",
+    "isDynamicEntry": true
   },
   "resources/js/pages/app.js": {
     "file": "assets/app-C86cj1Hy.js",
