@@ -1,6 +1,6 @@
 {
   "resources/css/app.css": {
-    "file": "assets/app-Cwj_gtTz.css",
+    "file": "assets/app-V1mHti2h.css",
     "name": "app",
     "names": [
       "app.css"
@@ -9,15 +9,12 @@
     "isEntry": true
   },
   "resources/js/app.js": {
-    "file": "assets/app-DQ5R16wR.js",
+    "file": "assets/app-DvGxMtcP.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
     "dynamicImports": [
       "resources/js/echo.js"
-    ],
-    "css": [
-      "assets/app-DCh4zhz3.css"
     ]
   },
   "resources/js/dark-mode.js": {
@@ -45,7 +42,7 @@
     "isEntry": true
   },
   "resources/js/pages/feed-index.js": {
-    "file": "assets/feed-index-BvRk9kiK.js",
+    "file": "assets/feed-index-DPfKm5KY.js",
     "name": "feed-index",
     "src": "resources/js/pages/feed-index.js",
     "isEntry": true
@@ -57,7 +54,7 @@
     "isEntry": true
   },
   "resources/js/pages/profile-edit.js": {
-    "file": "assets/profile-edit-bpDrokHO.js",
+    "file": "assets/profile-edit-XoMkqmM4.js",
     "name": "profile-edit",
     "src": "resources/js/pages/profile-edit.js",
     "isEntry": true
