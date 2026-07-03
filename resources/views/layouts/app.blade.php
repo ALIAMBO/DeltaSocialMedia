@@ -19,6 +19,11 @@
     </script>
     <!-- Vite assets -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    
+    <!-- Cropper.js Library for image cropping - Using jsDelivr CDN for better reliability -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.1/dist/cropper.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.1/dist/cropper.min.js"></script>
+    
     @stack('styles')
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 font-sans antialiased transition-colors pb-16 md:pb-0">

@@ -59,6 +59,18 @@ A full-featured social media platform built with Laravel 11, Tailwind CSS, and M
 - Horizontal scrollable Stories bar at the top of the feed page
 - Full-screen interactive slideshow viewer with autoplay progress bars, skip navigation, and owner delete actions
 
+### 🖼️ Image Cropping
+- **Smart crop tool for all image uploads** with real-time preview
+- **Posts**: Crop photos to square (1:1) format before publishing
+- **Stories**: Crop photos to portrait (9:16) format before uploading
+- **Profile Avatar**: Crop and adjust avatar with modal preview (1:1 square)
+- **Profile Cover**: Crop and adjust cover photo with modal preview (3:1 landscape)
+- Interactive cropper with drag-to-move and resize-to-adjust controls
+- Automatic image optimization and conversion to JPEG (90% quality)
+- Supports all common image formats (JPG, PNG, GIF, WebP)
+- Maximum file size: 5MB per image
+- For detailed implementation, see [IMAGE_CROPPING_GUIDE.md](IMAGE_CROPPING_GUIDE.md)
+
 ### 💬 Floating Chat Widget
 - Circular floating chat trigger button on all pages with dynamic unread count badge
 - Slide-up panel with Inbox and Contacts tabs

@@ -6,7 +6,28 @@
  * - Backend error detection and display as modal popup
  * - Event listeners for file input management
  * - Alpine.js integration for reactive UI
+ * - Image cropping for avatar and cover photos
  */
+
+import { setupProfileImageUpload } from '../cropper/profile-cropper.js';
+
+console.log('[Profile Edit] Module loaded');
+
+// Wait for Cropper.js library to be fully available
+function waitForCropper(callback, maxAttempts = 50) {
+    let attempts = 0;
+    const checkInterval = setInterval(() => {
+        attempts++;
+        if (typeof window.Cropper !== 'undefined') {
+            console.log('[Profile Edit] Cropper library is available');
+            clearInterval(checkInterval);
+            callback();
+        } else if (attempts >= maxAttempts) {
+            console.error('[Profile Edit] Cropper library failed to load after', maxAttempts, 'attempts');
+            clearInterval(checkInterval);
+        }
+    }, 100);
+}
 
 window.fileValidation = function() {
     return {
@@ -16,104 +37,73 @@ window.fileValidation = function() {
         // Configuration
         MAX_FILE_SIZE: 5 * 1024 * 1024, // 5MB per file
         MAX_FILE_SIZE_MB: 5,
-        MAX_COMBINED_SIZE: 7.5 * 1024 * 1024, // 7.5MB combined
-        MAX_COMBINED_SIZE_MB: 7.5,
 
-        /**
-         * Open modal with a custom message
-         * @param {string} message - The error message to display
-         */
         openModal(message) {
             this.modalMessage = message;
             this.showModal = true;
             document.body.style.overflow = 'hidden';
         },
 
-        /**
-         * Close the modal and restore page scrolling
-         */
         closeModal() {
             this.showModal = false;
             document.body.style.overflow = 'auto';
         },
 
-        /**
-         * Handle form submission - allow backend to validate
-         * @param {Event} e - Form submission event
-         */
         handleSubmit(e) {
             // Just allow form submission - backend will validate and return errors
         },
 
-        /**
-         * Initialize all event listeners for file uploads
-         * Only runs once to prevent duplicate listeners
-         */
         init() {
-            const self = this;
+            console.log('[Profile Edit] Alpine.js init called');
             
             // Prevent double initialization
-            if (this._initialized) return;
+            if (this._initialized) {
+                console.log('[Profile Edit] Already initialized, skipping');
+                return;
+            }
             this._initialized = true;
 
             // Avatar wrapper click - trigger file input
             const avatarWrapper = document.getElementById('avatar-wrapper');
             if (avatarWrapper) {
-                avatarWrapper.addEventListener('click', () => {
-                    document.getElementById('avatar-input').click();
+                avatarWrapper.addEventListener('click', (e) => {
+                    console.log('[Profile Edit] Avatar wrapper clicked');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const input = document.getElementById('avatar-input');
+                    if (input) input.click();
                 });
+                console.log('[Profile Edit] Avatar wrapper click listener added');
+            } else {
+                console.error('[Profile Edit] Avatar wrapper not found');
             }
 
             // Cover wrapper click - trigger file input
             const coverWrapper = document.getElementById('cover-wrapper');
             if (coverWrapper) {
-                coverWrapper.addEventListener('click', () => {
-                    document.getElementById('cover-input').click();
+                coverWrapper.addEventListener('click', (e) => {
+                    console.log('[Profile Edit] Cover wrapper clicked');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const input = document.getElementById('cover-input');
+                    if (input) input.click();
                 });
+                console.log('[Profile Edit] Cover wrapper click listener added');
+            } else {
+                console.error('[Profile Edit] Cover wrapper not found');
             }
 
-            // Avatar file input change - preview the selected image
-            const avatarInput = document.getElementById('avatar-input');
-            if (avatarInput) {
-                avatarInput.addEventListener('change', (e) => {
-                    const file = e.target.files[0];
-                    if (!file) return;
+            // Setup image cropping functionality
+            waitForCropper(() => {
+                console.log('[Profile Edit] Setting up profile image upload');
+                setupProfileImageUpload();
+            });
 
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        document.getElementById('avatar-preview').src = event.target.result;
-                    };
-                    reader.readAsDataURL(file);
-                });
-            }
-
-            // Cover file input change - preview the selected image
-            const coverInput = document.getElementById('cover-input');
-            if (coverInput) {
-                coverInput.addEventListener('change', (e) => {
-                    const file = e.target.files[0];
-                    if (!file) return;
-
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        const img = document.getElementById('cover-img');
-                        img.src = event.target.result;
-                        img.classList.remove('hidden');
-                    };
-                    reader.readAsDataURL(file);
-                });
-            }
-
-            // Check for backend validation errors from page load
+            // Check for backend validation errors
             this.checkForValidationErrors();
         },
 
-        /**
-         * Check for backend validation errors and display as modal
-         * Reads errors from data attribute set by Blade template
-         */
         checkForValidationErrors() {
-            // Get the div containing validation errors (set by Blade)
             const errorContainer = document.getElementById('validation-errors');
             if (!errorContainer) return;
 
@@ -131,3 +121,22 @@ window.fileValidation = function() {
         }
     }
 };
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('[Profile Edit] DOMContentLoaded fired');
+        // Ensure setupProfileImageUpload is called on DOM ready
+        waitForCropper(() => {
+            console.log('[Profile Edit] Calling setupProfileImageUpload on DOM ready');
+            setupProfileImageUpload();
+        });
+    });
+} else {
+    console.log('[Profile Edit] DOM already loaded, initializing now');
+    // Call immediately if DOM is already ready
+    waitForCropper(() => {
+        console.log('[Profile Edit] Calling setupProfileImageUpload (DOM pre-loaded)');
+        setupProfileImageUpload();
+    });
+}

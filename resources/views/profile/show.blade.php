@@ -194,11 +194,11 @@ $coverUrlJson = json_encode($coverUrl);
                     </div>
 
                     <!-- Image preview -->
-                    <div id="image-preview" class="mt-3 hidden relative rounded-xl bg-zinc-950">
-                        <div style="width:100%;height:300px;position:relative;">
-                            <img id="preview-img" src="" style="display:block;max-width:100%;max-height:100%;">
+                    <div id="image-preview" class="mt-3 hidden" style="position:relative; overflow:visible;">
+                        <div style="height:320px; overflow:visible; position:relative; background:#09090b;">
+                            <img id="preview-img" src="" style="display:block; max-width:100%; max-height:320px;">
                         </div>
-                        <button type="button" onclick="cancelPostImage()" class="absolute top-2 right-2 z-10 bg-black/60 hover:bg-black/80 text-white rounded-full p-1.5 transition shadow-md" title="Cancel image">
+                        <button type="button" onclick="cancelPostImage()" style="position:absolute; top:8px; right:8px; z-index:10;" class="bg-black/60 hover:bg-black/80 text-white rounded-full p-1.5 transition shadow-md" title="Cancel image">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
@@ -364,10 +364,13 @@ $coverUrlJson = json_encode($coverUrl);
                 reader.onload = function(ev) {
                     var preview = document.getElementById('image-preview');
                     var img = document.getElementById('preview-img');
-                    img.src = ev.target.result;
                     preview.classList.remove('hidden');
                     resetPostCropper();
-                    setTimeout(initPostCropper, 50);
+                    img.onload = function() {
+                        img.onload = null;
+                        initPostCropper();
+                    };
+                    img.src = ev.target.result;
                 };
                 reader.readAsDataURL(file);
             });

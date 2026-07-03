@@ -2,7 +2,8 @@
 @section('title', 'Profile Settings')
 
 @section('content')
-<!-- Define fileValidation function BEFORE Alpine tries to use it -->
+
+<!-- Define fileValidation function for Alpine.js -->
 <script>
 window.fileValidation = function() {
     return {
@@ -24,60 +25,6 @@ window.fileValidation = function() {
             if (this._initialized) return;
             this._initialized = true;
 
-            // Avatar wrapper click
-            var avatarWrapper = document.getElementById('avatar-wrapper');
-            if (avatarWrapper) {
-                avatarWrapper.addEventListener('click', function() {
-                    document.getElementById('avatar-input').click();
-                });
-            }
-
-            // Cover wrapper click
-            var coverWrapper = document.getElementById('cover-wrapper');
-            if (coverWrapper) {
-                coverWrapper.addEventListener('click', function() {
-                    document.getElementById('cover-input').click();
-                });
-            }
-
-            // Avatar file change → open crop modal
-            var avatarInput = document.getElementById('avatar-input');
-            if (avatarInput) {
-                avatarInput.addEventListener('change', function(e) {
-                    var file = e.target.files[0];
-                    if (!file) return;
-                    if (file.size > 5 * 1024 * 1024) {
-                        alert('Image must be less than 5MB.');
-                        e.target.value = '';
-                        return;
-                    }
-                    var reader = new FileReader();
-                    reader.onload = function(ev) {
-                        openCropModal('avatar', ev.target.result, 1, 'Crop Profile Picture');
-                    };
-                    reader.readAsDataURL(file);
-                });
-            }
-
-            // Cover file change → open crop modal
-            var coverInput = document.getElementById('cover-input');
-            if (coverInput) {
-                coverInput.addEventListener('change', function(e) {
-                    var file = e.target.files[0];
-                    if (!file) return;
-                    if (file.size > 5 * 1024 * 1024) {
-                        alert('Image must be less than 5MB.');
-                        e.target.value = '';
-                        return;
-                    }
-                    var reader = new FileReader();
-                    reader.onload = function(ev) {
-                        openCropModal('cover', ev.target.result, 3, 'Crop Cover Photo');
-                    };
-                    reader.readAsDataURL(file);
-                });
-            }
-
             this.checkForValidationErrors();
         },
 
@@ -98,77 +45,6 @@ window.fileValidation = function() {
         }
     };
 };
-
-// Shared crop modal state
-var _cropTarget = null; // 'avatar' or 'cover'
-var _cropInstance = null;
-
-function openCropModal(target, src, aspectRatio, title) {
-    _cropTarget = target;
-    var modal = document.getElementById('cropper-modal');
-    var img = document.getElementById('cropper-img');
-    var titleEl = document.getElementById('cropper-title');
-    if (titleEl) titleEl.textContent = title;
-    img.src = src;
-    modal.classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-    if (_cropInstance) { _cropInstance.destroy(); _cropInstance = null; }
-    setTimeout(function() {
-        _cropInstance = new Cropper(img, {
-            aspectRatio: aspectRatio,
-            viewMode: 1,
-            dragMode: 'move',
-            autoCropArea: 0.9,
-            restore: false,
-            guides: true,
-            center: true,
-            highlight: false,
-            cropBoxMovable: true,
-            cropBoxResizable: true,
-            toggleDragModeOnDblclick: false
-        });
-    }, 50);
-}
-
-function cancelCrop() {
-    if (_cropInstance) { _cropInstance.destroy(); _cropInstance = null; }
-    // Reset the file input for whichever target was being cropped
-    if (_cropTarget === 'avatar') {
-        document.getElementById('avatar-input').value = '';
-    } else if (_cropTarget === 'cover') {
-        document.getElementById('cover-input').value = '';
-    }
-    _cropTarget = null;
-    document.getElementById('cropper-modal').classList.add('hidden');
-    document.body.style.overflow = 'auto';
-}
-
-function applyCrop() {
-    if (!_cropInstance || !_cropTarget) return;
-    var canvas = _cropInstance.getCroppedCanvas({ width: _cropTarget === 'cover' ? 1500 : 500, height: _cropTarget === 'cover' ? 500 : 500 });
-    if (!canvas) return;
-    canvas.toBlob(function(blob) {
-        var filename = _cropTarget === 'cover' ? 'cover.jpg' : 'avatar.jpg';
-        var file = new File([blob], filename, { type: 'image/jpeg' });
-        var dt = new DataTransfer();
-        dt.items.add(file);
-
-        if (_cropTarget === 'avatar') {
-            document.getElementById('avatar-input').files = dt.files;
-            document.getElementById('avatar-preview').src = canvas.toDataURL('image/jpeg', 0.9);
-        } else {
-            document.getElementById('cover-input').files = dt.files;
-            var coverImg = document.getElementById('cover-img');
-            coverImg.src = canvas.toDataURL('image/jpeg', 0.9);
-            coverImg.classList.remove('hidden');
-        }
-
-        if (_cropInstance) { _cropInstance.destroy(); _cropInstance = null; }
-        _cropTarget = null;
-        document.getElementById('cropper-modal').classList.add('hidden');
-        document.body.style.overflow = 'auto';
-    }, 'image/jpeg', 0.9);
-}
 </script>
 
 <!-- Hidden container for backend validation errors (read by profile-edit.js) -->
@@ -213,7 +89,7 @@ function applyCrop() {
     </template>
 
     <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data"
-          class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors" @submit="handleSubmit">
+          class="w-full bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors" @submit="handleSubmit">
         @csrf @method('PUT')
 
         {{-- File inputs live here, outside any clickable div --}}
@@ -224,6 +100,7 @@ function applyCrop() {
         <div class="relative">
             {{-- Cover strip --}}
             <div id="cover-wrapper"
+                 onclick="document.getElementById('cover-input').click()"
                  class="h-36 bg-gradient-to-r from-green-400 to-green-500 rounded-t-2xl overflow-hidden cursor-pointer group">
                 <img id="cover-img"
                      src="{{ $user->profile?->cover_photo ? $user->profile->cover_url : '' }}"
@@ -239,6 +116,7 @@ function applyCrop() {
 
             {{-- Avatar: bottom of cover, shifted down by half its own height (40px = half of 80px / w-20) --}}
             <div id="avatar-wrapper"
+                 onclick="document.getElementById('avatar-input').click()"
                  class="absolute left-6 cursor-pointer group/av z-10" style="bottom: 3px;">
                 <img id="avatar-preview"
                      src="{{ $user->profile?->avatar_url ?? asset('images/default-avatar.png') }}"
@@ -326,11 +204,11 @@ function applyCrop() {
         </div>
     </form>
 
-    <!-- Cropper Modal -->
-    <div id="cropper-modal" class="fixed inset-0 bg-black bg-opacity-75 flex flex-col items-center justify-center z-50 hidden p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-lg w-full transition-colors flex flex-col max-h-[90vh]">
+    <div id="cropper-modal" class="fixed inset-0 bg-black bg-opacity-75 z-50 hidden" style="overflow-y:auto;">
+        <div class="flex flex-col items-center justify-start min-h-full p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-lg w-full transition-colors flex flex-col" style="overflow:visible; margin:auto;">
             <!-- Header -->
-            <div class="border-b border-gray-100 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
+            <div class="border-b border-gray-100 dark:border-gray-700 px-6 py-4 flex items-center justify-between flex-shrink-0">
                 <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100" id="cropper-title">Crop Image</h3>
                 <button type="button" onclick="cancelCrop()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -340,14 +218,12 @@ function applyCrop() {
             </div>
             
             <!-- Crop Container -->
-            <div class="p-4 flex-1 bg-gray-50 dark:bg-gray-900/50" style="min-height:0;">
-                <div id="cropper-img-wrap" style="width:100%;height:400px;max-height:50vh;position:relative;">
-                    <img id="cropper-img" src="" style="display:block;max-width:100%;max-height:100%;">
-                </div>
+            <div class="bg-zinc-950" style="height:400px; overflow:visible; position:relative;">
+                <img id="cropper-img" src="" style="display:block; max-width:100%; max-height:400px;">
             </div>
             
             <!-- Footer -->
-            <div class="border-t border-gray-100 dark:border-gray-700 px-6 py-4 bg-gray-50 dark:bg-gray-700/50 flex justify-end gap-3">
+            <div class="border-t border-gray-100 dark:border-gray-700 px-6 py-4 bg-gray-50 dark:bg-gray-700/50 flex justify-end gap-3 flex-shrink-0">
                 <button type="button" onclick="cancelCrop()" class="px-5 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition">
                     Cancel
                 </button>
@@ -356,17 +232,20 @@ function applyCrop() {
                 </button>
             </div>
         </div>
+        </div>
     </div>
 </div>
 
-
 @push('styles')
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
 <style>
 .cropper-bg { background-image: none !important; background-color: #09090b !important; }
 .cropper-view-box { outline: 2px solid #16a34a !important; outline-color: #16a34a !important; }
 .cropper-line, .cropper-point { background-color: #16a34a !important; }
 </style>
+@endpush
+
+@push('scripts')
+@vite('resources/js/pages/profile-edit.js')
 @endpush
 
 @endsection

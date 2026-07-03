@@ -144,90 +144,8 @@
 
     <!-- Post image upload & crop — uses CDN Cropper, same as story -->
     <script>
-    (function() {
-        var postCropper = null;
-
-        function initPostCropper() {
-            var img = document.getElementById('preview-img');
-            if (!img) return;
-            if (postCropper) { postCropper.destroy(); postCropper = null; }
-            postCropper = new Cropper(img, {
-                aspectRatio: 1,
-                viewMode: 1,
-                dragMode: 'move',
-                autoCropArea: 0.9,
-                restore: false,
-                guides: true,
-                center: true,
-                highlight: false,
-                cropBoxMovable: true,
-                cropBoxResizable: true,
-                toggleDragModeOnDblclick: false
-            });
-        }
-
-        function resetPostCropper() {
-            if (postCropper) { postCropper.destroy(); postCropper = null; }
-        }
-
-        window.cancelPostImage = function() {
-            resetPostCropper();
-            var input = document.querySelector('#post-create-form input[name="image"]');
-            if (input) input.value = '';
-            var preview = document.getElementById('image-preview');
-            if (preview) preview.classList.add('hidden');
-            var img = document.getElementById('preview-img');
-            if (img) img.removeAttribute('src');
-        };
-
-        window.previewImage = function() {}; // no-op, handled by change listener below
-
-        document.addEventListener('DOMContentLoaded', function() {
-            var input = document.querySelector('#post-create-form input[name="image"]');
-            if (!input) return;
-
-            input.addEventListener('change', function(e) {
-                var file = e.target.files[0];
-                if (!file) return;
-                if (file.size > 5 * 1024 * 1024) {
-                    alert('Image must be less than 5MB.');
-                    e.target.value = '';
-                    return;
-                }
-                var reader = new FileReader();
-                reader.onload = function(ev) {
-                    var preview = document.getElementById('image-preview');
-                    var img = document.getElementById('preview-img');
-                    img.src = ev.target.result;
-                    preview.classList.remove('hidden');
-                    resetPostCropper();
-                    // Wait for img to be visible before init
-                    setTimeout(initPostCropper, 50);
-                };
-                reader.readAsDataURL(file);
-            });
-
-            var form = document.getElementById('post-create-form');
-            form.addEventListener('submit', function(e) {
-                if (!postCropper) return;
-                e.preventDefault();
-                var canvas = postCropper.getCroppedCanvas({ width: 1080, height: 1080 });
-                if (canvas) {
-                    canvas.toBlob(function(blob) {
-                        var file = new File([blob], 'post.jpg', { type: 'image/jpeg' });
-                        var dt = new DataTransfer();
-                        dt.items.add(file);
-                        input.files = dt.files;
-                        resetPostCropper();
-                        form.submit();
-                    }, 'image/jpeg', 0.9);
-                } else {
-                    resetPostCropper();
-                    form.submit();
-                }
-            });
-        });
-    })();
+        // Placeholder for inline scripts if needed
+        // Cropping is now handled by feed-index.js module
     </script>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -311,7 +229,7 @@
                                               d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                     </svg>
                                     <span>Photo</span>
-                                    <input type="file" name="image" accept="image/*" class="hidden" onchange="previewImage(event)">
+                                    <input type="file" name="image" accept="image/*" class="hidden">
                                 </label>
                                 <button type="submit"
                                     class="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white text-sm font-medium px-5 py-2 rounded-full transition-colors">
@@ -320,11 +238,11 @@
                             </div>
 
                             <!-- Image preview -->
-                            <div id="image-preview" class="mt-3 hidden relative rounded-xl bg-zinc-950">
-                                <div style="width:100%;height:300px;position:relative;">
-                                    <img id="preview-img" src="" style="display:block;max-width:100%;max-height:100%;">
+                            <div id="image-preview" class="mt-3 hidden" style="position:relative; overflow:visible;">
+                                <div style="height:320px; overflow:visible; position:relative; background:#09090b;">
+                                    <img id="preview-img" src="" style="display:block; max-width:100%; max-height:320px;">
                                 </div>
-                                <button type="button" onclick="cancelPostImage()" class="absolute top-2 right-2 z-10 bg-black/60 hover:bg-black/80 text-white rounded-full p-1.5 transition shadow-md" title="Cancel image">
+                                <button type="button" onclick="cancelPostImage()" style="position:absolute; top:8px; right:8px; z-index:10;" class="bg-black/60 hover:bg-black/80 text-white rounded-full p-1.5 transition shadow-md" title="Cancel image">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
                                     </svg>
@@ -407,12 +325,13 @@
                 </button>
             </div>
             
-            <form action="{{ route('stories.store') }}" method="POST" enctype="multipart/form-data">
+            <form id="story-form" action="{{ route('stories.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="space-y-4">
                     <!-- Image Selection & Cropping -->
                     <div class="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-4 text-center hover:border-green-500 dark:hover:border-green-500 transition-colors relative"
-                         id="story-upload-container">
+                         id="story-upload-container"
+                         style="overflow:visible;">
                         <input type="file" id="story-image-input" name="image" accept="image/*" 
                                class="absolute inset-0 opacity-0 cursor-pointer"
                                :class="storyHasImg ? 'hidden' : ''"
@@ -431,7 +350,13 @@
                                            storyPreviewSrc = e.target.result;
                                            storyHasImg = true;
                                            $nextTick(() => {
-                                               initCropper();
+                                               const img = document.getElementById('cropper-image');
+                                               if (!img) return;
+                                               if (img.complete && img.naturalWidth > 0) {
+                                                   initCropper();
+                                               } else {
+                                                   img.onload = function() { img.onload = null; initCropper(); };
+                                               }
                                            });
                                        };
                                        reader.readAsDataURL(file);
@@ -444,9 +369,9 @@
                             <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Choose your story image</p>
                             <p class="text-xs text-gray-400 mt-1">Size limit: 5MB</p>
                         </div>
-                        <div x-show="storyHasImg" class="relative bg-zinc-950 rounded-lg">
-                            <div style="width:100%;height:320px;position:relative;">
-                                <img id="cropper-image" :src="storyPreviewSrc" style="display:block;max-width:100%;max-height:100%;">
+                        <div x-show="storyHasImg" class="relative bg-zinc-950" style="overflow:visible;">
+                            <div style="height:320px; overflow:visible; position:relative;">
+                                <img id="cropper-image" :src="storyPreviewSrc" style="display:block; max-width:100%; max-height:320px;">
                             </div>
                             <div class="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full z-10">
                                 <button type="button" 
@@ -573,7 +498,6 @@
 @endsection
 
 @push('styles')
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
 <style>
 .cropper-bg {
     background-image: none !important;
@@ -590,55 +514,5 @@
 @endpush
 
 @push('scripts')
-    @vite('resources/js/pages/post-card.js')
-    <script>
-    // Story cropper — 9:16 aspect, CDN Cropper
-    var cropperInstance = null;
-
-    function initCropper() {
-        var image = document.getElementById('cropper-image');
-        if (!image) return;
-        if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
-        cropperInstance = new Cropper(image, {
-            aspectRatio: 9 / 16,
-            viewMode: 1,
-            dragMode: 'move',
-            autoCropArea: 0.9,
-            restore: false,
-            guides: true,
-            center: true,
-            highlight: false,
-            cropBoxMovable: true,
-            cropBoxResizable: true,
-            toggleDragModeOnDblclick: false
-        });
-    }
-
-    function resetCropper() {
-        if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        var form = document.querySelector('form[action*="/stories"]');
-        if (!form) return;
-        form.addEventListener('submit', function(e) {
-            if (!cropperInstance) return;
-            e.preventDefault();
-            var canvas = cropperInstance.getCroppedCanvas({ width: 1080, height: 1920 });
-            if (canvas) {
-                canvas.toBlob(function(blob) {
-                    var fileInput = document.getElementById('story-image-input');
-                    var file = new File([blob], 'story.jpg', { type: 'image/jpeg' });
-                    var dt = new DataTransfer();
-                    dt.items.add(file);
-                    fileInput.files = dt.files;
-                    resetCropper();
-                    form.submit();
-                }, 'image/jpeg', 0.9);
-            } else {
-                form.submit();
-            }
-        });
-    });
-    </script>
+    @vite(['resources/js/pages/feed-index.js', 'resources/js/pages/post-card.js'])
 @endpush

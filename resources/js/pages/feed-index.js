@@ -1,11 +1,16 @@
 /**
- * Feed Index Page - Post Creation with File Validation
+ * Feed Index Page - Post and Story Creation with Image Cropping
  * 
  * Features:
- * - Image file validation (max 5MB) for new posts
+ * - Image file validation (max 5MB) for posts and stories
  * - Real-time image preview before upload
+ * - Image cropping for posts (1:1 aspect ratio)
+ * - Image cropping for stories (9:16 aspect ratio)
  * - File size error alerts
  */
+
+import { setupPostImageUpload, cancelPostImage } from '../cropper/post-cropper.js';
+import { setupStoryFormHandler, initStoryCropper, resetStoryCropper } from '../cropper/story-cropper.js';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const MAX_FILE_SIZE_MB = 5;
@@ -33,24 +38,15 @@ function validateFileSize(file) {
     return true;
 }
 
-/**
- * Preview selected image before upload
- * @param {Event} event - File input change event
- */
-function previewImage(event) {
-    const file = event.target.files[0];
-    if (!file) return;
+// Initialize all handlers on DOM ready
+document.addEventListener('DOMContentLoaded', function() {
+    setupPostImageUpload();
+    setupStoryFormHandler();
+});
 
-    // Validate file size before preview
-    if (!validateFileSize(file)) {
-        event.target.value = ''; // Clear the input
-        return;
-    }
+// Make post cropper functions available globally for HTML onclick handlers
+window.cancelPostImage = cancelPostImage;
 
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        document.getElementById('preview-img').src = e.target.result;
-        document.getElementById('image-preview').classList.remove('hidden');
-    };
-    reader.readAsDataURL(file);
-}
+// Make story cropper functions available globally for Alpine.js directives
+window.initStoryCropper = initStoryCropper;
+window.resetStoryCropper = resetStoryCropper;
