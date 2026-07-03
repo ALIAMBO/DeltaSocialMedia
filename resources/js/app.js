@@ -1,9 +1,10 @@
 import Alpine from 'alpinejs';
 import './ajax-actions';
 import Cropper from 'cropperjs/dist/cropper.esm.js';
-import '../css/cropper.min.css';
+import 'cropperjs/dist/cropper.min.css';
 
 window.Alpine = Alpine;
+window.Cropper = Cropper;
 
 /**
  * Echo exposes an expressive API for subscribing to channels and listening
