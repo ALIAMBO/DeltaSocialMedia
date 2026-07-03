@@ -57,6 +57,19 @@ This document records the current status of the project (completed and future/pe
 * Repositioned the floating chat widget trigger on mobile screens (`bottom-20 md:bottom-6`) so it floats above the bottom navigation bar.
 * Modified the grid column layout of Location & Website settings inputs (`grid-cols-1 sm:grid-cols-2`) to avoid screen squeeze.
 
+### 📷 Unified PhotoManager Cropping (Recently Added)
+* Created a global reusable `window.PhotoManager` object inside `app.js` to manage file sizes, inline/dialog Cropper.js lifecycles, and form payload DataTransfer injections.
+* Applied `PhotoManager` to the Feed and Profile post creation forms.
+* Added a `#cropper-modal` to `profile/edit.blade.php` settings to allow square (1:1) avatar cropping and landscape (3:1) cover photo cropping.
+* Solved the zero-dimension gotcha by delaying cropper instantiation inside a `setTimeout` callback.
+
+### 👥 Profile Followers/Following Modals & Location Info (Recently Added)
+* Created JSON list endpoints (`followers`, `following`) in `ProfileController.php` and registered routes.
+* Converted follower/following count labels to button controls that trigger follow lists modal dynamically.
+* Implemented real-time follow/unfollow toggle actions inside the list modal via CSRF-signed AJAX calls.
+* Solved a Blade escaping collision where `/` + `@` + `{{` was outputted as Vue brackets.
+* Rendered Location (pin map icon) and Website/Link (link chain icon) details on the profile show header.
+
 ---
 
 ## 2. Pending Tasks & Future Enhancements

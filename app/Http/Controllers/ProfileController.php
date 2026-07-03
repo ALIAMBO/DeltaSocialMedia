@@ -181,4 +181,50 @@ class ProfileController extends Controller
             'Expires'       => '0',
         ]);
     }
+
+    public function followers(User $user)
+    {
+        $followers = $user->followers()
+            ->with('follower.profile')
+            ->get()
+            ->map(function($follow) {
+                $u = $follow->follower;
+                if (!$u) return null;
+                return [
+                    'id' => $u->id,
+                    'name' => $u->name,
+                    'slug' => $u->getRouteKey(),
+                    'avatar_url' => $u->profile?->avatar_url ?? asset('images/default-avatar.png'),
+                    'bio' => $u->profile?->bio ?? '',
+                    'is_following' => auth()->check() && auth()->user()->isFollowing($u),
+                    'is_self' => auth()->check() && auth()->id() === $u->id,
+                ];
+            })
+            ->filter();
+
+        return response()->json($followers->values());
+    }
+
+    public function following(User $user)
+    {
+        $following = $user->following()
+            ->with('following.profile')
+            ->get()
+            ->map(function($follow) {
+                $u = $follow->following;
+                if (!$u) return null;
+                return [
+                    'id' => $u->id,
+                    'name' => $u->name,
+                    'slug' => $u->getRouteKey(),
+                    'avatar_url' => $u->profile?->avatar_url ?? asset('images/default-avatar.png'),
+                    'bio' => $u->profile?->bio ?? '',
+                    'is_following' => auth()->check() && auth()->user()->isFollowing($u),
+                    'is_self' => auth()->check() && auth()->id() === $u->id,
+                ];
+            })
+            ->filter();
+
+        return response()->json($following->values());
+    }
 }
