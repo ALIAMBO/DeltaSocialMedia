@@ -1,5 +1,7 @@
 import Alpine from 'alpinejs';
 import './ajax-actions';
+import Cropper from 'cropperjs/dist/cropper.esm.js';
+import '../css/cropper.min.css';
 
 window.Alpine = Alpine;
 

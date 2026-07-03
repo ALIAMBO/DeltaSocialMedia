@@ -530,7 +530,6 @@
 
 @push('scripts')
     @vite('resources/js/pages/post-card.js')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
     <script>
     let cropperInstance = null;
 
