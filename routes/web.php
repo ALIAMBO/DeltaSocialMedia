@@ -34,6 +34,7 @@ Route::middleware('auth')->group(function () {
 
     // Search
     Route::get('/search', [SearchController::class, 'index'])->name('search');
+    Route::get('/api/following/search', [SearchController::class, 'searchFollowing']);
 
     // Posts
     Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
@@ -50,6 +51,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::get('/@{user}', [ProfileController::class, 'show'])->name('profile.show');
+    Route::get('/@{user}/followers', [ProfileController::class, 'followers'])->name('profile.followers');
+    Route::get('/@{user}/following', [ProfileController::class, 'following'])->name('profile.following');
 
     // Follow / Unfollow
     Route::post('/@{user}/follow', [FollowController::class, 'toggle'])->name('follow.toggle');
@@ -73,6 +76,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.readAll');
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::get('/notifications/{id}/go', [NotificationController::class, 'goAndMarkAsRead'])->name('notifications.go');
     Route::get('/api/notifications/unread', [NotificationController::class, 'apiGetUnread']);
 
     // Dashboard redirect → feed

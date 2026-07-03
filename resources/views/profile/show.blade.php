@@ -2,38 +2,7 @@
 @section('title', $user->name . " Profile")
 
 @section('content')
-<!-- Profile upload functions - defined inline so onchange handler can access them -->
-<script>
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const MAX_FILE_SIZE_MB = 5;
 
-function validateFileSize(file) {
-    if (file.size > MAX_FILE_SIZE) {
-        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
-        alert(`⚠️ File size too large!\n\n"${file.name}" is ${fileSizeMB}MB.\n\nMaximum allowed: ${MAX_FILE_SIZE_MB}MB`);
-        return false;
-    }
-    return true;
-}
-
-function previewImage(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    // Validate file size before preview
-    if (!validateFileSize(file)) {
-        event.target.value = ''; // Clear the input
-        return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        document.getElementById('preview-img').src = e.target.result;
-        document.getElementById('image-preview').classList.remove('hidden');
-    };
-    reader.readAsDataURL(file);
-}
-</script>
 
 @php
 $avatarUrl = $user->profile?->avatar_url ?? asset('images/default-avatar.png');
@@ -43,7 +12,85 @@ $coverUrlJson = json_encode($coverUrl);
 @endphp
 
 
-<div class="space-y-5 bg-white dark:bg-gray-900 min-h-screen transition-colors" x-data="{ isOpen: false, imageSrc: '', imageTitle: '', avatarUrl: {{ $avatarUrlJson }}, coverUrl: {{ $coverUrlJson }}, profileOpen: false, openModal(src, title) { this.imageSrc = src; this.imageTitle = title; this.isOpen = true; document.body.style.overflow = 'hidden'; }, closeModal() { this.isOpen = false; document.body.style.overflow = 'auto'; } }">
+<div class="space-y-5 bg-white dark:bg-gray-900 min-h-screen transition-colors" x-data="{
+    isOpen: false,
+    imageSrc: '',
+    imageTitle: '',
+    avatarUrl: {{ $avatarUrlJson }},
+    coverUrl: {{ $coverUrlJson }},
+    profileOpen: false,
+    openModal(src, title) {
+        this.imageSrc = src;
+        this.imageTitle = title;
+        this.isOpen = true;
+        document.body.style.overflow = 'hidden';
+    },
+    closeModal() {
+        this.isOpen = false;
+        document.body.style.overflow = 'auto';
+    },
+    
+    // Follow list states
+    showFollowList: false,
+    followListType: '',
+    followListUsers: [],
+    followListLoading: false,
+    
+    async openFollowList(type) {
+        this.followListType = type;
+        this.showFollowList = true;
+        this.followListLoading = true;
+        this.followListUsers = [];
+        document.body.style.overflow = 'hidden';
+        
+        try {
+            const response = await fetch('/' + '@' + '{{ $user->getRouteKey() }}/' + type);
+            if (response.ok) {
+                this.followListUsers = await response.json();
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            this.followListLoading = false;
+        }
+    },
+    closeFollowList() {
+        this.showFollowList = false;
+        document.body.style.overflow = 'auto';
+    },
+    async toggleFollowInList(user) {
+        try {
+            const response = await fetch('/@' + user.slug + '/follow', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name=&quot;csrf-token&quot;]').getAttribute('content'),
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                user.is_following = data.following;
+                
+                // Also update main follow button if target is current profile owner
+                if (user.id === {{ $user->id }}) {
+                    const mainFollowBtn = document.querySelector('.follow-btn');
+                    if (mainFollowBtn) {
+                        mainFollowBtn.textContent = user.is_following ? 'Unfollow' : 'Follow';
+                    }
+                }
+                
+                // Update follower counts on elements
+                const followerEl = document.querySelector('[data-followers-count-for=&quot;' + user.id + '&quot;]');
+                if (followerEl) {
+                    followerEl.textContent = data.followers_count;
+                }
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+}">
     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors">
         <div class="relative h-44 bg-gradient-to-r from-green-400 to-green-500 rounded-t-2xl overflow-hidden {{ $coverUrl ? 'cursor-pointer group' : '' }}" @click="coverUrl ? openModal(coverUrl, 'Cover Photo') : null">
             @if ($coverUrl)
@@ -59,10 +106,42 @@ $coverUrlJson = json_encode($coverUrl);
             @if ($user->profile?->bio)
                 <p class="text-gray-600 dark:text-gray-400 mt-1">{{ $user->profile->bio }}</p>
             @endif
+
+            @if ($user->profile?->location || $user->profile?->website)
+                <div class="flex flex-wrap gap-4 mt-2.5 text-xs text-gray-500 dark:text-gray-400">
+                    @if ($user->profile->location)
+                        <div class="flex items-center gap-1">
+                            <svg class="w-4 h-4 text-gray-450 dark:text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25s-7.5-4.108-7.5-11.25a7.5 7.5 0 1115 0z"/>
+                            </svg>
+                            <span>{{ $user->profile->location }}</span>
+                        </div>
+                    @endif
+                    @if ($user->profile->website)
+                        <div class="flex items-center gap-1">
+                            <svg class="w-4 h-4 text-gray-450 dark:text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"/>
+                            </svg>
+                            <a href="{{ str_starts_with($user->profile->website, 'http') ? $user->profile->website : 'https://' . $user->profile->website }}" 
+                               target="_blank" 
+                               rel="noopener noreferrer" 
+                               class="text-green-600 dark:text-green-400 hover:underline">
+                                {{ preg_replace('/(^https?:\/\/)?(www\.)?/', '', $user->profile->website) }}
+                            </a>
+                        </div>
+                    @endif
+                </div>
+            @endif
+
             <div class="flex gap-6 mt-4 text-sm text-gray-700 dark:text-gray-300">
                 <span><strong>{{ $user->posts->count() }}</strong> Posts</span>
-                <span><strong data-followers-count-for="{{ $user->id }}">{{ $user->followers_count }}</strong> Followers</span>
-                <span><strong>{{ $user->following_count }}</strong> Following</span>
+                <button type="button" @click="openFollowList('followers')" class="hover:underline focus:outline-none">
+                    <strong data-followers-count-for="{{ $user->id }}">{{ $user->followers_count }}</strong> Followers
+                </button>
+                <button type="button" @click="openFollowList('following')" class="hover:underline focus:outline-none">
+                    <strong>{{ $user->following_count }}</strong> Following
+                </button>
             </div>
             <div class="flex gap-2 mt-4">
                 @if (auth()->id() !== $user->id)
@@ -89,7 +168,7 @@ $coverUrlJson = json_encode($coverUrl);
             <img src="{{ auth()->user()->profile?->avatar_url ?? asset('images/default-avatar.png') }}"
                  class="w-10 h-10 rounded-full object-cover border border-gray-200 dark:border-gray-600">
             <div class="flex-1">
-                <form action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data">
+                <form id="post-create-form" action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <textarea name="body" rows="3"
                         placeholder="What's on your mind?"
@@ -115,8 +194,15 @@ $coverUrlJson = json_encode($coverUrl);
                     </div>
 
                     <!-- Image preview -->
-                    <div id="image-preview" class="mt-2 hidden">
-                        <img id="preview-img" src="" alt="Preview" class="rounded-xl max-h-48 object-cover">
+                    <div id="image-preview" class="mt-3 hidden relative rounded-xl overflow-hidden bg-zinc-950 flex flex-col items-center">
+                        <div class="max-h-[300px] w-full overflow-hidden flex items-center justify-center">
+                            <img id="preview-img" src="" class="max-w-full max-h-[300px]">
+                        </div>
+                        <button type="button" onclick="cancelPostImage()" class="absolute top-2 right-2 z-10 bg-black/60 hover:bg-black/80 text-white rounded-full p-1.5 transition shadow-md" title="Cancel image">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
                     </div>
 
                     @error('image')
@@ -155,10 +241,94 @@ $coverUrlJson = json_encode($coverUrl);
             </div>
         </div>
     </template>
+
+    <!-- Follow List Modal -->
+    <template x-if="showFollowList">
+        <div class="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" @click.self="closeFollowList()">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-md w-full overflow-hidden transition-colors flex flex-col max-h-[80vh]">
+                <!-- Header -->
+                <div class="border-b border-gray-100 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
+                    <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 capitalize" x-text="followListType"></h3>
+                    <button type="button" @click="closeFollowList()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Content / User List -->
+                <div class="flex-1 overflow-y-auto p-4 space-y-3 min-h-[250px] bg-gray-50 dark:bg-gray-900/20">
+                    <!-- Loading state -->
+                    <div x-show="followListLoading" class="flex flex-col items-center justify-center py-12">
+                        <div class="animate-spin rounded-full h-8 w-8 border-4 border-green-500 border-t-transparent mb-3"></div>
+                        <span class="text-xs text-gray-400">Loading users...</span>
+                    </div>
+
+                    <!-- Empty state -->
+                    <div x-show="!followListLoading && followListUsers.length === 0" class="text-center py-12 text-gray-450 dark:text-gray-500">
+                        No users found.
+                    </div>
+
+                    <!-- User rows -->
+                    <template x-for="usr in followListUsers" :key="usr.id">
+                        <div class="flex items-center justify-between gap-3 p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/30 transition-colors">
+                            <a :href="'/@' + usr.slug" class="flex items-center gap-3 flex-1 min-w-0">
+                                <img :src="usr.avatar_url" class="w-10 h-10 rounded-full object-cover border border-gray-100 dark:border-gray-700">
+                                <div class="min-w-0 flex-1">
+                                    <h4 class="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate" x-text="usr.name"></h4>
+                                    <p class="text-xs text-gray-400 dark:text-gray-500 truncate" x-text="usr.bio"></p>
+                                </div>
+                            </a>
+
+                            <!-- Follow button -->
+                            <template x-if="!usr.is_self">
+                                <button @click="toggleFollowInList(usr)" 
+                                        :class="usr.is_following 
+                                            ? 'bg-gray-150 hover:bg-gray-200 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-650 dark:text-gray-200' 
+                                            : 'bg-green-600 hover:bg-green-700 text-white dark:bg-green-700 dark:hover:bg-green-600'"
+                                        class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors min-w-[85px] text-center">
+                                    <span x-text="usr.is_following ? 'Unfollow' : 'Follow'"></span>
+                                </button>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </template>
 </div>
 
-//this js has function to open the picture when clicking 
+@push('styles')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+@endpush
+
 @push('scripts')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('post-create-form');
+        if (!form) return;
+        
+        const inputEl = form.querySelector('input[name="image"]');
+        const previewImgEl = document.getElementById('preview-img');
+        
+        PhotoManager.register({
+            id: 'post-profile',
+            inputEl: inputEl,
+            previewImgEl: previewImgEl,
+            formEl: form,
+            aspectRatio: 1
+        });
+        
+        window.previewImage = function(event) {
+            // Handled automatically by change listener
+        };
+        
+        window.cancelPostImage = function() {
+            PhotoManager.cancelCrop('post-profile');
+        };
+    });
+    </script>
     @vite('resources/js/pages/post-card.js')
 @endpush
 

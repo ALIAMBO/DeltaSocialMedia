@@ -21,7 +21,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 font-sans antialiased transition-colors">
+<body class="bg-gray-100 dark:bg-gray-900 font-sans antialiased transition-colors pb-16 md:pb-0">
 
     <!-- Navbar -->
     <nav class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-sm transition-colors">
@@ -33,27 +33,30 @@
 
             @auth
             <!-- Navigation Links -->
-            <div class="flex items-center gap-5 text-sm font-medium text-gray-600 dark:text-gray-300">
-                <a href="{{ route('feed') }}"
-                   class="hover:text-green-600 dark:hover:text-green-400 {{ request()->routeIs('feed') ? 'text-green-600 dark:text-green-400' : '' }} transition-colors">
-                    Feed
-                </a>
-                <a href="{{ route('chat.index') }}"
-                   class="hover:text-green-600 dark:hover:text-green-400 {{ request()->routeIs('chat.*') ? 'text-green-600 dark:text-green-400' : '' }} transition-colors">
-                    Messages
-                </a>
-                <a href="{{ route('notifications.index') }}"
-                   class="relative p-1 hover:text-green-600 dark:hover:text-green-400 {{ request()->routeIs('notifications.index') ? 'text-green-600 dark:text-green-400' : '' }} transition-colors flex items-center"
-                   title="Notifications">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-                    </svg>
-                    @if (auth()->user()->unreadNotifications->count() > 0)
-                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full min-w-[16px] h-4 flex items-center justify-center border border-white dark:border-gray-800 shadow-sm leading-none">
-                            {{ auth()->user()->unreadNotifications->count() }}
-                        </span>
-                    @endif
-                </a>
+            <div class="flex items-center gap-3 sm:gap-5 text-sm font-medium text-gray-600 dark:text-gray-300">
+                <!-- Desktop text links -->
+                <div class="hidden md:flex items-center gap-5">
+                    <a href="{{ route('feed') }}"
+                       class="hover:text-green-600 dark:hover:text-green-400 {{ request()->routeIs('feed') ? 'text-green-600 dark:hover:text-green-400' : '' }} transition-colors">
+                        Feed
+                    </a>
+                    <a href="{{ route('chat.index') }}"
+                       class="hover:text-green-600 dark:hover:text-green-400 {{ request()->routeIs('chat.*') ? 'text-green-600 dark:hover:text-green-400' : '' }} transition-colors">
+                        Messages
+                    </a>
+                    <a href="{{ route('notifications.index') }}"
+                       class="relative p-1 hover:text-green-600 dark:hover:text-green-400 {{ request()->routeIs('notifications.index') ? 'text-green-600 dark:hover:text-green-400' : '' }} transition-colors flex items-center"
+                       title="Notifications">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                        @if (auth()->user()->unreadNotifications->count() > 0)
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full min-w-[16px] h-4 flex items-center justify-center border border-white dark:border-gray-800 shadow-sm leading-none">
+                                {{ auth()->user()->unreadNotifications->count() }}
+                            </span>
+                        @endif
+                    </a>
+                </div>
 
                 <!-- Search -->
                 <form action="{{ route('search') }}" method="GET" class="hidden sm:block">
@@ -399,7 +402,7 @@
             this.chatUser = null;
             this.fetchContacts();
         }
-    }" class="fixed bottom-6 right-6 z-50 font-sans" x-cloak>
+    }" class="fixed bottom-20 md:bottom-6 right-6 z-50 font-sans" x-cloak>
         
         <!-- 1. Floating Trigger Button -->
         <button @click="toggleWidget()" 
@@ -559,7 +562,7 @@
 
     @auth
     <!-- Toast Container for Real-time Notifications -->
-    <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-3 pointer-events-none"></div>
+    <div id="toast-container" class="fixed bottom-20 md:bottom-5 right-5 z-50 space-y-3 pointer-events-none"></div>
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -639,6 +642,49 @@
         setInterval(checkNotifications, 5000);
     });
     </script>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 z-40 flex justify-around items-center h-16 shadow-lg transition-colors">
+        <!-- Feed Link -->
+        <a href="{{ route('feed') }}" class="flex flex-col items-center justify-center w-14 h-full text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors {{ request()->routeIs('feed') ? 'text-green-600 dark:text-green-400' : '' }}">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+            </svg>
+            <span class="text-[9px] mt-0.5 font-medium">Feed</span>
+        </a>
+        <!-- Search Link -->
+        <a href="{{ route('search') }}" class="flex flex-col items-center justify-center w-14 h-full text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors {{ request()->routeIs('search') ? 'text-green-600 dark:text-green-400' : '' }}">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <span class="text-[9px] mt-0.5 font-medium">Search</span>
+        </a>
+        <!-- Messages Link -->
+        <a href="{{ route('chat.index') }}" class="relative flex flex-col items-center justify-center w-14 h-full text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors {{ request()->routeIs('chat.*') ? 'text-green-600 dark:text-green-400' : '' }}">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+            </svg>
+            <span class="text-[9px] mt-0.5 font-medium">Chats</span>
+        </a>
+        <!-- Alerts Link -->
+        <a href="{{ route('notifications.index') }}" class="relative flex flex-col items-center justify-center w-14 h-full text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors {{ request()->routeIs('notifications.*') ? 'text-green-600 dark:text-green-400' : '' }}">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+            </svg>
+            <span class="text-[9px] mt-0.5 font-medium">Alerts</span>
+            @if (auth()->user()->unreadNotifications->count() > 0)
+                <span class="absolute top-2 right-2 bg-red-500 text-white text-[8px] font-bold px-1 py-0.5 rounded-full min-w-[14px] h-3.5 flex items-center justify-center border border-white dark:border-gray-800 shadow-sm leading-none">
+                    {{ auth()->user()->unreadNotifications->count() }}
+                </span>
+            @endif
+        </a>
+        <!-- Profile Link -->
+        <a href="{{ route('profile.show', auth()->user()) }}" class="flex flex-col items-center justify-center w-14 h-full text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors {{ request()->routeIs('profile.show') && request()->route('user') && request()->route('user')->id === auth()->id() ? 'text-green-600 dark:text-green-400' : '' }}">
+            <img src="{{ auth()->user()->profile?->avatar_url ?? asset('images/default-avatar.png') }}"
+                 class="w-6 h-6 rounded-full object-cover border {{ request()->routeIs('profile.show') && request()->route('user') && request()->route('user')->id === auth()->id() ? 'border-green-500' : 'border-gray-300 dark:border-gray-650' }}">
+            <span class="text-[9px] mt-0.5 font-medium">Profile</span>
+        </a>
+    </div>
     @endauth
 
     @stack('scripts')

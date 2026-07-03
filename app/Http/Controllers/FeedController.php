@@ -11,7 +11,7 @@ class FeedController extends Controller
     /**
      * Show the main feed: posts from people the auth user follows + own posts.
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
 
@@ -19,10 +19,16 @@ class FeedController extends Controller
         $followingIds = $user->following()->pluck('following_id');
         $feedIds = $followingIds->push($user->id);
 
-        $posts = Post::with(['user.profile', 'likes', 'comments.user.profile'])
-            ->whereIn('user_id', $feedIds)
-            ->latest()
-            ->paginate(15);
+        $postsQuery = Post::with(['user.profile', 'likes', 'comments.user.profile']);
+
+        if ($request->has('tag')) {
+            $tag = $request->input('tag');
+            $postsQuery->where('body', 'like', "%#{$tag}%");
+        } else {
+            $postsQuery->whereIn('user_id', $feedIds);
+        }
+
+        $posts = $postsQuery->latest()->paginate(15);
 
         // Eager load following on authenticated user to avoid N+1 query in templates/widgets
         $user->load('following');

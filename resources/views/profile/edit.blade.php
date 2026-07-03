@@ -68,37 +68,47 @@ window.fileValidation = function() {
                 });
             }
 
-            // Avatar file input change - preview the selected image
-            const avatarInput = document.getElementById('avatar-input');
-            if (avatarInput) {
-                avatarInput.addEventListener('change', (e) => {
-                    const file = e.target.files[0];
-                    if (!file) return;
+            // Register Avatar Cropper using PhotoManager
+            PhotoManager.register({
+                id: 'avatar',
+                inputEl: document.getElementById('avatar-input'),
+                previewImgEl: document.getElementById('avatar-preview'),
+                formEl: document.querySelector('form[action*="profile"]'),
+                aspectRatio: 1,
+                modalEl: document.getElementById('cropper-modal'),
+                modalImgEl: document.getElementById('cropper-img'),
+                modalTitleEl: document.getElementById('cropper-title'),
+                modalTitle: 'Crop Profile Picture'
+            });
 
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        document.getElementById('avatar-preview').src = event.target.result;
-                    };
-                    reader.readAsDataURL(file);
-                });
-            }
+            // Register Cover Cropper using PhotoManager
+            PhotoManager.register({
+                id: 'cover',
+                inputEl: document.getElementById('cover-input'),
+                previewImgEl: document.getElementById('cover-img'),
+                formEl: document.querySelector('form[action*="profile"]'),
+                aspectRatio: 3,
+                modalEl: document.getElementById('cropper-modal'),
+                modalImgEl: document.getElementById('cropper-img'),
+                modalTitleEl: document.getElementById('cropper-title'),
+                modalTitle: 'Crop Cover Photo'
+            });
 
-            // Cover file input change - preview the selected image
-            const coverInput = document.getElementById('cover-input');
-            if (coverInput) {
-                coverInput.addEventListener('change', (e) => {
-                    const file = e.target.files[0];
-                    if (!file) return;
+            window.cancelCrop = function() {
+                if (PhotoManager.instances['avatar'].cropper) {
+                    PhotoManager.cancelCrop('avatar');
+                } else if (PhotoManager.instances['cover'].cropper) {
+                    PhotoManager.cancelCrop('cover');
+                }
+            };
 
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        const img = document.getElementById('cover-img');
-                        img.src = event.target.result;
-                        img.classList.remove('hidden');
-                    };
-                    reader.readAsDataURL(file);
-                });
-            }
+            window.applyCrop = function() {
+                if (PhotoManager.instances['avatar'].cropper) {
+                    PhotoManager.applyModalCrop('avatar');
+                } else if (PhotoManager.instances['cover'].cropper) {
+                    PhotoManager.applyModalCrop('cover');
+                }
+            };
 
             // Check for backend validation errors and display as modal
             this.checkForValidationErrors();
@@ -247,7 +257,7 @@ window.fileValidation = function() {
                 </div>
 
                 <!-- Location & Website -->
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Location</label>
                         <input type="text" name="location"
@@ -289,5 +299,45 @@ window.fileValidation = function() {
             </div>
         </div>
     </form>
+
+    <!-- Cropper Modal -->
+    <div id="cropper-modal" class="fixed inset-0 bg-black bg-opacity-75 flex flex-col items-center justify-center z-50 hidden p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-lg w-full overflow-hidden transition-colors flex flex-col max-h-[90vh]">
+            <!-- Header -->
+            <div class="border-b border-gray-100 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
+                <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100" id="cropper-title">Crop Image</h3>
+                <button type="button" onclick="cancelCrop()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Crop Container -->
+            <div class="p-6 flex-1 overflow-hidden flex items-center justify-center bg-gray-50 dark:bg-gray-900/50">
+                <div class="max-h-[50vh] w-full flex items-center justify-center overflow-hidden">
+                    <img id="cropper-img" src="" class="max-w-full max-h-[50vh]">
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <div class="border-t border-gray-100 dark:border-gray-700 px-6 py-4 bg-gray-50 dark:bg-gray-700/50 flex justify-end gap-3">
+                <button type="button" onclick="cancelCrop()" class="px-5 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                    Cancel
+                </button>
+                <button type="button" onclick="applyCrop()" class="px-5 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 transition">
+                    Apply Crop
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
+
+@push('styles')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+@endpush
+
+@push('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+@endpush
 @endsection

@@ -15,7 +15,7 @@ class NotificationController extends Controller
         $postIds = [];
         foreach ($notifications as $notification) {
             $data = $notification->data;
-            $performerId = $data['follower_id'] ?? $data['liker_id'] ?? $data['commenter_id'] ?? null;
+            $performerId = $data['follower_id'] ?? $data['liker_id'] ?? $data['commenter_id'] ?? $data['mentioner_id'] ?? null;
             if ($performerId) {
                 $performerIds[] = $performerId;
             }
@@ -63,7 +63,7 @@ class NotificationController extends Controller
         // Gather all performer IDs
         $performerIds = $unread->map(function ($notification) {
             $data = $notification->data;
-            return $data['follower_id'] ?? $data['liker_id'] ?? $data['commenter_id'] ?? null;
+            return $data['follower_id'] ?? $data['liker_id'] ?? $data['commenter_id'] ?? $data['mentioner_id'] ?? null;
         })->filter()->unique();
 
         // Fetch all performer users in ONE query, eager loading their profile
@@ -74,7 +74,7 @@ class NotificationController extends Controller
         
         $data = $unread->map(function ($notification) use ($performers) {
             $data = $notification->data;
-            $performerId = $data['follower_id'] ?? $data['liker_id'] ?? $data['commenter_id'] ?? null;
+            $performerId = $data['follower_id'] ?? $data['liker_id'] ?? $data['commenter_id'] ?? $data['mentioner_id'] ?? null;
             $performerName = 'Someone';
             $performerAvatar = asset('images/default-avatar.png');
             
@@ -94,5 +94,63 @@ class NotificationController extends Controller
         });
 
         return response()->json($data);
+    }
+
+    public function goAndMarkAsRead($id)
+    {
+        $notification = auth()->user()->unreadNotifications()->find($id);
+        $targetUrl = '/feed';
+
+        if ($notification) {
+            $data = $notification->data;
+            if ($notification->type === 'App\Notifications\NewFollowNotification') {
+                $performerId = $data['follower_id'] ?? null;
+                if ($performerId) {
+                    $performer = \App\Models\User::find($performerId);
+                    if ($performer) {
+                        $targetUrl = route('profile.show', $performer);
+                    }
+                }
+            } elseif (in_array($notification->type, [
+                'App\Notifications\NewLikeNotification',
+                'App\Notifications\NewCommentNotification',
+                'App\Notifications\UserMentionedNotification'
+            ])) {
+                if (isset($data['post_id'])) {
+                    $post = \App\Models\Post::with('user')->find($data['post_id']);
+                    if ($post) {
+                        $targetUrl = route('profile.show', $post->user) . '#post-' . $post->id;
+                    }
+                }
+            }
+            $notification->markAsRead();
+        } else {
+            $notification = auth()->user()->notifications()->find($id);
+            if ($notification) {
+                $data = $notification->data;
+                if ($notification->type === 'App\Notifications\NewFollowNotification') {
+                    $performerId = $data['follower_id'] ?? null;
+                    if ($performerId) {
+                        $performer = \App\Models\User::find($performerId);
+                        if ($performer) {
+                            $targetUrl = route('profile.show', $performer);
+                        }
+                    }
+                } elseif (in_array($notification->type, [
+                    'App\Notifications\NewLikeNotification',
+                    'App\Notifications\NewCommentNotification',
+                    'App\Notifications\UserMentionedNotification'
+                ])) {
+                    if (isset($data['post_id'])) {
+                        $post = \App\Models\Post::with('user')->find($data['post_id']);
+                        if ($post) {
+                            $targetUrl = route('profile.show', $post->user) . '#post-' . $post->id;
+                        }
+                    }
+                }
+            }
+        }
+
+        return redirect($targetUrl);
     }
 }
