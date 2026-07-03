@@ -2,38 +2,7 @@
 @section('title', $user->name . " Profile")
 
 @section('content')
-<!-- Profile upload functions - defined inline so onchange handler can access them -->
-<script>
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const MAX_FILE_SIZE_MB = 5;
 
-function validateFileSize(file) {
-    if (file.size > MAX_FILE_SIZE) {
-        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
-        alert(`⚠️ File size too large!\n\n"${file.name}" is ${fileSizeMB}MB.\n\nMaximum allowed: ${MAX_FILE_SIZE_MB}MB`);
-        return false;
-    }
-    return true;
-}
-
-function previewImage(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    // Validate file size before preview
-    if (!validateFileSize(file)) {
-        event.target.value = ''; // Clear the input
-        return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        document.getElementById('preview-img').src = e.target.result;
-        document.getElementById('image-preview').classList.remove('hidden');
-    };
-    reader.readAsDataURL(file);
-}
-</script>
 
 @php
 $avatarUrl = $user->profile?->avatar_url ?? asset('images/default-avatar.png');
@@ -89,7 +58,7 @@ $coverUrlJson = json_encode($coverUrl);
             <img src="{{ auth()->user()->profile?->avatar_url ?? asset('images/default-avatar.png') }}"
                  class="w-10 h-10 rounded-full object-cover border border-gray-200 dark:border-gray-600">
             <div class="flex-1">
-                <form action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data">
+                <form id="post-create-form" action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <textarea name="body" rows="3"
                         placeholder="What's on your mind?"
@@ -115,8 +84,15 @@ $coverUrlJson = json_encode($coverUrl);
                     </div>
 
                     <!-- Image preview -->
-                    <div id="image-preview" class="mt-2 hidden">
-                        <img id="preview-img" src="" alt="Preview" class="rounded-xl max-h-48 object-cover">
+                    <div id="image-preview" class="mt-3 hidden relative rounded-xl overflow-hidden bg-zinc-950 flex flex-col items-center">
+                        <div class="max-h-[300px] w-full overflow-hidden flex items-center justify-center">
+                            <img id="preview-img" src="" class="max-w-full max-h-[300px]">
+                        </div>
+                        <button type="button" onclick="cancelPostImage()" class="absolute top-2 right-2 z-10 bg-black/60 hover:bg-black/80 text-white rounded-full p-1.5 transition shadow-md" title="Cancel image">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
                     </div>
 
                     @error('image')
@@ -157,8 +133,38 @@ $coverUrlJson = json_encode($coverUrl);
     </template>
 </div>
 
+@push('styles')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+@endpush
+
 //this js has function to open the picture when clicking 
 @push('scripts')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('post-create-form');
+        if (!form) return;
+        
+        const inputEl = form.querySelector('input[name="image"]');
+        const previewImgEl = document.getElementById('preview-img');
+        
+        PhotoManager.register({
+            id: 'post-profile',
+            inputEl: inputEl,
+            previewImgEl: previewImgEl,
+            formEl: form,
+            aspectRatio: 1
+        });
+        
+        window.previewImage = function(event) {
+            // Handled automatically by change listener
+        };
+        
+        window.cancelPostImage = function() {
+            PhotoManager.cancelCrop('post-profile');
+        };
+    });
+    </script>
     @vite('resources/js/pages/post-card.js')
 @endpush
 

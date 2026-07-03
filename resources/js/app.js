@@ -3,8 +3,6 @@ import './ajax-actions';
 
 window.Alpine = Alpine;
 
-Alpine.start();
-
 /**
  * Echo exposes an expressive API for subscribing to channels and listening
  * for events that are broadcast by Laravel. Echo and event broadcasting
@@ -182,3 +180,204 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 150);
     }
 });
+
+// Unified PhotoManager for all cropping and upload management
+window.PhotoManager = {
+    instances: {},
+
+    register({ id, inputEl, previewImgEl, formEl, aspectRatio = 1, modalEl = null, modalImgEl = null, modalTitleEl = null, modalTitle = 'Crop Image', onCropApplied = null }) {
+        const self = this;
+
+        // Save reference
+        this.instances[id] = {
+            cropper: null,
+            inputEl,
+            previewImgEl,
+            modalEl,
+            modalImgEl
+        };
+
+        // File selection handler
+        inputEl.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Validate size (5MB)
+            const MAX_FILE_SIZE = 5 * 1024 * 1024;
+            if (file.size > MAX_FILE_SIZE) {
+                alert(`⚠️ File size too large!\n\n"${file.name}" is ${(file.size / (1024 * 1024)).toFixed(2)}MB.\n\nMaximum allowed: 5MB`);
+                e.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                if (modalEl && modalImgEl) {
+                    // Modal-based crop
+                    if (modalTitleEl) {
+                        modalTitleEl.textContent = modalTitle;
+                    }
+                    modalEl.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                    modalImgEl.src = event.target.result;
+
+                    if (self.instances[id].cropper) {
+                        self.instances[id].cropper.destroy();
+                        self.instances[id].cropper = null;
+                    }
+
+                    setTimeout(() => {
+                        self.instances[id].cropper = new Cropper(modalImgEl, {
+                            aspectRatio: aspectRatio,
+                            viewMode: 1,
+                            dragMode: 'move',
+                            autoCropArea: 0.9,
+                            restore: false,
+                            guides: true,
+                            center: true,
+                            highlight: false,
+                            cropBoxMovable: true,
+                            cropBoxResizable: true,
+                            toggleDragModeOnDblclick: false
+                        });
+                    }, 50);
+                } else {
+                    // Inline crop
+                    previewImgEl.parentNode.parentNode.classList.remove('hidden'); // Show image-preview div
+                    previewImgEl.src = event.target.result;
+
+                    if (self.instances[id].cropper) {
+                        self.instances[id].cropper.destroy();
+                        self.instances[id].cropper = null;
+                    }
+
+                    setTimeout(() => {
+                        self.instances[id].cropper = new Cropper(previewImgEl, {
+                            aspectRatio: aspectRatio,
+                            viewMode: 1,
+                            dragMode: 'move',
+                            autoCropArea: 0.9,
+                            restore: false,
+                            guides: true,
+                            center: true,
+                            highlight: false,
+                            cropBoxMovable: true,
+                            cropBoxResizable: true,
+                            toggleDragModeOnDblclick: false
+                        });
+                    }, 50);
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // If formEl is provided, intercept form submission to replace files with cropped blobs
+        if (formEl && !formEl.dataset.cropperIntercepted) {
+            formEl.dataset.cropperIntercepted = "true";
+            formEl.addEventListener('submit', (event) => {
+                // Find all active cropped instances of this form
+                const activeCropInstances = Object.values(self.instances).filter(inst => {
+                    return inst.cropper && (inst.inputEl.form === formEl);
+                });
+
+                if (activeCropInstances.length > 0) {
+                    event.preventDefault();
+                    let processedCount = 0;
+
+                    const submitWithBlobs = () => {
+                        formEl.submit();
+                    };
+
+                    activeCropInstances.forEach((inst) => {
+                        const canvas = inst.cropper.getCroppedCanvas();
+                        if (canvas) {
+                            canvas.toBlob((blob) => {
+                                const file = new File([blob], 'cropped.jpg', { type: 'image/jpeg' });
+                                const dataTransfer = new DataTransfer();
+                                dataTransfer.items.add(file);
+                                inst.inputEl.files = dataTransfer.files;
+
+                                // Destroy cropper
+                                inst.cropper.destroy();
+                                inst.cropper = null;
+
+                                processedCount++;
+                                if (processedCount === activeCropInstances.length) {
+                                    submitWithBlobs();
+                                }
+                            }, 'image/jpeg', 0.9);
+                        } else {
+                            processedCount++;
+                            if (processedCount === activeCropInstances.length) {
+                                submitWithBlobs();
+                            }
+                        }
+                    });
+                }
+            });
+        }
+    },
+
+    applyModalCrop(id, callback = null) {
+        const inst = this.instances[id];
+        if (!inst || !inst.cropper) return;
+
+        const canvas = inst.cropper.getCroppedCanvas();
+        if (canvas) {
+            canvas.toBlob((blob) => {
+                const file = new File([blob], 'cropped.jpg', { type: 'image/jpeg' });
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                inst.inputEl.files = dataTransfer.files;
+
+                // Update page preview
+                if (inst.previewImgEl) {
+                    inst.previewImgEl.src = canvas.toDataURL('image/jpeg', 0.9);
+                    inst.previewImgEl.classList.remove('hidden');
+                }
+
+                if (callback) {
+                    callback(canvas.toDataURL('image/jpeg', 0.9));
+                }
+
+                this.closeModal(id);
+            }, 'image/jpeg', 0.9);
+        }
+    },
+
+    cancelCrop(id) {
+        const inst = this.instances[id];
+        if (!inst) return;
+
+        if (inst.cropper) {
+            inst.cropper.destroy();
+            inst.cropper = null;
+        }
+
+        inst.inputEl.value = '';
+
+        // If inline preview, reset preview image
+        if (!inst.modalEl) {
+            if (inst.previewImgEl) {
+                inst.previewImgEl.removeAttribute('src');
+                inst.previewImgEl.parentNode.parentNode.classList.add('hidden');
+            }
+        } else {
+            this.closeModal(id);
+        }
+    },
+
+    closeModal(id) {
+        const inst = this.instances[id];
+        if (inst && inst.modalEl) {
+            inst.modalEl.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            if (inst.cropper) {
+                inst.cropper.destroy();
+                inst.cropper = null;
+            }
+        }
+    }
+};
+
+Alpine.start();
