@@ -218,8 +218,8 @@ window.fileValidation = function() {
             </div>
             
             <!-- Crop Container -->
-            <div class="bg-zinc-950" style="height:400px; overflow:visible; position:relative;">
-                <img id="cropper-img" src="" style="display:block; max-width:100%; max-height:400px;">
+            <div class="bg-zinc-950" style="aspect-ratio: 1; overflow:hidden; position:relative; max-width:400px; margin:auto;">
+                <img id="cropper-img" src="" style="display:block; width:100%; height:100%; object-cover;">
             </div>
             
             <!-- Footer -->

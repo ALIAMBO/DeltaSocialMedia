@@ -239,8 +239,8 @@
 
                             <!-- Image preview -->
                             <div id="image-preview" class="mt-3 hidden" style="position:relative; overflow:visible;">
-                                <div style="height:320px; overflow:visible; position:relative; background:#09090b;">
-                                    <img id="preview-img" src="" style="display:block; max-width:100%; max-height:320px;">
+                                <div style="aspect-ratio: 1; overflow:hidden; position:relative; background:#09090b; max-width:320px;">
+                                    <img id="preview-img" src="" style="display:block; width:100%; height:100%; object-cover;">
                                 </div>
                                 <button type="button" onclick="cancelPostImage()" style="position:absolute; top:8px; right:8px; z-index:10;" class="bg-black/60 hover:bg-black/80 text-white rounded-full p-1.5 transition shadow-md" title="Cancel image">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -370,8 +370,8 @@
                             <p class="text-xs text-gray-400 mt-1">Size limit: 5MB</p>
                         </div>
                         <div x-show="storyHasImg" class="relative bg-zinc-950" style="overflow:visible;">
-                            <div style="height:320px; overflow:visible; position:relative;">
-                                <img id="cropper-image" :src="storyPreviewSrc" style="display:block; max-width:100%; max-height:320px;">
+                            <div style="aspect-ratio: 1; overflow:hidden; position:relative; max-width:320px;">
+                                <img id="cropper-image" :src="storyPreviewSrc" style="display:block; width:100%; height:100%; object-cover;">
                             </div>
                             <div class="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full z-10">
                                 <button type="button" 

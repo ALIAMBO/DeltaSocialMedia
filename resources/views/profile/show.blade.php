@@ -195,8 +195,8 @@ $coverUrlJson = json_encode($coverUrl);
 
                     <!-- Image preview -->
                     <div id="image-preview" class="mt-3 hidden" style="position:relative; overflow:visible;">
-                        <div style="height:320px; overflow:visible; position:relative; background:#09090b;">
-                            <img id="preview-img" src="" style="display:block; max-width:100%; max-height:320px;">
+                        <div style="aspect-ratio: 1; overflow:hidden; position:relative; background:#09090b; max-width:320px;">
+                            <img id="preview-img" src="" style="display:block; width:100%; height:100%; object-cover;">
                         </div>
                         <button type="button" onclick="cancelPostImage()" style="position:absolute; top:8px; right:8px; z-index:10;" class="bg-black/60 hover:bg-black/80 text-white rounded-full p-1.5 transition shadow-md" title="Cancel image">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
