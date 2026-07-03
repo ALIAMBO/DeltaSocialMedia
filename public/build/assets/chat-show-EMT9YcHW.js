@@ -1,0 +1,1 @@
+document.addEventListener(`DOMContentLoaded`,function(){let e=document.getElementById(`messages-container`);e&&(e.scrollTop=e.scrollHeight)});
