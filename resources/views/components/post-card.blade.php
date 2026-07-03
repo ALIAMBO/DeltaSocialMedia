@@ -26,7 +26,7 @@
 
     <!-- Post Body -->
     @if ($post->body)
-        <p class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{{ $post->body }}</p>
+        <p class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{!! $post->formatted_body !!}</p>
     @endif
 
     <!-- Post Image -->

@@ -180,6 +180,18 @@
         <!-- Main Feed Column -->
         <div class="lg:col-span-2 space-y-5">
 
+            @if (request()->has('tag'))
+                <div class="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800/60 rounded-2xl p-4 flex items-center justify-between text-green-800 dark:text-green-200 transition-colors">
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm font-semibold">Showing posts matching tag:</span>
+                        <span class="bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 px-3 py-1 rounded-full text-xs font-bold font-mono">#{{ request()->input('tag') }}</span>
+                    </div>
+                    <a href="{{ route('feed') }}" class="text-xs font-semibold text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 transition-colors bg-white dark:bg-gray-800 border border-green-200 dark:border-green-800 px-3.5 py-1.5 rounded-full shadow-sm">
+                        Clear filter
+                    </a>
+                </div>
+            @endif
+
             <!-- Stories Bar -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 transition-colors overflow-hidden">
                 <h3 class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">Stories</h3>

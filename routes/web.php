@@ -34,6 +34,7 @@ Route::middleware('auth')->group(function () {
 
     // Search
     Route::get('/search', [SearchController::class, 'index'])->name('search');
+    Route::get('/api/following/search', [SearchController::class, 'searchFollowing']);
 
     // Posts
     Route::post('/posts', [PostController::class, 'store'])->name('posts.store');

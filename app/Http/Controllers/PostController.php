@@ -26,10 +26,31 @@ class PostController extends Controller
             $imageName = basename($imageName);
         }
 
-        Auth::user()->posts()->create([
+        $post = Auth::user()->posts()->create([
             'body'  => $request->body,
             'image' => $imageName,
         ]);
+
+        if ($post->body) {
+            preg_match_all('/@([\w\-]+)/u', $post->body, $matches);
+            if (!empty($matches[1])) {
+                $mentions = array_unique($matches[1]);
+                foreach ($mentions as $usernameSlug) {
+                    $user = \App\Models\User::whereRaw("LOWER(REPLACE(name, ' ', '-')) = ?", [strtolower($usernameSlug)])->first();
+                    if ($user && $user->id !== Auth::id()) {
+                        // DB notification
+                        $user->notify(new \App\Notifications\UserMentionedNotification(Auth::user(), $post));
+
+                        // Broadcast event for real-time notifications
+                        event(new \App\Events\NotificationSent($user, [
+                            'message' => 'mentioned you in a post',
+                            'performer_name' => Auth::user()->name,
+                            'performer_avatar' => Auth::user()->profile?->avatar_url ?? asset('images/default-avatar.png'),
+                        ]));
+                    }
+                }
+            }
+        }
 
         return back()->with('success', 'Post published!');
     }

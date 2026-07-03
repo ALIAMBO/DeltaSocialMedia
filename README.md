@@ -81,6 +81,17 @@ A full-featured social media platform built with Laravel 11, Tailwind CSS, and M
 - **Pre-counted Attributes**: Replaced resource-intensive counts by leveraging `withCount` and `loadCount` database-level aggregates for followers, following, and posts counts.
 - **Route Model Binding Optimization**: Restructured user route resolving to execute database-level searches using indexed lookups, preventing memory-exhausting `User::all()` sweeps.
 
+### #️⃣ Hashtags & Mentions
+- Parsing of `#hashtag` and `@username` inside post bodies to generate links dynamically.
+- Cache-based user mention lookup to prevent performance regressions.
+- Automated `UserMentionedNotification` database records and real-time WebSocket notifications sent to mentioned users.
+- Redirection of hashtag searches in the navbar to feed tag filtering.
+
+### 📱 Mobile Responsive Optimization
+- Sticky bottom navigation bar for mobile viewports displaying Feed, Search, Chats, Alerts, and Profile.
+- Native-like app behavior with unread notification badge count indicators on mobile links.
+- Bottom padding adjustments and repositioned floating chat elements preventing layouts overlapping.
+
 ## Tech Stack
 
 - **Backend:** Laravel 11
@@ -226,14 +237,10 @@ routes/
 ## Future Enhancements
 
 Potential features to add:
-- Real-time updates with Pusher/WebSockets
 - Post sharing/reposting
-- Hashtags and mentions
 - Video uploads
-- Admin panel
 - Post privacy settings
 - Block/report users
-- Phone view formatting and mobile responsive design optimization
 
 ## License
 

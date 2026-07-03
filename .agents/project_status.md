@@ -42,6 +42,21 @@ This document records the current status of the project (completed and future/pe
 * Implemented the HTML markup and Alpine.js widget engine directly in `layouts/app.blade.php`.
 * Built background auto-polling sync (every 5 seconds) to pull new messages and update unread counters dynamically.
 
+### #️⃣ Hashtags & Mentions (Recently Added)
+* Added `getFormattedBodyAttribute()` accessor in `Post.php` model to parse `#hashtag` and `@username` inside post bodies with caching to prevent N+1 queries.
+* Updated `post-card.blade.php` component to display the parsed formatted post body.
+* Updated `PostController.php` to extract mentions upon post creation and dispatch database `UserMentionedNotification` records as well as real-time broadcast events.
+* Updated `FeedController.php` to support filtering posts by `tag` parameters.
+* Updated `SearchController.php` to redirect hashtag search queries to the feed tag filter.
+* Updated `NotificationController.php` and notifications lists to fetch mentioner profile details and render custom formatting.
+
+### 📱 Phone View Formatting & Mobile Responsive Design (Recently Added)
+* Implemented sticky bottom navigation bar for mobile viewports (`Feed`, `Search`, `Chats`, `Alerts`, `Profile`) with notification and inbox count badges.
+* Hid the top navbar text links on mobile layouts.
+* Added body bottom padding dynamically (`pb-16 md:pb-0`) to prevent layout overlaps.
+* Repositioned the floating chat widget trigger on mobile screens (`bottom-20 md:bottom-6`) so it floats above the bottom navigation bar.
+* Modified the grid column layout of Location & Website settings inputs (`grid-cols-1 sm:grid-cols-2`) to avoid screen squeeze.
+
 ---
 
 ## 2. Pending Tasks & Future Enhancements
@@ -54,11 +69,5 @@ Listed in order of priority:
    * *Description*: Enable users to set posts as "Public" or "Followers Only".
 3. **Post Sharing / Reposting**
    * *Description*: Allow users to repost another user's post to their own profile timeline.
-4. **Hashtags & Mentions**
-   * *Description*: Support `@username` and `#hashtag` parsing in post bodies with links.
-5. **Video Uploads**
+4. **Video Uploads**
    * *Description*: Support video clip uploads inside posts.
-6. **Admin Panel**
-   * *Description*: Backoffice dashboard for managing users and contents.
-7. **Phone View Formatting**
-   * *Description*: Implement phone view formatting and mobile responsive layout optimizations across all application views.

@@ -15,7 +15,7 @@ class NotificationController extends Controller
         $postIds = [];
         foreach ($notifications as $notification) {
             $data = $notification->data;
-            $performerId = $data['follower_id'] ?? $data['liker_id'] ?? $data['commenter_id'] ?? null;
+            $performerId = $data['follower_id'] ?? $data['liker_id'] ?? $data['commenter_id'] ?? $data['mentioner_id'] ?? null;
             if ($performerId) {
                 $performerIds[] = $performerId;
             }
@@ -63,7 +63,7 @@ class NotificationController extends Controller
         // Gather all performer IDs
         $performerIds = $unread->map(function ($notification) {
             $data = $notification->data;
-            return $data['follower_id'] ?? $data['liker_id'] ?? $data['commenter_id'] ?? null;
+            return $data['follower_id'] ?? $data['liker_id'] ?? $data['commenter_id'] ?? $data['mentioner_id'] ?? null;
         })->filter()->unique();
 
         // Fetch all performer users in ONE query, eager loading their profile
@@ -74,7 +74,7 @@ class NotificationController extends Controller
         
         $data = $unread->map(function ($notification) use ($performers) {
             $data = $notification->data;
-            $performerId = $data['follower_id'] ?? $data['liker_id'] ?? $data['commenter_id'] ?? null;
+            $performerId = $data['follower_id'] ?? $data['liker_id'] ?? $data['commenter_id'] ?? $data['mentioner_id'] ?? null;
             $performerName = 'Someone';
             $performerAvatar = asset('images/default-avatar.png');
             

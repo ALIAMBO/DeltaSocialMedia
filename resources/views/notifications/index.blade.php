@@ -39,7 +39,7 @@
                         $data = $notification->data;
                         
                         // Get performer details
-                        $performerId = $data['follower_id'] ?? $data['liker_id'] ?? $data['commenter_id'] ?? null;
+                        $performerId = $data['follower_id'] ?? $data['liker_id'] ?? $data['commenter_id'] ?? $data['mentioner_id'] ?? null;
                         $performer = ($performerId && isset($performers[$performerId])) ? $performers[$performerId] : null;
                         
                         // Define notification type attributes
@@ -65,6 +65,15 @@
                         } elseif ($notification->type === 'App\Notifications\NewCommentNotification') {
                             $iconBg = 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400';
                             $iconHtml = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>';
+                            if (isset($data['post_id'])) {
+                                $post = isset($posts[$data['post_id']]) ? $posts[$data['post_id']] : null;
+                                if ($post) {
+                                    $link = route('profile.show', $post->user_id) . '#post-' . $post->id;
+                                }
+                            }
+                        } elseif ($notification->type === 'App\Notifications\UserMentionedNotification') {
+                            $iconBg = 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400';
+                            $iconHtml = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>';
                             if (isset($data['post_id'])) {
                                 $post = isset($posts[$data['post_id']]) ? $posts[$data['post_id']] : null;
                                 if ($post) {
