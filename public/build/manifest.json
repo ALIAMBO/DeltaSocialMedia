@@ -1,0 +1,56 @@
+{
+  "resources/css/app.css": {
+    "file": "assets/app-Cwj_gtTz.css",
+    "name": "app",
+    "names": [
+      "app.css"
+    ],
+    "src": "resources/css/app.css",
+    "isEntry": true
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-R_AgkiXQ.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true,
+    "css": [
+      "assets/app-DCh4zhz3.css"
+    ]
+  },
+  "resources/js/dark-mode.js": {
+    "file": "assets/dark-mode-DiD99aiS.js",
+    "name": "dark-mode",
+    "src": "resources/js/dark-mode.js",
+    "isEntry": true
+  },
+  "resources/js/pages/app.js": {
+    "file": "assets/app-C86cj1Hy.js",
+    "name": "app",
+    "src": "resources/js/pages/app.js",
+    "isEntry": true
+  },
+  "resources/js/pages/chat-show.js": {
+    "file": "assets/chat-show-EMT9YcHW.js",
+    "name": "chat-show",
+    "src": "resources/js/pages/chat-show.js",
+    "isEntry": true
+  },
+  "resources/js/pages/feed-index.js": {
+    "file": "assets/feed-index-BvRk9kiK.js",
+    "name": "feed-index",
+    "src": "resources/js/pages/feed-index.js",
+    "isEntry": true
+  },
+  "resources/js/pages/post-card.js": {
+    "file": "assets/post-card-LTxVtmBH.js",
+    "name": "post-card",
+    "src": "resources/js/pages/post-card.js",
+    "isEntry": true
+  },
+  "resources/js/pages/profile-edit.js": {
+    "file": "assets/profile-edit-bpDrokHO.js",
+    "name": "profile-edit",
+    "src": "resources/js/pages/profile-edit.js",
+    "isEntry": true
+  }
+}
