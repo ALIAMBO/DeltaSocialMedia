@@ -216,11 +216,22 @@
                     </x-liquid-glass-card>
 
 
-                    <!-- Placeholder for Future Features -->
-                    <div class="bg-gray-50 dark:bg-gray-800/40 border border-dashed border-gray-200 dark:border-gray-700 rounded-2xl p-4 text-center text-xs text-gray-400 dark:text-gray-500 transition-colors">
-                        <p class="font-semibold text-gray-500 dark:text-gray-400">Future Features</p>
-                        <p class="mt-1">Additional features, widgets, and links will appear here.</p>
-                    </div>
+                    <!-- Sidebar Clock Widget -->
+                    <x-liquid-glass-card class="p-4 text-center">
+                        <div x-data="{ 
+                            time: '', 
+                            date: '', 
+                            updateClock() {
+                                const now = new Date();
+                                this.time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+                                this.date = now.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+                            }
+                        }" x-init="updateClock(); setInterval(() => updateClock(), 1000)" class="space-y-1">
+                            <p class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Local Time</p>
+                            <p class="text-2xl font-bold text-green-600 dark:text-green-400 font-mono tracking-tight" x-text="time"></p>
+                            <p class="text-[10px] text-gray-500 dark:text-gray-400 font-medium" x-text="date"></p>
+                        </div>
+                    </x-liquid-glass-card>
                 </aside>
 
                 <!-- Page Content Area -->
@@ -254,6 +265,7 @@
     </script>
 
     @auth
+    @if (!request()->routeIs('chat.*'))
     <!-- Floating Chat Widget -->
     <div x-data="{
         isOpen: false,
@@ -577,6 +589,7 @@
         </div>
 
     </div>
+    @endif
     @endauth
 
     @auth
