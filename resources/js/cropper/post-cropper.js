@@ -63,7 +63,12 @@ function cancelPostImage() {
     const preview = document.getElementById('image-preview');
     if (preview) preview.classList.add('hidden');
     const img = document.getElementById('preview-img');
-    if (img) img.removeAttribute('src');
+    if (img) {
+        if (img.src && img.src.startsWith('blob:')) {
+            URL.revokeObjectURL(img.src);
+        }
+        img.removeAttribute('src');
+    }
 }
 
 function applyPostCrop() {
@@ -114,26 +119,21 @@ export function setupPostImageUpload() {
             return;
         }
         
-        const reader = new FileReader();
-        reader.onload = function(ev) {
-            console.log('[Post Cropper] FileReader completed');
-            const preview = document.getElementById('image-preview');
-            const img = document.getElementById('preview-img');
-            if (preview) preview.classList.remove('hidden');
-            resetPostCropper();
-            
-            img.onload = function() {
-                img.onload = null;
-                initPostCropper();
-            };
-            img.src = ev.target.result;
-            
-            // Handle case where image is cached (onload won't fire)
-            if (img.complete && img.naturalWidth > 0) {
-                initPostCropper();
-            }
+        const preview = document.getElementById('image-preview');
+        const img = document.getElementById('preview-img');
+        if (preview) preview.classList.remove('hidden');
+        resetPostCropper();
+        
+        img.onload = function() {
+            img.onload = null;
+            initPostCropper();
         };
-        reader.readAsDataURL(file);
+        img.src = URL.createObjectURL(file);
+        
+        // Handle case where image is cached (onload won't fire)
+        if (img.complete && img.naturalWidth > 0) {
+            initPostCropper();
+        }
     });
 
     const form = document.getElementById('post-create-form');

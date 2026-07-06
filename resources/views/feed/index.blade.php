@@ -345,21 +345,17 @@
                                            storyHasImg = false;
                                            return;
                                        }
-                                       const reader = new FileReader();
-                                       reader.onload = (e) => {
-                                           storyPreviewSrc = e.target.result;
-                                           storyHasImg = true;
-                                           $nextTick(() => {
-                                               const img = document.getElementById('cropper-image');
-                                               if (!img) return;
-                                               if (img.complete && img.naturalWidth > 0) {
-                                                   initCropper();
-                                               } else {
-                                                   img.onload = function() { img.onload = null; initCropper(); };
-                                               }
-                                           });
-                                       };
-                                       reader.readAsDataURL(file);
+                                       storyPreviewSrc = URL.createObjectURL(file);
+                                       storyHasImg = true;
+                                       $nextTick(() => {
+                                           const img = document.getElementById('cropper-image');
+                                           if (!img) return;
+                                           if (img.complete && img.naturalWidth > 0) {
+                                               initCropper();
+                                           } else {
+                                               img.onload = function() { img.onload = null; initCropper(); };
+                                           }
+                                       });
                                    }
                                ">
                         <div x-show="!storyHasImg" class="py-6 pointer-events-none">

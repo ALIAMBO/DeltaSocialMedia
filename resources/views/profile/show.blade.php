@@ -360,20 +360,17 @@ $coverUrlJson = json_encode($coverUrl);
                     e.target.value = '';
                     return;
                 }
-                var reader = new FileReader();
-                reader.onload = function(ev) {
-                    var preview = document.getElementById('image-preview');
-                    var img = document.getElementById('preview-img');
-                    preview.classList.remove('hidden');
-                    resetPostCropper();
-                    img.onload = function() {
-                        img.onload = null;
-                        initPostCropper();
-                    };
-                    img.src = ev.target.result;
+                var preview = document.getElementById('image-preview');
+                var img = document.getElementById('preview-img');
+                preview.classList.remove('hidden');
+                resetPostCropper();
+                img.onload = function() {
+                    img.onload = null;
+                    initPostCropper();
                 };
-                reader.readAsDataURL(file);
+                img.src = URL.createObjectURL(file);
             });
+
 
             var form = document.getElementById('post-create-form');
             if (!form) return;
