@@ -216,8 +216,9 @@
                     </x-liquid-glass-card>
 
 
-                    <!-- Sidebar Clock Widget -->
+                    <!-- Sidebar Clock & Solat Times Widget -->
                     <x-liquid-glass-card class="p-4 text-center">
+                        <!-- Clock section -->
                         <div x-data="{ 
                             time: '', 
                             date: '', 
@@ -230,6 +231,85 @@
                             <p class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Local Time</p>
                             <p class="text-2xl font-bold text-green-600 dark:text-green-400 font-mono tracking-tight" x-text="time"></p>
                             <p class="text-[10px] text-gray-500 dark:text-gray-400 font-medium" x-text="date"></p>
+                        </div>
+
+                        <!-- Divider -->
+                        <div class="my-3.5 border-t border-gray-200/50 dark:border-gray-700/60"></div>
+
+                        <!-- Prayer Times section -->
+                        <div x-data="{
+                            selectedZone: localStorage.getItem('prayer_zone') || 'WLY01',
+                            prayerData: null,
+                            loading: true,
+                            zonesList: {},
+                            
+                            async init() {
+                                await this.fetchZones();
+                                await this.fetchTimes();
+                                
+                                // Refresh every 30 minutes
+                                setInterval(() => this.fetchTimes(), 1800000);
+                            },
+                            
+                            async fetchZones() {
+                                try {
+                                    const res = await fetch('/api/prayer-times/zones');
+                                    if (res.ok) {
+                                        this.zonesList = await res.json();
+                                    }
+                                } catch (e) {
+                                    console.error('Failed to fetch prayer zones:', e);
+                                }
+                            },
+                            
+                            async fetchTimes() {
+                                this.loading = true;
+                                try {
+                                    const res = await fetch(`/api/prayer-times?zone=${this.selectedZone}`);
+                                    if (res.ok) {
+                                        this.prayerData = await res.json();
+                                    }
+                                } catch (e) {
+                                    console.error('Failed to fetch prayer times:', e);
+                                } finally {
+                                    this.loading = false;
+                                }
+                            },
+                            
+                            changeZone(zone) {
+                                this.selectedZone = zone;
+                                localStorage.setItem('prayer_zone', zone);
+                                this.fetchTimes();
+                            }
+                        }" class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Solat Times</span>
+                                <!-- Zone Selector Dropdown -->
+                                <select @change="changeZone($event.target.value)" 
+                                        class="bg-transparent text-[10px] font-semibold text-gray-500 dark:text-gray-400 border-none outline-none max-w-[140px] focus:ring-0 cursor-pointer text-left pl-1 pr-6 py-0">
+                                    <template x-for="code in Object.keys(zonesList)" :key="code">
+                                        <option :value="code" :selected="code === selectedZone" x-text="code + ' - ' + (zonesList[code] ? zonesList[code].name : '')"></option>
+                                    </template>
+                                </select>
+                            </div>
+                            
+                            <!-- Loading Skeleton -->
+                            <div x-show="loading" class="space-y-2 animate-pulse py-2">
+                                <div class="h-3.5 bg-gray-200 dark:bg-gray-700/60 rounded w-full"></div>
+                                <div class="h-3.5 bg-gray-200 dark:bg-gray-700/60 rounded w-full"></div>
+                                <div class="h-3.5 bg-gray-200 dark:bg-gray-700/60 rounded w-full"></div>
+                            </div>
+                            
+                            <!-- Prayer Times List -->
+                            <div x-show="!loading && prayerData" class="text-[11px] space-y-1.5 text-left divide-y divide-gray-200/40 dark:divide-gray-700/30">
+                                <template x-for="name in Object.keys(prayerData ? prayerData.times : {})" :key="name">
+                                    <div class="flex items-center justify-between pt-1.5 first:pt-0">
+                                        <span class="capitalize font-semibold text-gray-500 dark:text-gray-400" x-text="name"></span>
+                                        <span class="font-semibold font-mono text-gray-700 dark:text-gray-100" x-text="prayerData.times[name]"></span>
+                                    </div>
+                                </template>
+                                <div class="text-[9px] text-gray-400 dark:text-gray-500 pt-2 text-center" x-text="'Source: ' + (prayerData ? prayerData.source : '')"></div>
+                            </div>
                         </div>
                     </x-liquid-glass-card>
                 </aside>
