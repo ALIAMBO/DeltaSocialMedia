@@ -33,12 +33,14 @@
     readStories: JSON.parse(localStorage.getItem('readStories') || '[]'),
     storyHasImg: false,
     storyPreviewSrc: '',
+    storySubmitting: false,
     
     init() {
         this.$watch('uploadOpen', value => {
             if (!value) {
                 this.storyHasImg = false;
                 this.storyPreviewSrc = '';
+                this.storySubmitting = false;
                 resetCropper();
                 const input = document.getElementById('story-image-input');
                 if (input) input.value = '';
@@ -212,7 +214,8 @@
                     <img src="{{ auth()->user()->profile?->avatar_url ?? asset('images/default-avatar.png') }}"
                          class="w-10 h-10 rounded-full object-cover border border-gray-200 dark:border-gray-600">
                     <div class="flex-1">
-                        <form id="post-create-form" action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data">
+                        <form id="post-create-form" action="{{ route('posts.store') }}" method="POST" enctype="multipart/form-data"
+                              x-data="{ submitting: false }" @submit="submitting = true">
                             @csrf
                             <textarea name="body" rows="3"
                                 placeholder="What's on your mind?"
@@ -232,8 +235,14 @@
                                     <input type="file" name="image" accept="image/*" class="hidden">
                                 </label>
                                 <button type="submit"
-                                    class="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white text-sm font-medium px-5 py-2 rounded-full transition-colors">
-                                    Post
+                                    :disabled="submitting"
+                                    :class="submitting ? 'bg-green-400 dark:bg-green-800 cursor-not-allowed opacity-70' : 'bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600'"
+                                    class="flex items-center gap-2 text-white text-sm font-medium px-5 py-2 rounded-full transition-colors">
+                                    <svg x-show="submitting" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                    </svg>
+                                    <span x-text="submitting ? 'Posting...' : 'Post'"></span>
                                 </button>
                             </div>
 
@@ -325,7 +334,7 @@
                 </button>
             </div>
             
-            <form id="story-form" action="{{ route('stories.store') }}" method="POST" enctype="multipart/form-data">
+            <form id="story-form" action="{{ route('stories.store') }}" method="POST" enctype="multipart/form-data" @submit="storySubmitting = true">
                 @csrf
                 <div class="space-y-4">
                     <!-- Image Selection & Cropping -->
@@ -398,8 +407,14 @@
                         Cancel
                     </button>
                     <button type="submit"
-                            class="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white px-5 py-2 rounded-full text-sm font-medium transition-colors shadow-md">
-                        Upload
+                            :disabled="storySubmitting"
+                            :class="storySubmitting ? 'bg-green-400 dark:bg-green-800 cursor-not-allowed opacity-70' : 'bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600'"
+                            class="text-white px-5 py-2 rounded-full text-sm font-medium transition-colors shadow-md flex items-center gap-2">
+                        <svg x-show="storySubmitting" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                        </svg>
+                        <span x-text="storySubmitting ? 'Uploading...' : 'Upload'"></span>
                     </button>
                 </div>
             </form>
