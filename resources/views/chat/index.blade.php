@@ -5,10 +5,10 @@
 <div class="max-w-xl mx-auto">
     <h1 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-5">Messages</h1>
 
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 divide-y divide-gray-100 dark:divide-gray-700 transition-colors">
+    <x-liquid-glass-card class="overflow-hidden">
         @forelse ($conversations as $conversationUser)
             <a href="{{ route('chat.show', $conversationUser) }}"
-               class="flex items-center gap-3 p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+               class="flex items-center gap-3 p-4 hover:bg-gray-50/40 dark:hover:bg-gray-750/30 transition">
                 <div class="relative">
                     <img src="{{ $conversationUser->profile?->avatar_url ?? asset('images/default-avatar.png') }}"
                          class="w-12 h-12 rounded-full object-cover border border-gray-200 dark:border-gray-600" alt="avatar">
@@ -35,6 +35,6 @@
                 No conversations yet. Visit someone's profile and click "Message" to start chatting.
             </div>
         @endforelse
-    </div>
+    </x-liquid-glass-card>
 </div>
 @endsection

@@ -1,4 +1,4 @@
-<div id="post-{{ $post->id }}" class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
+<x-liquid-glass-card id="post-{{ $post->id }}">
     <!-- Post Header -->
     <div class="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700">
         <a href="{{ route('profile.show', $post->user) }}" class="flex items-center gap-3">
@@ -123,4 +123,4 @@
             </div>
         </form>
     </div>
-</div>
+</x-liquid-glass-card>

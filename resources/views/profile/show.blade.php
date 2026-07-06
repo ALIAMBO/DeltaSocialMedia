@@ -12,7 +12,7 @@ $coverUrlJson = json_encode($coverUrl);
 @endphp
 
 
-<div class="space-y-5 bg-white dark:bg-gray-900 min-h-screen transition-colors" x-data="{
+<div class="space-y-5 bg-transparent min-h-screen transition-colors" x-data="{
     isOpen: false,
     imageSrc: '',
     imageTitle: '',
@@ -91,7 +91,7 @@ $coverUrlJson = json_encode($coverUrl);
         }
     }
 }">
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors">
+    <x-liquid-glass-card>
         <div class="relative h-44 bg-gradient-to-r from-green-400 to-green-500 rounded-t-2xl overflow-hidden {{ $coverUrl ? 'cursor-pointer group' : '' }}" @click="coverUrl ? openModal(coverUrl, 'Cover Photo') : null">
             @if ($coverUrl)
                 <img src="{{ $coverUrl }}" alt="Cover Photo" class="w-full h-full object-cover group-hover:opacity-90 transition-opacity">
@@ -159,11 +159,11 @@ $coverUrlJson = json_encode($coverUrl);
                 @endif
             </div>
         </div>
-    </div>
+    </x-liquid-glass-card>
 
     <!-- Create Post (Only on your own profile) -->
     @if (auth()->id() === $user->id)
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 transition-colors">
+    <x-liquid-glass-card class="p-4">
         <div class="flex items-start gap-3">
             <img src="{{ auth()->user()->profile?->avatar_url ?? asset('images/default-avatar.png') }}"
                  class="w-10 h-10 rounded-full object-cover border border-gray-200 dark:border-gray-600">
@@ -211,12 +211,12 @@ $coverUrlJson = json_encode($coverUrl);
                 </form>
             </div>
         </div>
-    </div>
+    </x-liquid-glass-card>
     @endif
 
     <!-- User's Posts -->
     @if ($user->posts->isEmpty())
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 text-center text-gray-400 dark:text-gray-500 transition-colors">No posts yet.</div>
+        <x-liquid-glass-card class="p-8 text-center text-gray-400 dark:text-gray-500">No posts yet.</x-liquid-glass-card>
     @else
         <div class="space-y-4">
             @foreach ($user->posts as $post)

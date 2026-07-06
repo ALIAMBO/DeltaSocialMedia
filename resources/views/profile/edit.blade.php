@@ -89,7 +89,8 @@ window.fileValidation = function() {
     </template>
 
     <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data"
-          class="w-full bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors" @submit="handleSubmit">
+          class="w-full relative" @submit="handleSubmit">
+        <x-liquid-glass-card class="overflow-hidden">
         @csrf @method('PUT')
 
         {{-- File inputs live here, outside any clickable div --}}
@@ -201,7 +202,7 @@ window.fileValidation = function() {
                     Save Changes
                 </button>
             </div>
-        </div>
+        </x-liquid-glass-card>
     </form>
 
     <div id="cropper-modal" class="fixed inset-0 bg-black bg-opacity-75 z-50 hidden" style="overflow-y:auto;">

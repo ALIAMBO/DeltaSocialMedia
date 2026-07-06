@@ -99,10 +99,18 @@ A full-featured social media platform built with Laravel 11, Tailwind CSS, and M
 - Automated `UserMentionedNotification` database records and real-time WebSocket notifications sent to mentioned users.
 - Redirection of hashtag searches in the navbar to feed tag filtering.
 
+### 💎 Liquid Glass UI (Theme-Adaptive Specular Glassmorphism)
+- **High-Fidelity Glassmorphism**: Cards and headers across Feed, Profiles, Search, and Notifications are styled as semi-translucent, refractive glass elements.
+- **Specular Glare Tracking**: Integrated haptic tracker engine dynamically recalculates light reflection vectors (`--mouse-x`, `--mouse-y`) as the cursor moves across cards, creating a 3D specular glare effect.
+- **Vibrant Mesh Backdrops**: Infused ambient purple, emerald, and blue blur blobs behind layout panels to provide visual depth for optimal glass refractiveness.
+- **Theme-Adaptive Custom Properties**: Seamless automatic adaptation to Light and Dark themes, adjusting backdrop opacity, saturation factors (160% vs. 120%), and glare blending modes (overlay vs. screen).
+- **Accessibility Fallbacks**: Auto-detection of `prefers-reduced-motion` to substitute GPU-intensive SVG displacement maps and tracking glare with static blurs on low-power devices.
+
 ### 📱 Mobile Responsive Optimization
 - Sticky bottom navigation bar for mobile viewports displaying Feed, Search, Chats, Alerts, and Profile.
 - Native-like app behavior with unread notification badge count indicators on mobile links.
 - Bottom padding adjustments and repositioned floating chat elements preventing layouts overlapping.
+
 
 ## Tech Stack
 

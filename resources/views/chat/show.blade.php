@@ -12,9 +12,9 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 @section('content')
-<div class="max-w-2xl mx-auto">
+<x-liquid-glass-card class="max-w-2xl mx-auto overflow-hidden">
     <!-- Chat Header -->
-    <div class="bg-white dark:bg-gray-800 rounded-t-2xl border border-gray-100 dark:border-gray-700 shadow-sm px-4 py-3 flex items-center gap-3 transition-colors">
+    <div class="border-b border-gray-100 dark:border-gray-700/60 px-4 py-3 flex items-center gap-3 transition-colors">
         <a href="{{ route('chat.index') }}" class="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 transition">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     <!-- Messages Area -->
     <div id="messages-container"
-         class="bg-white dark:bg-gray-900 border-x border-gray-100 dark:border-gray-700 px-4 py-4 space-y-3 overflow-y-auto transition-colors"
+         class="bg-transparent px-4 py-4 space-y-3 overflow-y-auto transition-colors"
          style="height: 460px;">
         @forelse ($messages as $message)
             @php $isMine = $message->sender_id === auth()->id(); @endphp
@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 
     <!-- Message Input -->
-    <div class="bg-white dark:bg-gray-800 rounded-b-2xl border border-gray-100 dark:border-gray-700 shadow-sm px-4 py-3 transition-colors">
+    <div class="border-t border-gray-100 dark:border-gray-700/60 px-4 py-3 transition-colors">
         <form action="{{ route('chat.send', $user) }}" method="POST" class="flex items-center gap-3">
             @csrf
             <img src="{{ auth()->user()->profile?->avatar_url ?? asset('images/default-avatar.png') }}"
@@ -74,5 +74,5 @@ document.addEventListener('DOMContentLoaded', function() {
             </button>
         </form>
     </div>
-</div>
+</x-liquid-glass-card>
 @endsection
