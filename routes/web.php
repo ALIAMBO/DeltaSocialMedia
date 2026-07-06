@@ -10,6 +10,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\StoryController;
+use App\Http\Controllers\PrayerTimeController;
 use Illuminate\Support\Facades\Route;
 
 // Redirect root to feed or login
@@ -78,6 +79,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::get('/notifications/{id}/go', [NotificationController::class, 'goAndMarkAsRead'])->name('notifications.go');
     Route::get('/api/notifications/unread', [NotificationController::class, 'apiGetUnread']);
+
+    // Prayer Times API
+    Route::get('/api/prayer-times', [PrayerTimeController::class, 'getTimes']);
+    Route::get('/api/prayer-times/zones', [PrayerTimeController::class, 'getZones']);
 
     // Dashboard redirect → feed
     Route::get('/dashboard', fn() => redirect()->route('feed'))->name('dashboard');
