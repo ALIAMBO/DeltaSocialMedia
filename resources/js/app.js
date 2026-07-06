@@ -145,4 +145,41 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+/**
+ * Engine: Theme-Adaptive Specular Haptic Engine
+ * Tracks user interaction metrics and transforms glare arrays without triggering main-thread layout thrashing.
+ */
+function initializeLiquidGlassEngine() {
+    const glassElements = document.querySelectorAll('.liquid-glass-card');
+    glassElements.forEach(element => {
+        const glareLayer = element.querySelector('.liquid-glass-glare');
+        if (!glareLayer) return;
+        
+        // Mouse Move Event: Track spatial positioning parameters
+        element.addEventListener('mousemove', (event) => {
+            const boundaries = element.getBoundingClientRect();
+            const absoluteX = event.clientX - boundaries.left;
+            const absoluteY = event.clientY - boundaries.top;
+            glareLayer.style.setProperty('--mouse-x', `${absoluteX}px`);
+            glareLayer.style.setProperty('--mouse-y', `${absoluteY}px`);
+            glareLayer.style.opacity = '1';
+        }, { passive: true });
+        
+        // Mouse Leave Event: Reset coordinate glare alpha values smoothly
+        element.addEventListener('mouseleave', () => {
+            glareLayer.style.opacity = '0';
+        });
+    });
+}
+
+// Frame Lifecycle Initializers
+document.addEventListener('DOMContentLoaded', initializeLiquidGlassEngine);
+window.initializeLiquidGlassEngine = initializeLiquidGlassEngine;
+
+// Compatibility Layer for Framework Ecosystems (Livewire / Alpine AJAX Navigation)
+if (window.Livewire) {
+    document.addEventListener('livewire:navigated', initializeLiquidGlassEngine);
+}
+
 Alpine.start();
+

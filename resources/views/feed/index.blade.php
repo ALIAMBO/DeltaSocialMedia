@@ -166,7 +166,7 @@
             @endif
 
             <!-- Stories Bar -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 transition-colors overflow-hidden">
+            <x-liquid-glass-card class="p-4">
                 <h3 class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">Stories</h3>
                 <div class="flex items-center gap-4 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700">
                     <!-- Add Story Circle -->
@@ -204,10 +204,10 @@
                         </div>
                     @endforeach
                 </div>
-            </div>
+            </x-liquid-glass-card>
 
             <!-- Create Post -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 transition-colors">
+            <x-liquid-glass-card class="p-4">
                 <div class="flex items-start gap-3">
                     <img src="{{ auth()->user()->profile?->avatar_url ?? asset('images/default-avatar.png') }}"
                          class="w-10 h-10 rounded-full object-cover border border-gray-200 dark:border-gray-600">
@@ -255,19 +255,19 @@
                         </form>
                     </div>
                 </div>
-            </div>
+            </x-liquid-glass-card>
 
             <!-- Posts -->
             @forelse ($posts as $post)
                 @include('components.post-card', ['post' => $post])
             @empty
-                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-8 text-center text-gray-400 dark:text-gray-500 transition-colors">
+                <x-liquid-glass-card class="p-8 text-center text-gray-400 dark:text-gray-500">
                     <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                               d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
                     </svg>
                     <p class="text-sm">No posts yet. Follow some users to see their posts here!</p>
-                </div>
+                </x-liquid-glass-card>
             @endforelse
 
             <!-- Pagination -->
@@ -277,18 +277,18 @@
         <!-- Sidebar Column -->
         <div class="space-y-4">
             <!-- Your card -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 flex items-center gap-3 transition-colors">
+            <x-liquid-glass-card class="p-4 flex items-center gap-3">
                 <img src="{{ auth()->user()->profile?->avatar_url ?? asset('images/default-avatar.png') }}"
                      class="w-12 h-12 rounded-full object-cover border border-gray-200 dark:border-gray-600" alt="avatar">
                 <div>
                     <p class="font-semibold text-sm text-gray-800 dark:text-gray-100">{{ auth()->user()->name }}</p>
                     <a href="{{ route('profile.show', auth()->user()) }}" class="text-xs text-green-500 dark:text-green-400 hover:underline">View profile</a>
                 </div>
-            </div>
+            </x-liquid-glass-card>
 
             <!-- Who to follow -->
             @if ($suggestions->isNotEmpty())
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 transition-colors">
+            <x-liquid-glass-card class="p-4">
                 <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">Suggested Users</h3>
                 <div class="space-y-3">
                     @foreach ($suggestions as $suggestion)
@@ -305,7 +305,7 @@
                     </div>
                     @endforeach
                 </div>
-            </div>
+            </x-liquid-glass-card>
             @endif
         </div>
     </div>

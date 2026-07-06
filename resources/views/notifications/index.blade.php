@@ -22,7 +22,7 @@
     </div>
 
     <!-- Notification List -->
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors">
+    <x-liquid-glass-card class="overflow-hidden">
         @if ($notifications->isEmpty())
             <div class="p-12 text-center text-gray-500 dark:text-gray-400 transition-colors">
                 <svg class="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -175,6 +175,6 @@
                 </div>
             @endif
         @endif
-    </div>
+    </x-liquid-glass-card>
 </div>
 @endsection

@@ -26,10 +26,23 @@
     
     @stack('styles')
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 font-sans antialiased transition-colors pb-16 md:pb-0">
+<body class="bg-gradient-to-tr from-indigo-50 via-slate-50 to-emerald-50 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950 font-sans antialiased transition-colors pb-16 md:pb-0 min-h-screen">
+
+    <!-- Ambient background blobs for depth -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+        <div class="absolute -top-40 -left-40 w-96 h-96 bg-purple-400/20 dark:bg-purple-900/10 rounded-full blur-3xl"></div>
+        <div class="absolute top-1/2 -right-40 w-96 h-96 bg-emerald-400/15 dark:bg-emerald-900/10 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-40 left-1/3 w-96 h-96 bg-blue-400/20 dark:bg-blue-900/10 rounded-full blur-3xl"></div>
+    </div>
+
 
     <!-- Navbar -->
-    <nav class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-sm transition-colors">
+    <nav class="sticky top-0 z-50 border-b border-white/20 dark:border-white/10 transition-all shadow-sm"
+         style="
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+            -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+         ">
         <div class="max-w-6xl mx-auto px-4 flex items-center justify-between h-14">
             <!-- Logo -->
             <a href="{{ route('feed') }}" class="text-green-600 dark:text-green-400 font-bold text-xl tracking-tight">
@@ -141,7 +154,7 @@
                 <!-- Left Sidebar (Desktop only) -->
                 <aside class="hidden md:block md:col-span-1 space-y-4">
                     <!-- User Mini Profile -->
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 transition-colors">
+                    <x-liquid-glass-card class="p-4">
                         <div class="flex items-center gap-3">
                             <img src="{{ auth()->user()->profile?->avatar_url ?? asset('images/default-avatar.png') }}"
                                  alt="Avatar"
@@ -155,10 +168,10 @@
                                 </span>
                             </div>
                         </div>
-                    </div>
+                    </x-liquid-glass-card>
 
                     <!-- Sidebar Navigation Links -->
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-3 shadow-sm border border-gray-100 dark:border-gray-700 transition-colors">
+                    <x-liquid-glass-card class="p-3">
                         <nav class="space-y-1">
                             <a href="{{ route('feed') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-semibold rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors {{ request()->routeIs('feed') ? 'bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-400' : '' }}">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -200,7 +213,8 @@
                             </a>
                             @endif
                         </nav>
-                    </div>
+                    </x-liquid-glass-card>
+
 
                     <!-- Placeholder for Future Features -->
                     <div class="bg-gray-50 dark:bg-gray-800/40 border border-dashed border-gray-200 dark:border-gray-700 rounded-2xl p-4 text-center text-xs text-gray-400 dark:text-gray-500 transition-colors">
@@ -649,7 +663,12 @@
     </script>
 
     <!-- Mobile Bottom Navigation Bar -->
-    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 z-40 flex justify-around items-center h-16 shadow-lg transition-colors">
+    <div class="md:hidden fixed bottom-0 left-0 right-0 z-40 flex justify-around items-center h-16 shadow-lg transition-colors border-t border-white/20 dark:border-white/10"
+         style="
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+            -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+         ">
         <!-- Feed Link -->
         <a href="{{ route('feed') }}" class="flex flex-col items-center justify-center w-14 h-full text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors {{ request()->routeIs('feed') ? 'text-green-600 dark:text-green-400' : '' }}">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -692,6 +711,19 @@
     </div>
     @endauth
 
+    <!-- Global Structural Layer for Liquid Optics Distortion -->
+    <svg style="position: absolute; width: 0; height: 0; visibility: hidden; pointer-events: none;" aria-hidden="true">
+      <defs>
+        <filter id="liquid-lens-refraction" x="-20%" y="-20%" width="140%" height="140%">
+          <!-- Generates dynamic, natural visual turbulence fields -->
+          <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="3" result="fluid_noise" />
+          <!-- Alters coordinate vectors of the background elements using noise fields -->
+          <feDisplacementMap in="SourceGraphic" in2="fluid_noise" scale="22" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+      </defs>
+    </svg>
+
     @stack('scripts')
 </body>
 </html>
+
