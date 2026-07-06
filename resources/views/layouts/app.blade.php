@@ -265,6 +265,7 @@
     </script>
 
     @auth
+    @if (!request()->routeIs('chat.*'))
     <!-- Floating Chat Widget -->
     <div x-data="{
         isOpen: false,
@@ -588,6 +589,7 @@
         </div>
 
     </div>
+    @endif
     @endauth
 
     @auth
