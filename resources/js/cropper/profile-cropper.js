@@ -158,7 +158,10 @@ window.applyCrop = function() {
             const preview = document.getElementById('avatar-preview');
             if (input && preview) {
                 input.files = dt.files;
-                preview.src = canvas.toDataURL('image/jpeg', 0.9);
+                if (preview.src && preview.src.startsWith('blob:')) {
+                    URL.revokeObjectURL(preview.src);
+                }
+                preview.src = URL.createObjectURL(blob);
                 console.log('[Cropper] Avatar updated');
             }
         } else if (currentCropTarget === 'cover') {
@@ -166,7 +169,10 @@ window.applyCrop = function() {
             const coverImg = document.getElementById('cover-img');
             if (input && coverImg) {
                 input.files = dt.files;
-                coverImg.src = canvas.toDataURL('image/jpeg', 0.9);
+                if (coverImg.src && coverImg.src.startsWith('blob:')) {
+                    URL.revokeObjectURL(coverImg.src);
+                }
+                coverImg.src = URL.createObjectURL(blob);
                 coverImg.classList.remove('hidden');
                 console.log('[Cropper] Cover updated');
             }
@@ -205,12 +211,7 @@ export function setupProfileImageUpload() {
                 return;
             }
             
-            const reader = new FileReader();
-            reader.onload = function(ev) {
-                console.log('[Cropper] Avatar FileReader completed');
-                window.openCropModal('avatar', ev.target.result, 'Crop Profile Picture');
-            };
-            reader.readAsDataURL(file);
+            window.openCropModal('avatar', URL.createObjectURL(file), 'Crop Profile Picture');
         });
         console.log('[Cropper] Avatar input listener attached');
     }
@@ -230,12 +231,7 @@ export function setupProfileImageUpload() {
                 return;
             }
             
-            const reader = new FileReader();
-            reader.onload = function(ev) {
-                console.log('[Cropper] Cover FileReader completed');
-                window.openCropModal('cover', ev.target.result, 'Crop Cover Photo');
-            };
-            reader.readAsDataURL(file);
+            window.openCropModal('cover', URL.createObjectURL(file), 'Crop Cover Photo');
         });
         console.log('[Cropper] Cover input listener attached');
     }
