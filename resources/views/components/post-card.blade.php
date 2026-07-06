@@ -34,20 +34,6 @@
         <img src="{{ $post->image_url }}" alt="Post image" 
              onclick="openImageModal({{ $post->id }})" 
              class="w-full object-cover max-h-96 cursor-pointer hover:opacity-90 transition-opacity">
-        
-        <!-- Image Modal -->
-        <div id="imageModal{{ $post->id }}" class="hidden fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4"
-             onclick="closeImageModal({{ $post->id }}, event)">
-            <div class="relative max-w-4xl max-h-[90vh] flex items-center justify-center" onclick="event.stopPropagation()">
-                <img src="{{ $post->image_url }}" alt="Full view" class="max-w-full max-h-[90vh] object-contain rounded-lg">
-                <button onclick="closeImageModal({{ $post->id }})"
-                        class="absolute top-4 right-4 text-white bg-black bg-opacity-50 hover:bg-opacity-75 rounded-full p-2 transition">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
-            </div>
-        </div>
     @endif
 
     <!-- Like / Comment actions -->
@@ -124,3 +110,19 @@
         </form>
     </div>
 </x-liquid-glass-card>
+
+@if ($post->image)
+    <!-- Image Modal (Placed outside cards to bypass parent layout stacking contexts) -->
+    <div id="imageModal{{ $post->id }}" class="hidden fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4"
+         onclick="closeImageModal({{ $post->id }}, event)">
+        <div class="relative max-w-4xl max-h-[90vh] flex items-center justify-center" onclick="event.stopPropagation()">
+            <img src="{{ $post->image_url }}" alt="Full view" class="max-w-full max-h-[90vh] object-contain rounded-lg">
+            <button onclick="closeImageModal({{ $post->id }})"
+                    class="absolute top-4 right-4 text-white bg-black bg-opacity-50 hover:bg-opacity-75 rounded-full p-2 transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+@endif
