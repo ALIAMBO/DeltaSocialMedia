@@ -257,7 +257,6 @@ routes/
 ## Future Enhancements
 
 Potential features to add:
-- Post sharing/reposting
 - Video uploads
 - Post privacy settings
 - Block/report users

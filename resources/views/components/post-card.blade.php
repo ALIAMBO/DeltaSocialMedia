@@ -1,4 +1,12 @@
 <x-liquid-glass-card id="post-{{ $post->id }}">
+    @if ($post->shared_post_id)
+        <div class="px-4 pt-3 pb-1 text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5 font-medium">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+            </svg>
+            <a href="{{ route('profile.show', $post->user) }}" class="hover:underline">{{ $post->user->name }}</a> shared
+        </div>
+    @endif
     <!-- Post Header -->
     <div class="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-700">
         <a href="{{ route('profile.show', $post->user) }}" class="flex items-center gap-3">
@@ -36,6 +44,35 @@
              class="w-full object-cover max-h-96 cursor-pointer hover:opacity-90 transition-opacity">
     @endif
 
+    <!-- Shared Post -->
+    @if ($post->shared_post_id && $post->sharedPost)
+        <div class="mx-4 mb-3 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+            <!-- Render original post contents without actions -->
+            <div class="flex items-center justify-between p-3 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                <a href="{{ route('profile.show', $post->sharedPost->user) }}" class="flex items-center gap-3">
+                    <img src="{{ $post->sharedPost->user->profile?->avatar_url ?? asset('images/default-avatar.png') }}"
+                         class="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-gray-600" alt="avatar">
+                    <div>
+                        <p class="text-sm font-semibold text-gray-800 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400">{{ $post->sharedPost->user->name }}</p>
+                        <p class="text-xs text-gray-400 dark:text-gray-500">{{ $post->sharedPost->created_at->diffForHumans() }}</p>
+                    </div>
+                </a>
+            </div>
+            @if ($post->sharedPost->body)
+                <p class="px-3 py-2 text-sm text-gray-700 dark:text-gray-300 leading-relaxed bg-white dark:bg-gray-800">{!! $post->sharedPost->formatted_body !!}</p>
+            @endif
+            @if ($post->sharedPost->image)
+                <img src="{{ $post->sharedPost->image_url }}" alt="Post image" 
+                     onclick="openImageModal({{ $post->sharedPost->id }})" 
+                     class="w-full object-cover max-h-96 cursor-pointer hover:opacity-90 transition-opacity">
+            @endif
+        </div>
+    @elseif ($post->shared_post_id && !$post->sharedPost)
+        <div class="mx-4 mb-3 p-4 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-sm text-center">
+            This post is no longer available.
+        </div>
+    @endif
+
     <!-- Like / Comment actions -->
     <div class="px-4 py-3 border-t border-gray-100 dark:border-gray-700 flex items-center gap-4">
         <!-- Like -->
@@ -61,6 +98,17 @@
             </svg>
             <span class="comment-count-label" data-post-id="{{ $post->id }}">{{ $post->comments->count() }} {{ Str::plural('Comment', $post->comments->count()) }}</span>
         </button>
+
+        <!-- Share -->
+        <form action="{{ route('posts.share', $post) }}" method="POST" class="share-form" data-post-id="{{ $post->id }}">
+            @csrf
+            <button type="submit" onclick="return confirm('Share this post?')" class="flex items-center gap-1.5 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+                </svg>
+                <span>Share</span>
+            </button>
+        </form>
     </div>
 
     <!-- Comments Section -->
