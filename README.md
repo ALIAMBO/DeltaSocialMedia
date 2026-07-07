@@ -257,10 +257,16 @@ routes/
 ## Future Enhancements
 
 Potential features to add:
-- Post sharing/reposting
 - Video uploads
 - Post privacy settings
 - Block/report users
+- Direct messaging improvements (read receipts, typing indicators)
+- Media galleries for user profiles
+- Trending topics and advanced hashtag discovery
+- Push notifications via Web Push API
+- Bookmarking and saving posts for later
+- User groups and communities
+- Two-factor authentication (2FA)
 
 ## License
 

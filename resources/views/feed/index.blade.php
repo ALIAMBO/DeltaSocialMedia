@@ -135,11 +135,23 @@
     deleteActiveStory() {
         let story = this.users[this.activeUserIndex]?.stories[this.activeStoryIndex];
         if (story && story.is_owner) {
-            if (confirm('Are you sure you want to delete this story?')) {
-                let form = document.getElementById('delete-story-form');
-                form.action = '/stories/' + story.id;
-                form.submit();
-            }
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'Are you sure you want to delete this story?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#3f3f46',
+                confirmButtonText: 'Delete',
+                background: document.documentElement.classList.contains('dark') ? '#18181b' : '#ffffff',
+                color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#000000',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let form = document.getElementById('delete-story-form');
+                    form.action = '/stories/' + story.id;
+                    form.submit();
+                }
+            });
         }
     }
 }" @keydown.escape.window="closeStories()" class="w-full">

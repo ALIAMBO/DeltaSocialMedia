@@ -220,16 +220,42 @@ $coverUrlJson = json_encode($coverUrl);
     </x-liquid-glass-card>
     @endif
 
-    <!-- User's Posts -->
-    @if ($user->posts->isEmpty())
-        <x-liquid-glass-card class="p-8 text-center text-gray-400 dark:text-gray-500">No posts yet.</x-liquid-glass-card>
-    @else
-        <div class="space-y-4">
-            @foreach ($user->posts as $post)
-                @include('components.post-card', ['post' => $post])
-            @endforeach
+    <!-- Tabs -->
+    <div x-data="{ tab: 'posts' }">
+        <div class="flex gap-4 mb-4 border-b border-gray-200 dark:border-gray-700 pb-1 px-2">
+            <button @click="tab = 'posts'" :class="tab === 'posts' ? 'text-green-600 dark:text-green-400 border-b-2 border-green-600 dark:border-green-400 font-semibold' : 'text-gray-500 dark:text-gray-400 font-medium hover:text-gray-700 dark:hover:text-gray-300'" class="pb-2 px-2 transition-colors">Posts</button>
+            <button @click="tab = 'media'" :class="tab === 'media' ? 'text-green-600 dark:text-green-400 border-b-2 border-green-600 dark:border-green-400 font-semibold' : 'text-gray-500 dark:text-gray-400 font-medium hover:text-gray-700 dark:hover:text-gray-300'" class="pb-2 px-2 transition-colors">Media</button>
         </div>
-    @endif
+    
+        <!-- Posts Tab -->
+        <div x-show="tab === 'posts'">
+            @if ($user->posts->isEmpty())
+                <x-liquid-glass-card class="p-8 text-center text-gray-400 dark:text-gray-500">No posts yet.</x-liquid-glass-card>
+            @else
+                <div class="space-y-4">
+                    @foreach ($user->posts as $post)
+                        @include('components.post-card', ['post' => $post])
+                    @endforeach
+                </div>
+            @endif
+        </div>
+
+        <!-- Media Tab -->
+        <div x-show="tab === 'media'" style="display: none;">
+            @php $mediaPosts = $user->posts->whereNotNull('image'); @endphp
+            @if ($mediaPosts->isEmpty())
+                <x-liquid-glass-card class="p-8 text-center text-gray-400 dark:text-gray-500">No media yet.</x-liquid-glass-card>
+            @else
+                <div class="grid grid-cols-3 gap-1 md:gap-2">
+                    @foreach ($mediaPosts as $post)
+                        <div class="aspect-square cursor-pointer overflow-hidden rounded-xl bg-black" @click="openModal('{{ $post->image_url }}', 'Post Image')">
+                            <img src="{{ $post->image_url }}" class="w-full h-full object-cover hover:opacity-80 transition-opacity" alt="Post Image">
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </div>
+    </div>
     
     <!-- Image Modal -->
     <template x-if="isOpen" @keydown.escape.window="closeModal()">

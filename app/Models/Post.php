@@ -13,6 +13,7 @@ class Post extends Model
         'user_id',
         'body',
         'image',
+        'shared_post_id',
     ];
 
     public function user()
@@ -28,6 +29,16 @@ class Post extends Model
     public function comments()
     {
         return $this->hasMany(Comment::class)->latest();
+    }
+
+    public function sharedPost()
+    {
+        return $this->belongsTo(Post::class, 'shared_post_id');
+    }
+
+    public function shares()
+    {
+        return $this->hasMany(Post::class, 'shared_post_id');
     }
 
     public function isLikedBy(User $user): bool

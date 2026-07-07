@@ -39,6 +39,7 @@ Route::middleware('auth')->group(function () {
 
     // Posts
     Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
+    Route::post('/posts/{post}/share', [PostController::class, 'share'])->name('posts.share');
     Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
 
     // Likes

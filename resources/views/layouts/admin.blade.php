@@ -12,6 +12,30 @@
             document.documentElement.classList.remove('dark');
         }
     </script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        window.confirmAction = function(event, message) {
+            event.preventDefault();
+            const form = event.target.closest('form');
+            
+            Swal.fire({
+                title: 'Are you sure?',
+                text: message,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#16a34a',
+                cancelButtonColor: '#3f3f46',
+                confirmButtonText: 'Yes',
+                background: document.documentElement.classList.contains('dark') ? '#18181b' : '#ffffff',
+                color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#000000',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        }
+    </script>
     @vite(['resources/css/app.css'])
 </head>
 <body class="bg-gray-950 text-white min-h-screen flex font-sans antialiased">

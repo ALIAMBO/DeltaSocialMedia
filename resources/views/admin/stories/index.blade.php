@@ -43,7 +43,7 @@
             {{-- Delete action --}}
             <div class="px-3 pb-3">
                 <form action="{{ route('admin.stories.delete', $story) }}" method="POST"
-                      onsubmit="return confirm('Delete this story?')">
+                      onsubmit="confirmAction(event, 'Delete this story?')">
                     @csrf @method('DELETE')
                     <button class="w-full text-xs text-red-400 hover:text-white border border-red-700/40 hover:border-red-500 py-1.5 rounded-lg transition-colors">
                         Delete

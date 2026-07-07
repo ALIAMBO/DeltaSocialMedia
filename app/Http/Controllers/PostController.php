@@ -69,4 +69,20 @@ class PostController extends Controller
 
         return back()->with('success', 'Post deleted.');
     }
+    public function share(Request $request, Post $post)
+    {
+        $request->validate([
+            'body' => 'nullable|string|max:2000',
+        ]);
+
+        // If sharing a shared post, share the original
+        $originalPostId = $post->shared_post_id ?? $post->id;
+
+        Auth::user()->posts()->create([
+            'body' => $request->body,
+            'shared_post_id' => $originalPostId,
+        ]);
+
+        return back()->with('success', 'Post shared!');
+    }
 }

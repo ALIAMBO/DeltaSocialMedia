@@ -104,6 +104,7 @@ function handleLikeSubmit(form) {
 function handleCommentStoreSubmit(form) {
     const input = form.querySelector('input[name="body"]');
     const button = form.querySelector('button[type="submit"]');
+    const parentIdInput = form.querySelector('input[name="parent_id"]');
     if (!input || !button) return;
     
     const bodyText = input.value.trim();
@@ -116,6 +117,11 @@ function handleCommentStoreSubmit(form) {
     const csrfToken = form.querySelector('input[name="_token"]').value;
     const postId = form.getAttribute('data-post-id');
     
+    const payload = { body: bodyText };
+    if (parentIdInput) {
+        payload.parent_id = parentIdInput.value;
+    }
+    
     fetch(url, {
         method: 'POST',
         headers: {
@@ -123,7 +129,7 @@ function handleCommentStoreSubmit(form) {
             'X-CSRF-TOKEN': csrfToken,
             'Accept': 'application/json',
         },
-        body: JSON.stringify({ body: bodyText })
+        body: JSON.stringify(payload)
     })
     .then(response => {
         if (!response.ok) throw new Error('Comment addition failed');
@@ -137,36 +143,70 @@ function handleCommentStoreSubmit(form) {
         // Add comment dynamically
         const commentSection = document.getElementById(`comments-${postId}`);
         if (commentSection) {
-            const commentList = commentSection.querySelector('.comment-list');
-            if (commentList) {
+            let containerToAppend;
+            if (data.comment.parent_id) {
+                // It's a reply, append to the replies container of the parent comment
+                containerToAppend = document.getElementById(`replies-list-${data.comment.parent_id}`);
+                // Hide the reply form after successful reply submission
+                const replyForm = document.getElementById(`reply-form-${data.comment.parent_id}`);
+                if (replyForm) {
+                    replyForm.classList.add('hidden');
+                }
+            } else {
+                // It's a top-level comment, append to the main comment list
+                containerToAppend = commentSection.querySelector('.comment-list');
+            }
+
+            if (containerToAppend) {
                 const comment = data.comment;
+                const isReply = !!data.comment.parent_id;
+                const avatarSize = isReply ? 'w-6 h-6' : 'w-7 h-7';
                 
                 const commentHtml = `
-                    <div class="flex gap-2 comment-item opacity-0 translate-y-2 transition-all duration-300 ease-out" id="comment-${comment.id}">
-                        <a href="${comment.profile_url}">
-                            <img src="${comment.avatar_url}"
-                                 class="w-7 h-7 rounded-full object-cover border border-gray-200 dark:border-gray-600" alt="avatar">
-                        </a>
-                        <div class="flex-1 bg-gray-50 dark:bg-gray-700 rounded-xl px-3 py-2">
-                            <div class="flex items-center justify-between">
-                                <p class="text-xs font-semibold text-gray-700 dark:text-gray-200">${comment.user_name}</p>
-                                <span class="text-[10px] text-gray-400 dark:text-gray-500">${comment.created_at_diff}</span>
+                    <div class="${isReply ? 'flex gap-2' : 'flex flex-col gap-2'} comment-item opacity-0 translate-y-2 transition-all duration-300 ease-out" id="comment-${comment.id}">
+                        <div class="flex gap-2">
+                            <a href="${comment.profile_url}">
+                                <img src="${comment.avatar_url}"
+                                     class="${avatarSize} rounded-full object-cover border border-gray-200 dark:border-gray-600" alt="avatar">
+                            </a>
+                            <div class="flex-1 bg-gray-50 dark:bg-gray-700 rounded-xl px-3 py-2">
+                                <div class="flex items-center justify-between">
+                                    <p class="text-xs font-semibold text-gray-700 dark:text-gray-200">${comment.user_name}</p>
+                                    <span class="text-[10px] text-gray-400 dark:text-gray-500">${comment.created_at_diff}</span>
+                                </div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">${comment.body}</p>
+                                <div class="mt-1 flex items-center gap-3 text-xs text-gray-500">
+                                    ${!isReply ? `<button type="button" onclick="document.getElementById('reply-form-${comment.id}').classList.toggle('hidden')" class="hover:text-blue-500 font-medium transition">Reply</button>` : ''}
+                                    <form action="${comment.delete_url}" method="POST" class="inline comment-delete-form" data-comment-id="${comment.id}" data-post-id="${postId}">
+                                        <input type="hidden" name="_token" value="${csrfToken}">
+                                        <input type="hidden" name="_method" value="DELETE">
+                                        <button class="hover:text-red-500 font-medium transition">Delete</button>
+                                    </form>
+                                </div>
                             </div>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">${comment.body}</p>
                         </div>
-                        <form action="${comment.delete_url}" method="POST" class="self-center comment-delete-form" data-comment-id="${comment.id}" data-post-id="${postId}">
+                        
+                        ${!isReply ? `
+                        <div class="ml-9 space-y-2 replies-list" id="replies-list-${comment.id}"></div>
+                        <form action="${url}" method="POST" id="reply-form-${comment.id}" class="hidden ml-9 flex gap-2 mt-1 comment-store-form" data-post-id="${postId}">
                             <input type="hidden" name="_token" value="${csrfToken}">
-                            <input type="hidden" name="_method" value="DELETE">
-                            <button class="text-gray-300 dark:text-gray-500 hover:text-red-400 dark:hover:text-red-400 transition">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                </svg>
-                            </button>
+                            <input type="hidden" name="parent_id" value="${comment.id}">
+                            <img src="${document.querySelector('#post-create-form img')?.src || comment.avatar_url}"
+                                 class="w-6 h-6 rounded-full object-cover border border-gray-200 dark:border-gray-600" alt="avatar">
+                            <div class="flex-1 flex gap-2">
+                                <input type="text" name="body" placeholder="Reply to ${comment.user_name}..." required
+                                       class="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-full px-3 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 placeholder-gray-500 dark:placeholder-gray-400 transition-colors">
+                                <button type="submit"
+                                        class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white text-[10px] font-medium px-3 py-1 rounded-full transition-colors">
+                                    Reply
+                                </button>
+                            </div>
                         </form>
+                        ` : ''}
                     </div>
                 `;
                 
-                commentList.insertAdjacentHTML('beforeend', commentHtml);
+                containerToAppend.insertAdjacentHTML('beforeend', commentHtml);
                 const addedItem = document.getElementById(`comment-${comment.id}`);
                 // Flush layout buffer to run transition animation
                 addedItem.offsetHeight;
@@ -191,9 +231,19 @@ function handleCommentStoreSubmit(form) {
  * Handle Comment deletion via AJAX
  */
 function handleCommentDeleteSubmit(form) {
-    if (!confirm('Delete this comment?')) return;
-    
-    const button = form.querySelector('button');
+    Swal.fire({
+        title: 'Delete this comment?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#3f3f46',
+        confirmButtonText: 'Delete',
+        background: document.documentElement.classList.contains('dark') ? '#18181b' : '#ffffff',
+        color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#000000',
+    }).then((result) => {
+        if (!result.isConfirmed) return;
+        
+        const button = form.querySelector('button');
     if (button) button.disabled = true;
     
     const url = form.getAttribute('action');
@@ -235,6 +285,7 @@ function handleCommentDeleteSubmit(form) {
     .catch(error => {
         if (button) button.disabled = false;
         console.error('Error deleting comment:', error);
+    });
     });
 }
 
