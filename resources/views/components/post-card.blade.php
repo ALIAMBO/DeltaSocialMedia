@@ -115,29 +115,71 @@
     <div id="comments-{{ $post->id }}" class="hidden border-t border-gray-100 dark:border-gray-700 px-4 py-3 space-y-3">
         <!-- Comments list container -->
         <div class="comment-list space-y-3">
-            @foreach ($post->comments as $comment)
-            <div class="flex gap-2 comment-item" id="comment-{{ $comment->id }}">
-                <a href="{{ route('profile.show', $comment->user) }}">
-                    <img src="{{ $comment->user->profile?->avatar_url ?? asset('images/default-avatar.png') }}"
-                         class="w-7 h-7 rounded-full object-cover border border-gray-200 dark:border-gray-600" alt="avatar">
-                </a>
-                <div class="flex-1 bg-gray-50 dark:bg-gray-700 rounded-xl px-3 py-2">
-                    <div class="flex items-center justify-between">
-                        <p class="text-xs font-semibold text-gray-700 dark:text-gray-200">{{ $comment->user->name }}</p>
-                        <span class="text-[10px] text-gray-400 dark:text-gray-500">{{ $comment->created_at->diffForHumans() }}</span>
+            @foreach ($post->comments->whereNull('parent_id') as $comment)
+            <div class="flex flex-col gap-2 comment-item" id="comment-{{ $comment->id }}">
+                <div class="flex gap-2">
+                    <a href="{{ route('profile.show', $comment->user) }}">
+                        <img src="{{ $comment->user->profile?->avatar_url ?? asset('images/default-avatar.png') }}"
+                             class="w-7 h-7 rounded-full object-cover border border-gray-200 dark:border-gray-600" alt="avatar">
+                    </a>
+                    <div class="flex-1 bg-gray-50 dark:bg-gray-700 rounded-xl px-3 py-2">
+                        <div class="flex items-center justify-between">
+                            <p class="text-xs font-semibold text-gray-700 dark:text-gray-200">{{ $comment->user->name }}</p>
+                            <span class="text-[10px] text-gray-400 dark:text-gray-500">{{ $comment->created_at->diffForHumans() }}</span>
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">{{ $comment->body }}</p>
+                        <div class="mt-1 flex items-center gap-3 text-xs text-gray-500">
+                            <button type="button" onclick="document.getElementById('reply-form-{{ $comment->id }}').classList.toggle('hidden')" class="hover:text-blue-500 font-medium transition">Reply</button>
+                            @if ($comment->user_id === auth()->id())
+                            <form action="{{ route('comments.destroy', $comment) }}" method="POST" class="inline comment-delete-form" data-comment-id="{{ $comment->id }}" data-post-id="{{ $post->id }}">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="hover:text-red-500 font-medium transition">Delete</button>
+                            </form>
+                            @endif
+                        </div>
                     </div>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">{{ $comment->body }}</p>
                 </div>
-                @if ($comment->user_id === auth()->id())
-                <form action="{{ route('comments.destroy', $comment) }}" method="POST" class="self-center comment-delete-form" data-comment-id="{{ $comment->id }}" data-post-id="{{ $post->id }}">
-                    @csrf @method('DELETE')
-                    <button class="text-gray-300 dark:text-gray-500 hover:text-red-400 dark:hover:text-red-400 transition">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                    </button>
+
+                <div class="ml-9 space-y-2 replies-list" id="replies-list-{{ $comment->id }}">
+                    @foreach ($post->comments->where('parent_id', $comment->id) as $reply)
+                    <div class="flex gap-2 comment-item" id="comment-{{ $reply->id }}">
+                        <a href="{{ route('profile.show', $reply->user) }}">
+                            <img src="{{ $reply->user->profile?->avatar_url ?? asset('images/default-avatar.png') }}"
+                                 class="w-6 h-6 rounded-full object-cover border border-gray-200 dark:border-gray-600" alt="avatar">
+                        </a>
+                        <div class="flex-1 bg-gray-50 dark:bg-gray-700 rounded-xl px-3 py-2">
+                            <div class="flex items-center justify-between">
+                                <p class="text-xs font-semibold text-gray-700 dark:text-gray-200">{{ $reply->user->name }}</p>
+                                <span class="text-[10px] text-gray-400 dark:text-gray-500">{{ $reply->created_at->diffForHumans() }}</span>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">{{ $reply->body }}</p>
+                            @if ($reply->user_id === auth()->id())
+                            <div class="mt-1 flex items-center gap-3 text-xs text-gray-500">
+                                <form action="{{ route('comments.destroy', $reply) }}" method="POST" class="inline comment-delete-form" data-comment-id="{{ $reply->id }}" data-post-id="{{ $post->id }}">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="hover:text-red-500 font-medium transition">Delete</button>
+                                </form>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+
+                <form action="{{ route('comments.store', $post) }}" method="POST" id="reply-form-{{ $comment->id }}" class="hidden ml-9 flex gap-2 mt-1 comment-store-form" data-post-id="{{ $post->id }}">
+                    @csrf
+                    <input type="hidden" name="parent_id" value="{{ $comment->id }}">
+                    <img src="{{ auth()->user()->profile?->avatar_url ?? asset('images/default-avatar.png') }}"
+                         class="w-6 h-6 rounded-full object-cover border border-gray-200 dark:border-gray-600" alt="avatar">
+                    <div class="flex-1 flex gap-2">
+                        <input type="text" name="body" placeholder="Reply to {{ $comment->user->name }}..." required
+                               class="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-full px-3 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-500 placeholder-gray-500 dark:placeholder-gray-400 transition-colors">
+                        <button type="submit"
+                                class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white text-[10px] font-medium px-3 py-1 rounded-full transition-colors">
+                            Reply
+                        </button>
+                    </div>
                 </form>
-                @endif
             </div>
             @endforeach
         </div>

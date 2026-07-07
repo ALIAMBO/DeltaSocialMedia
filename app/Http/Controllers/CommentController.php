@@ -13,20 +13,34 @@ class CommentController extends Controller
     {
         $request->validate([
             'body' => 'required|string|max:500',
+            'parent_id' => 'nullable|exists:comments,id',
         ]);
 
         $comment = $post->comments()->create([
             'user_id' => Auth::id(),
             'body'    => $request->body,
+            'parent_id' => $request->parent_id,
         ]);
 
-        if ($post->user_id !== Auth::id()) {
+        if (!$request->parent_id && $post->user_id !== Auth::id()) {
             $post->user->notify(new \App\Notifications\NewCommentNotification(Auth::user(), $post, $comment));
             event(new \App\Events\NotificationSent($post->user, [
                 'message' => 'commented on your post: "' . \Illuminate\Support\Str::limit($comment->body, 30) . '"',
                 'performer_name' => Auth::user()->name,
                 'performer_avatar' => Auth::user()->profile?->avatar_url ?? asset('images/default-avatar.png'),
             ]));
+        }
+
+        if ($request->parent_id) {
+            $parent = \App\Models\Comment::find($request->parent_id);
+            if ($parent && $parent->user_id !== Auth::id()) {
+                $parent->user->notify(new \App\Notifications\UserRepliedToCommentNotification(Auth::user(), $parent, $comment));
+                event(new \App\Events\NotificationSent($parent->user, [
+                    'message' => 'replied to your comment: "' . \Illuminate\Support\Str::limit($comment->body, 30) . '"',
+                    'performer_name' => Auth::user()->name,
+                    'performer_avatar' => Auth::user()->profile?->avatar_url ?? asset('images/default-avatar.png'),
+                ]));
+            }
         }
 
         if ($request->wantsJson()) {
@@ -40,6 +54,7 @@ class CommentController extends Controller
                     'profile_url' => route('profile.show', $comment->user),
                     'created_at_diff' => $comment->created_at->diffForHumans(),
                     'delete_url' => route('comments.destroy', $comment),
+                    'parent_id' => $comment->parent_id,
                 ],
                 'comments_count' => $post->comments()->count(),
             ]);
