@@ -51,7 +51,10 @@
 
     @stack('styles')
 </head>
-<body class="bg-gradient-to-tr from-indigo-50 via-slate-50 to-emerald-50 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950 font-sans antialiased transition-colors pb-16 md:pb-0 min-h-[100dvh] overscroll-none overflow-x-hidden">
+<body class="font-sans antialiased transition-colors pb-16 md:pb-0 min-h-[100dvh] overscroll-none overflow-x-hidden">
+
+    <!-- Fixed full-screen gradient background -->
+    <div class="fixed inset-0 -z-20 bg-gradient-to-tr from-indigo-50 via-slate-50 to-emerald-50 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950 transition-colors"></div>
 
     <!-- Ambient background blobs for depth -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none -z-10">
