@@ -45,7 +45,7 @@
                                         <a href="{{ route('profile.show', $user) }}" class="text-base font-semibold text-gray-900 dark:text-white hover:text-green-600 dark:hover:text-green-400 transition-colors block truncate">
                                             {{ $user->name }}
                                         </a>
-                                        <p class="text-sm text-gray-500 dark:text-gray-400 truncate">{{ $user->email }}</p>
+
                                         @if ($user->profile?->bio)
                                             <p class="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mt-1">
                                                 {{ $user->profile->bio }}
