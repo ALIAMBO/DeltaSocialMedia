@@ -231,9 +231,19 @@ function handleCommentStoreSubmit(form) {
  * Handle Comment deletion via AJAX
  */
 function handleCommentDeleteSubmit(form) {
-    if (!confirm('Delete this comment?')) return;
-    
-    const button = form.querySelector('button');
+    Swal.fire({
+        title: 'Delete this comment?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#3f3f46',
+        confirmButtonText: 'Delete',
+        background: document.documentElement.classList.contains('dark') ? '#18181b' : '#ffffff',
+        color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#000000',
+    }).then((result) => {
+        if (!result.isConfirmed) return;
+        
+        const button = form.querySelector('button');
     if (button) button.disabled = true;
     
     const url = form.getAttribute('action');
@@ -275,6 +285,7 @@ function handleCommentDeleteSubmit(form) {
     .catch(error => {
         if (button) button.disabled = false;
         console.error('Error deleting comment:', error);
+    });
     });
 }
 

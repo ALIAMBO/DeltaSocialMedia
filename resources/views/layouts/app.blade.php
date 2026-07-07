@@ -23,7 +23,32 @@
     <!-- Cropper.js Library for image cropping - Using jsDelivr CDN for better reliability -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.1/dist/cropper.min.css">
     <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.1/dist/cropper.min.js"></script>
-    
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        window.confirmAction = function(event, message) {
+            event.preventDefault();
+            const form = event.target.closest('form');
+            
+            Swal.fire({
+                title: 'Are you sure?',
+                text: message,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#16a34a',
+                cancelButtonColor: '#3f3f46',
+                confirmButtonText: 'Yes',
+                background: document.documentElement.classList.contains('dark') ? '#18181b' : '#ffffff',
+                color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#000000',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        }
+    </script>
+
     @stack('styles')
 </head>
 <body class="bg-gradient-to-tr from-indigo-50 via-slate-50 to-emerald-50 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950 font-sans antialiased transition-colors pb-16 md:pb-0 min-h-[100dvh] overscroll-none overflow-x-hidden">

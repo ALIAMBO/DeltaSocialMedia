@@ -49,7 +49,7 @@
                     <td class="px-4 py-3 text-center text-xs text-gray-600 hidden lg:table-cell">{{ $post->created_at->format('d M Y') }}</td>
                     <td class="px-5 py-3 text-right">
                         <form action="{{ route('admin.posts.delete', $post) }}" method="POST"
-                              onsubmit="return confirm('Delete this post permanently?')">
+                              onsubmit="confirmAction(event, 'Delete this post permanently?')">
                             @csrf @method('DELETE')
                             <button class="text-xs text-red-400 hover:text-white border border-red-700/40 hover:border-red-500 px-3 py-1.5 rounded-lg transition-colors">Delete</button>
                         </form>

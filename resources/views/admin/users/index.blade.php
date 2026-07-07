@@ -68,10 +68,9 @@
                                     <button class="text-xs text-green-400 hover:text-white border border-green-700/40 hover:border-green-500 px-2.5 py-1 rounded-lg transition-colors">Unban</button>
                                 </form>
                             @elseif($u->id !== auth()->id() && !$u->is_admin)
-                                <form action="{{ route('admin.users.ban', $u) }}" method="POST">
+                                <form action="{{ route('admin.users.ban', $u) }}" method="POST" onsubmit="confirmAction(event, 'Ban {{ addslashes($u->name) }}?')">
                                     @csrf
-                                    <button class="text-xs text-red-400 hover:text-white border border-red-700/40 hover:border-red-500 px-2.5 py-1 rounded-lg transition-colors"
-                                            onclick="return confirm('Ban {{ addslashes($u->name) }}?')">Ban</button>
+                                    <button class="text-xs text-red-400 hover:text-white border border-red-700/40 hover:border-red-500 px-2.5 py-1 rounded-lg transition-colors">Ban</button>
                                 </form>
                             @endif
 
