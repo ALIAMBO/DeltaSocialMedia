@@ -74,6 +74,14 @@ services:
   queue:
     <<: *laravel
     command: ["php", "artisan", "queue:work", "--tries=3", "--max-time=3600"]
+    # Confirms the worker (PID 1 after the entrypoint's exec) is up, so
+    # `docker compose up --wait` and `docker compose ps` report its state.
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(str_contains(file_get_contents('/proc/1/cmdline'), 'queue:work') ? 0 : 1);"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
 
   mysql:
     image: mysql:8.4
