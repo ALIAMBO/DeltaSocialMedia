@@ -1,0 +1,17 @@
+# Edge proxy: automatic HTTPS (Let's Encrypt) + routing.
+# SITE_ADDRESS is e.g. "deltasocial.duckdns.org" in production, "localhost" locally.
+{$SITE_ADDRESS:localhost} {
+	encode zstd gzip
+
+	request_body {
+		max_size 25MB
+	}
+
+	# Reverb WebSocket connections from browsers (Laravel Echo -> wss://host/app/<key>).
+	# The /apps HTTP API is NOT exposed; Laravel talks to reverb:8080 directly.
+	@reverb path /app /app/*
+	reverse_proxy @reverb reverb:8080
+
+	# Everything else goes to the Laravel app.
+	reverse_proxy app:8000
+}
