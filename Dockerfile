@@ -84,5 +84,9 @@ USER www-data
 
 EXPOSE 8000
 
+# The FrankenPHP base image ships a HEALTHCHECK that only the web role can pass.
+# Health checks are defined per service in docker-compose.prod.yml instead.
+HEALTHCHECK NONE
+
 ENTRYPOINT ["docker/entrypoint.sh"]
 CMD ["frankenphp", "run", "--config", "/etc/frankenphp/Caddyfile"]
