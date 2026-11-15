@@ -1,5 +1,7 @@
 # SocialMedia - Laravel Social Network
 
+[![CI](https://github.com/ALIAMBO/DeltaSocialMedia/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ALIAMBO/DeltaSocialMedia/actions/workflows/ci.yml)
+
 A full-featured social media platform built with Laravel 11, Tailwind CSS, and MySQL.
 
 ## Features
@@ -240,6 +242,28 @@ resources/views/
 
 routes/
 └── web.php                      # All routes
+```
+
+## Continuous Integration
+
+Every pull request and every push to `main` runs the GitHub Actions workflow in
+[.github/workflows/ci.yml](.github/workflows/ci.yml):
+
+| Job | What it does | Blocking? |
+|-----|--------------|-----------|
+| Build frontend assets | `npm install` + `npm run build` (Vite) | Yes |
+| Tests (SQLite) | `php artisan test` on in-memory SQLite | Yes |
+| Tests (MySQL) | `php artisan migrate` + `php artisan test` on MySQL 8.4 | Yes |
+| Dependency audit | `composer audit` + `npm audit` | Not yet |
+| Code style (Pint) | `vendor/bin/pint --test` | Not yet |
+
+Run the same checks locally before opening a PR:
+
+```bash
+npm run build                # tests need the Vite manifest
+php artisan test             # test suite
+vendor/bin/pint --test       # check code style (run `vendor/bin/pint` to auto-fix)
+composer audit               # known vulnerabilities in PHP packages
 ```
 
 ## Database Schema
