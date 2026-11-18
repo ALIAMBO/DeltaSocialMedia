@@ -1,0 +1,107 @@
+name: Docker
+
+on:
+  pull_request:
+    paths:
+      - Dockerfile
+      - .dockerignore
+      - docker/**
+      - docker-compose.prod.yml
+      - .env.production.example
+      - composer.json
+      - composer.lock
+      - package.json
+      - .github/workflows/docker.yml
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: docker-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # Build the production image and boot the full stack (Caddy, app, Reverb,
+  # queue, MySQL, Redis), then smoke-test it. Runs on x86 and on ARM, since
+  # the Oracle Cloud server is ARM (Ampere A1).
+  smoke-test:
+    name: Smoke test (${{ matrix.arch }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-latest
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    env:
+      COMPOSE: docker compose -f docker-compose.prod.yml
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Create test .env
+        run: |
+          rand() { openssl rand -hex 12; }
+          sed -e "s/^SITE_ADDRESS=.*/SITE_ADDRESS=localhost/" \
+              -e "s#^APP_URL=.*#APP_URL=https://localhost#" \
+              -e "s#^APP_KEY=.*#APP_KEY=base64:$(openssl rand -base64 32)#" \
+              -e "s/^DB_PASSWORD=.*/DB_PASSWORD=$(rand)/" \
+              -e "s/^DB_ROOT_PASSWORD=.*/DB_ROOT_PASSWORD=$(rand)/" \
+              -e "s/^REVERB_APP_ID=.*/REVERB_APP_ID=123456/" \
+              -e "s/^REVERB_APP_KEY=.*/REVERB_APP_KEY=$(rand)/" \
+              -e "s/^REVERB_APP_SECRET=.*/REVERB_APP_SECRET=$(rand)/" \
+              .env.production.example > .env
+          if grep -v '^#' .env | grep -q CHANGE_ME; then
+            echo "Unfilled CHANGE_ME values in .env"; exit 1
+          fi
+
+      - name: Build image
+        run: $COMPOSE build app
+
+      - name: Start stack
+        run: $COMPOSE up -d --wait --wait-timeout 180
+
+      - name: Health check (/up)
+        run: curl -fsSk --retry 5 --retry-all-errors https://localhost/up
+
+      - name: Login page renders with built assets
+        run: |
+          html=$(curl -fsSk https://localhost/login)
+          asset=$(echo "$html" | grep -oE '/build/assets/[^"]+\.css' | head -1)
+          test -n "$asset" || { echo "No Vite CSS asset found in /login"; exit 1; }
+          curl -fsSk -o /dev/null "https://localhost$asset"
+          echo "OK: /login and $asset"
+
+      - name: Reverb WebSocket handshake through Caddy
+        run: |
+          key=$(grep '^REVERB_APP_KEY=' .env | cut -d= -f2)
+          status=$(curl -sk --http1.1 -o /dev/null -w '%{http_code}' --max-time 5 \
+            -H "Connection: Upgrade" -H "Upgrade: websocket" \
+            -H "Sec-WebSocket-Version: 13" -H "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" \
+            "https://localhost/app/$key?protocol=7&client=js&version=8.4.0" || true)
+          echo "WebSocket upgrade status: $status"
+          test "$status" = "101"
+
+      - name: Uploads are writable and publicly served
+        run: |
+          $COMPOSE exec -T app sh -c 'echo ok > storage/app/public/smoke.txt'
+          curl -fsSk https://localhost/storage/smoke.txt | grep -q ok
+
+      - name: Queue worker and Reverb are running
+        run: |
+          $COMPOSE ps --status running --services | tee running.txt
+          for s in caddy app reverb queue mysql redis; do
+            grep -qx "$s" running.txt || { echo "$s is not running"; exit 1; }
+          done
+
+      - name: Show logs on failure
+        if: failure()
+        run: $COMPOSE logs --no-color --tail 200
+
+      - name: Tear down
+        if: always()
+        run: $COMPOSE down -v

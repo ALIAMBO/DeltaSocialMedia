@@ -242,6 +242,29 @@ routes/
 └── web.php                      # All routes
 ```
 
+## Production (Docker)
+
+The app ships as one Docker image ([Dockerfile](Dockerfile)) that runs in three roles, wired together by
+[docker-compose.prod.yml](docker-compose.prod.yml):
+
+| Service | Role |
+|---------|------|
+| `caddy` | HTTPS (automatic Let's Encrypt) and routing: `/app/*` → Reverb, everything else → Laravel ([docker/Caddyfile](docker/Caddyfile)) |
+| `app` | Laravel on FrankenPHP; runs migrations on start |
+| `reverb` | WebSocket server for chat and notifications |
+| `queue` | Background job worker |
+| `mysql` / `redis` | Database; cache, sessions and queue |
+
+Uploaded files live in the `storage` volume, so redeploys keep them.
+
+```bash
+cp .env.production.example .env   # fill in every CHANGE_ME
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+The [Docker workflow](.github/workflows/docker.yml) builds the image and smoke-tests the full stack on
+both amd64 and arm64 for every PR that touches these files.
+
 ## Database Schema
 
 ### Tables

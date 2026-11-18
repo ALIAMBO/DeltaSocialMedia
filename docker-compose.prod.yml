@@ -1,0 +1,122 @@
+# Production stack for DeltaSocialMedia.
+#
+#   docker compose -f docker-compose.prod.yml --env-file .env up -d
+#
+# All settings come from .env (see .env.production.example).
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+x-laravel: &laravel
+  image: ${APP_IMAGE:-deltasocial:local}
+  build:
+    context: .
+    args:
+      VITE_APP_NAME: ${APP_NAME:-DeltaSocialMedia}
+      VITE_REVERB_APP_KEY: ${REVERB_APP_KEY}
+      VITE_REVERB_HOST: ${SITE_ADDRESS:-localhost}
+      VITE_REVERB_PORT: 443
+      VITE_REVERB_SCHEME: https
+  env_file: .env
+  restart: unless-stopped
+  logging: *logging
+  volumes:
+    - storage:/app/storage/app
+  depends_on:
+    mysql:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    logging: *logging
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-localhost}
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - app
+      - reverb
+
+  app:
+    <<: *laravel
+    environment:
+      RUN_MIGRATIONS: "true"
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@file_get_contents('http://localhost:8000/up') === false ? 1 : 0);"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  reverb:
+    <<: *laravel
+    command: ["php", "artisan", "reverb:start", "--host=0.0.0.0", "--port=8080"]
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@fsockopen('127.0.0.1', 8080) ? 0 : 1);"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  queue:
+    <<: *laravel
+    command: ["php", "artisan", "queue:work", "--tries=3", "--max-time=3600"]
+    # Confirms the worker (PID 1 after the entrypoint's exec) is up, so
+    # `docker compose up --wait` and `docker compose ps` report its state.
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(str_contains(file_get_contents('/proc/1/cmdline'), 'queue:work') ? 0 : 1);"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  redis:
+    image: redis:8-alpine
+    restart: unless-stopped
+    logging: *logging
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  storage:      # uploaded posts, stories, avatars, covers
+  mysql-data:
+  redis-data:
+  caddy-data:   # TLS certificates; keep this or Let's Encrypt rate limits bite
+  caddy-config:
